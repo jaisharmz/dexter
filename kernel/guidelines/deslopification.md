@@ -56,6 +56,11 @@ three clauses with semicolons is an outline compressed into one line: "the need 
 inelastic, so it accepted X; those conditions opened Y; and shoppers saved a little
 while Z." Split it into sentences.
 
+**The closing one-liner.** Ending a paragraph on a quotable line that restates it ("The
+countries that write the conditions do not follow them.") is emphasis once. When every
+paragraph ends that way, the page reads as performed. End most paragraphs on the evidence
+or the claim itself.
+
 **Manufactured completeness.** Risk sections with five entries where two are real,
 deliverable tables with a Completion Criterion column for every row, a reference list
 padded to look like a literature review. The shape of rigor without its substance.

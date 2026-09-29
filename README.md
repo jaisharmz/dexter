@@ -136,9 +136,17 @@ footer every skill carries.
 then run `./setup` again. Channels that already exist are matched by name, never doubled,
 and a channel whose mode is `read-only` is one Dexter can read but never answers in.
 
+**Your own repository.** On its first run Dexter renames this clone's remote to
+`upstream`, makes a private repository under your GitHub account the new `origin`, and
+from then on pushes every lesson, skill and lens it adds. That is how your Dexter drifts
+from this one into yours. It is a private repository rather than a GitHub fork because a
+fork of a public repository is always public, and yours will hold lessons about you.
+`git pull upstream main` takes new versions of dexter, and `./setup doctor` says if the
+step was skipped.
+
 **Your private half.** `home/` is a separate git repository with no remote, ignored by
-this one, along with `USER.md`, `memory/` and your server's ids. Push your fork of this
-folder and nothing personal goes with it.
+this one, along with `USER.md`, `memory/` and your server's ids. None of it leaves the
+machine, even when the rest is pushed.
 
 ## Day to day
 

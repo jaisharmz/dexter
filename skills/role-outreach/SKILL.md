@@ -121,6 +121,9 @@ repos name people → one has a title matching the level → the address comes f
 the person's own page, or the domain convention. **The person who would review the
 operator's code is a better target than the person who signs the offer.**
 
+Each link in that chain, and how to walk from one person to the next, is in
+`kernel/finding-people.md`.
+
 ## Templates
 
 `config/templates/<area>/step1_initial.md`, one folder per area, named to match the `area`

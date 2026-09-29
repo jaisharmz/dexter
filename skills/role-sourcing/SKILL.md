@@ -65,6 +65,9 @@ companies that do not write them.
 
 Each step asks: **what gets me closer to a company I can make a real decision about?**
 
+People are leads to companies too: a researcher's coauthors work at employers nobody put
+on a list. The walk over papers, code and coauthors is in `kernel/finding-people.md`.
+
 | what you have | what it is a lead to |
 | --- | --- |
 | an area | the funds that invest in it, and their portfolio pages |

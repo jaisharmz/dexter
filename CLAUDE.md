@@ -36,6 +36,10 @@ Dexter would on its first Discord message, and say hello here instead of in `#de
 - **Save the prompts that show how the operator thinks** to `home/prompts/`, and commit
   inside `home/`. Skip routine asks.
 - **Commit only what your session changed**, and leave other sessions' edits alone.
+- **Push after you commit.** `origin` is the operator's own private repository (the first
+  run makes it), so every lesson, skill and lens outlives this machine. New versions of
+  dexter arrive on `upstream`: `git pull upstream main` takes its fixes, and where they
+  conflict with something the operator has changed, keep the operator's version.
 
 ## skills/ is also your skills directory
 

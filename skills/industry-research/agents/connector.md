@@ -42,6 +42,8 @@ Include the infrastructure the field runs on even when it was not built for this
 
 Only name someone if you can link to a specific thing they wrote, built, or said. No exceptions. See `references/sourcing.md`.
 
+Find people beyond the obvious names by walking the graph in `kernel/finding-people.md`: entry points, then coauthors and co-contributors, sideways within a lab and outward to the companies they work at.
+
 A list of plausible-sounding researcher names with no attached work is the single worst thing this skill can emit. It looks like signal, is not, and the reader might email one of them.
 
 Do not guess affiliations. People move. If your evidence is a 2024 paper, either say "as of the 2024 paper" or find something current.

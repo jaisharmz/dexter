@@ -109,7 +109,9 @@ what they found in the last few rungs, and its answer is the next idea.
   this way: ink spreading in a river, then a random walk, then the diffusion equation.
 - **Show the tool before asking for code.** When the learner has to implement
   something, first show a barebones worked example in a different context: the library
-  calls, the minimal code, and a tiny run with its output. Then ask for the target.
+  calls, the minimal code, and a tiny run with its output. For an algorithm, the minimal code is a
+  generic barebones template in the shape the learner will actually use, not only a narrated
+  story version. Then ask for the target.
   Asking for code in a tool they've never seen used is a quiz, not teaching.
 - **Label probes.** A question that only checks what the learner already knows is
   marked "probe". Anything unlabeled is teaching, and teaching starts from first

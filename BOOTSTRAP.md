@@ -60,4 +60,23 @@ writing goes in `home/reference/`. A quietly contaminated corpus is worse than n
 4. Ask the operator three or four questions that would change how you work for them:
    what they are working on, what they want off their plate, how they like to be
    written to. Start `USER.md` from the answers, as dated directives per `AGENTS.md`.
-5. Delete this file.
+5. Make this workspace the operator's own repository. From here on it collects their
+   lessons, skills and lenses, and it improves only if those are kept. Run `git remote -v`.
+   If `origin` is the public dexter (`github.com/jaisharmz/dexter`), say in one line what
+   you are about to do, and on their yes run:
+
+   ```
+   git remote rename origin upstream
+   gh repo create dexter --private --source . --remote origin
+   git push -u origin main
+   ```
+
+   Private, because a GitHub fork of a public repository is always public, and this one
+   will soon hold lessons about the operator. Pick another name if `dexter` is taken. If
+   `gh` is missing or signed out, ask them to install it and run `gh auth login` (a
+   credential, so theirs to do), finish the other steps, and come back to this one.
+   Pushing to their own private repository sends nothing to anyone, so this yes covers
+   every later push to `origin`. Record it in `USER.md`, and ask again before any push if
+   they ever make the repository public. New versions of dexter arrive on `upstream`, and
+   `git pull upstream main` takes them.
+6. Delete this file, commit what the first run changed, and push.

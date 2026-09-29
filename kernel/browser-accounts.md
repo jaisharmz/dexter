@@ -55,3 +55,15 @@ what it can do, and the useful response is one sentence naming which account nee
 re-authenticating — not a workaround that half-completes the task under the wrong
 identity.
 
+## Editing a Google Doc through the browser: never send select-all blind
+
+An agent once pressed cmd+f, then cmd+a, then typed a search term into a Google Doc. The
+find box hadn't taken focus yet, so the select-all and the typing went into the document
+and replaced a whole tab's text. Two undos restored it, and the character count matched
+the earlier reading. The rules that follow from it:
+
+- **Never press cmd+a in a Docs tab.** To clear the find box, click into it.
+- **Screenshot after opening find, and confirm the box has focus before typing anything.**
+- **Read the doc's text first (the `/mobilebasic` view), then check it again after every edit.** A length and section check catches a replacement right away.
+- **If an edit goes wrong, undo immediately.** Undo in that tab only reaches your own changes since the tab loaded, so extra undos are safe. Then verify with `/mobilebasic` and tell the operator what happened.
+- **For an insertion into the operator's own doc, prefer handing them paste-ready text** unless the edit is large or repetitive. The canvas UI in a narrow window is where this went wrong.

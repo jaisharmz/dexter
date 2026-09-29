@@ -86,6 +86,7 @@ Full rules in `kernel/reasoning.md`. Read it before a long run, not after.
 - `kernel/guidelines/` — the operator's engineering guidelines, pulled in via the `guidelines` skill.
 - `kernel/skill-learning.md` — how a skill records and promotes what it learns from a run.
 - `kernel/reasoning.md` — how and where to surface your reasoning. Read before posting to Discord.
+- `kernel/finding-people.md` — how to find a person and a real address: entry points, then a walk over papers, code and coauthors. Read before any people search or outreach.
 - `etc/channels.json` — the channel map, including each channel's default approval mode.
 - `node kernel/queue.mjs list` — deferred work, dependency-ordered.
 

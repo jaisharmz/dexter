@@ -434,6 +434,27 @@ const ensureHome = () => {
   done("home/ created as its own private repository");
 };
 
+// ---- the repository --------------------------------------------------------------
+
+// The public dexter. A workspace whose origin is still this has not become its
+// operator's own repository yet, which the first run does.
+const PUBLIC_DEXTER = /github\.com[:/]jaisharmz\/dexter(\.git)?\/?$/;
+
+const git = (args) => spawnSync("git", ["-C", ROOT, ...args], { encoding: "utf8", timeout: 20000 });
+
+const remote = (name) => {
+  const result = git(["remote", "get-url", name]);
+  return result.status === 0 ? result.stdout.trim() : "";
+};
+
+// Whether upstream's main has a commit this folder lacks. It reads the remote without
+// fetching, so doctor still changes nothing.
+const behindUpstream = () => {
+  const head = git(["ls-remote", "upstream", "refs/heads/main"]);
+  const latest = head.status === 0 ? head.stdout.split(/\s+/)[0] : "";
+  return Boolean(latest) && git(["merge-base", "--is-ancestor", latest, "HEAD"]).status !== 0;
+};
+
 // ---- doctor ----------------------------------------------------------------------
 
 const doctor = () => {
@@ -478,7 +499,15 @@ const doctor = () => {
 
   check(projectSkillsSeen(), "Claude Code opened in this folder sees skills/", "./setup");
 
+  const origin = remote("origin");
+  const ownRepository = "gh repo create dexter --private --source . --remote origin && git push -u origin main";
+  check(Boolean(origin) && !PUBLIC_DEXTER.test(origin), "this folder pushes to your own repository",
+    origin ? `git remote rename origin upstream && ${ownRepository}` : ownRepository);
+  const notes = [];
+  if (remote("upstream") && behindUpstream()) notes.push("dexter has changed upstream since this folder last took it: git pull upstream main");
+
   for (const { passed, what, fix } of checks) say(`  ${passed ? "ok  " : "FIX "}  ${what}${passed ? "" : `  ->  ${fix}`}`);
+  for (const note of notes) say(`  note  ${note}`);
   const failed = checks.filter((result) => !result.passed).length;
   say(failed ? `\n${failed} to fix.` : "\nEverything checks out.");
   return failed;
