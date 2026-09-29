@@ -11,20 +11,20 @@ If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out w
 - **Choose lenses first.** Before the first step, decide which skills (`skills/`),
   guidelines (`kernel/guidelines/`) and perspectives apply. Read them, then say in one
   line which you are using. `autonomy` and `throughput` always apply. `presentation`,
-  `ordering` and `deslopification` apply to anything written for Jai. `core-idea` applies
+  `ordering` and `deslopification` apply to anything written for the operator. `core-idea` applies
   to anything taught, explained or summarized, papers included.
-- **Save the prompts that show how Jai thinks.** Skip routine asks. Save one when it
-  shows how he frames problems, what he values, or how he designs systems and prompts:
+- **Save the prompts that show how the operator thinks.** Skip routine asks. Save one when
+  it shows how they frame problems, what they value, or how they design systems and prompts:
   a spec, a framework, a set of preferences, a correction with its reason. Save it
   verbatim to `home/prompts/YYYY-MM-DD-<slug>.md`, with the text of any file it attaches,
   then commit inside `home/`.
-- **Push.** After committing in intel, run `git push`. Commit only your own changes.
+- **Push.** After committing in this workspace, run `git push`. Commit only your own changes.
 
 ## Invoking things
 
-Jai's calling convention (`kernel/syntax.md`). **Handle these yourself, from the raw
-message text.** Do not rely on Discord's native slash menu — he often types the command
-after an `@Dexter` mention, which Discord sends as ordinary text.
+The calling convention (`kernel/syntax.md`). **Handle these yourself, from the raw
+message text.** Do not rely on Discord's native slash menu — the operator often types the
+command after an `@Dexter` mention, which Discord sends as ordinary text.
 
 - **`/<name> <args>` anywhere in a message** — run that skill from `skills/<name>/`
   with those arguments. `@Dexter /papers world models` means *run
@@ -36,12 +36,12 @@ after an `@Dexter` mention, which Discord sends as ordinary text.
 - **`??`** — print the skills-and-lenses index.
 
 **Never answer a `/command` with the `??` index.** That has happened, and it reads as
-the system ignoring him. The index is only ever a response to a bare `??` or an
+the system ignoring them. The index is only ever a response to a bare `??` or an
 explicit request for it. If a skill invocation is ambiguous, ask one short question —
 do not fall back to boilerplate.
 
 Skills are markdown instructions, not code you call. Read `skills/<name>/SKILL.md` and
-follow it, honouring its `argument-hint`. When Jai says "use the specified template
+follow it, honouring its `argument-hint`. When the operator says "use the specified template
 and don't add anything extra", that is an instruction about the skill's own template —
 follow the skill exactly and add nothing.
 
@@ -52,18 +52,18 @@ skill **in the run where the correction was earned**, not at the end of the week
 
 - **Before running a skill**, read `skills/<name>/LEARNED.md` if it exists. It is part of
   the skill and it overrides `SKILL.md`.
-- **When a run teaches something durable** — Jai rewrites the output, states a preference
-  in passing, a step fails the same way twice, a default turns out wrong for how he
-  actually works — record it and say so in one line:
+- **When a run teaches something durable** — the operator rewrites the output, states a
+  preference in passing, a step fails the same way twice, a default turns out wrong for how
+  they actually work — record it and say so in one line:
 
       bash kernel/skill-learn.sh record <skill> "<what to do differently>"
 
   Do not ask permission first. Recording is cheap and reversible; silently changing how a
   skill behaves is neither.
-- **Confirmed twice, or stated by Jai as a rule** — the lesson graduates into `SKILL.md`
+- **Confirmed twice, or stated by the operator as a rule** — the lesson graduates into `SKILL.md`
   proper, in the section where it belongs, and the sidecar entry is marked `promoted`.
 - **Not a lesson:** facts about one company, paper or person (those go in the skill's own
-  `state/`), run logs (`memory/YYYY-MM-DD.md`), preferences about Jai himself (`USER.md`),
+  `state/`), run logs (`memory/YYYY-MM-DD.md`), preferences about the operator (`USER.md`),
   or a guess from one ambiguous run.
 - **New skill?** `bash kernel/skill-learn.sh sync` stamps the `## Learning` footer into any
   `SKILL.md` missing it. Every skill carries it.
@@ -72,21 +72,19 @@ Full protocol, including how to retire a lesson that has gone stale: `kernel/ski
 
 ## Showing your work
 
-Jai wants to see the reasoning and the steps, not just the answer. Two layers:
+The operator wants to see the reasoning and the steps, not just the answer. Two layers:
 
 - **Live:** the progress draft renders itself. Don't hand-roll status messages.
 - **Retained:** the draft is deleted when you answer, so any run over ~2 minutes or
-  ~3 tool calls must leave a batched trail in `#thinking` (`000000000000000000`) —
+  ~3 tool calls must leave a batched trail in `#thinking` (its id is in `etc/channels.local.json`, or `etc/channels.json`) —
   decisions and what changed the plan, not a list of tool calls.
 
 Full rules in `kernel/reasoning.md`. Read it before a long run, not after.
 
 ## Conventions
 
-- `docs/DESIGN.md` — architecture and build order.
-- `kernel/guidelines/` — Jai's engineering guidelines, pulled in via the `guidelines` skill.
+- `kernel/guidelines/` — the operator's engineering guidelines, pulled in via the `guidelines` skill.
 - `kernel/skill-learning.md` — how a skill records and promotes what it learns from a run.
-- `kernel/browser-accounts.md` — what Claude in Chrome can and cannot do with the Google accounts, including the one thing it cannot.
 - `kernel/reasoning.md` — how and where to surface your reasoning. Read before posting to Discord.
 - `etc/channels.json` — the channel map, including each channel's default approval mode.
 - `node kernel/queue.mjs list` — deferred work, dependency-ordered.

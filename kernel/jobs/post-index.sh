@@ -11,6 +11,7 @@ INTEL_ROOT=${_job_dir%/kernel/jobs}
 # Cron gets a login-shell PATH where a stale node shadows the current one, and
 # `openclaw` refuses to start on it. See kernel/jobs/nodejs-path.sh.
 . "$INTEL_ROOT/kernel/jobs/nodejs-path.sh"
+. "$INTEL_ROOT/kernel/jobs/channel.sh"
 
 cd "$INTEL_ROOT"
 
@@ -18,22 +19,24 @@ SKILLS=$(for d in skills/*/; do
   f="$d/SKILL.md"
   [ -f "$f" ] || continue
   n=$(grep -m1 '^name:' "$f" | sed 's/^name: *//')
-  s=$(grep -m1 '^description:' "$f" | sed 's/^description: *//' | cut -c1-72)
+  s=$(grep -m1 '^description:' "$f" | sed -e 's/^description: *//' -e 's/^"//' | cut -c1-72)
   printf '  /%-20s %s…\n' "$n" "$s"
 done)
 
 LENSES=$(for f in kernel/guidelines/*.md; do
   n=$(grep -m1 '^name:' "$f" | sed 's/^name: *//')
   s=$(grep -m1 '^summary:' "$f" | sed 's/^summary: *//' | cut -c1-72)
-  # if/elif rather than case: a ')' in a case pattern closes the enclosing $( )
-  if [ "$n" = "software-abstraction" ]; then short="+abstraction"
-  elif [ "$n" = "deslopification" ]; then short="+deslop"
-  else short="+$n"
-  fi
+  # The short form a person types, from the same table the + sigil resolves through.
+  short=$(node -e '
+    const aliases = require(process.argv[1]).aliases;
+    const name = process.argv[2];
+    console.log(Object.keys(aliases).find((key) => aliases[key] === name) || "+" + name);' \
+    "$INTEL_ROOT/kernel/guidelines/aliases.json" "$n")
   printf '  %-21s %s\n' "$short" "$s"
 done)
 
-openclaw message send --channel discord --target "${1:-000000000000000000}" --pin -m "**\`??\` — everything you can call**
+TARGET=${1:-$(channel_id dexter)} || { echo "post-index: no id for #dexter in etc/channels.json; run ./setup" >&2; exit 1; }
+openclaw message send --channel discord --target "$TARGET" --pin -m "**\`??\` — everything you can call**
 
 \`/\` does a thing · \`+\` adds a lens · stack as many \`+\` as you like
 
@@ -45,4 +48,4 @@ $SKILLS
 \`\`\`
 $LENSES
 \`\`\`
-\`+autonomy\` and \`+throughput\` are always on. Drop a SKILL.md in \`intel/skills/\` or a fragment in \`kernel/guidelines/\` and it appears here — no registration."
+\`+autonomy\` and \`+throughput\` are always on. Drop a SKILL.md in \`skills/\` or a fragment in \`kernel/guidelines/\` and it appears here — no registration."

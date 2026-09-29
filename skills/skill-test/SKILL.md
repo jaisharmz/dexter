@@ -1,6 +1,6 @@
 ---
 name: skill-test
-description: Test a newly written skill without waiting for a manual session restart, by scheduling a one-shot cron job that runs it in a fresh session and reports a verdict to #building. Use immediately after writing or substantially editing a SKILL.md, when a new skill does not appear to be loaded, or when the user says "test the skill", "does it work yet", or runs /skill-test.
+description: "Test a newly written skill without waiting for a manual session restart, by scheduling a one-shot cron job that runs it in a fresh session and reports a verdict to #building. Use immediately after writing or substantially editing a SKILL.md, when a new skill does not appear to be loaded, or when the user says \"test the skill\", \"does it work yet\", or runs /skill-test."
 user-invocable: true
 argument-hint: "<skill-name> \"<prompt to run>\" [delay, default 30s]"
 ---
@@ -33,7 +33,7 @@ already-open sessions, then schedules a self-deleting one-shot. The verdict land
 `#building`.
 
 **A verdict is itself a lesson.** If the test finds the skill doing the wrong thing for a
-reason that is about how Jai uses it rather than a bug in the instructions, record it
+reason that is about how the operator uses it rather than a bug in the instructions, record it
 against *that* skill, not this one.
 
 ## Reading the verdict
@@ -60,9 +60,9 @@ unclear rather than its logic being wrong.
 `LEARNED.md` in this folder is part of this skill. **Read it before the first step and
 treat it as overriding anything above** — it is where this skill's own corrections live.
 
-When a run teaches something durable — Jai rewrites the output, states a preference in
-passing, a step fails the same way twice, a default turns out to be wrong for how he
-actually works — record it and say so in one line:
+When a run teaches something durable — the operator rewrites the output, states a
+preference in passing, a step fails the same way twice, a default turns out to be wrong
+for how they actually work — record it and say so in one line:
 
     bash kernel/skill-learn.sh record skill-test "<what to do differently>"
 

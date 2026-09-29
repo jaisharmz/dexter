@@ -1,24 +1,26 @@
-# The private half of this workspace is its own repository.
+# Your private half is its own repository, created by ./setup.
 home/
 
-# OpenClaw runtime state
-var/log/
-var/run/
-.DS_Store
-
-# What the agent learns about its operator
+# What the agent learns about you and remembers day to day. Keep it out of a fork you share.
 USER.md
+MEMORY.md
+DREAMS.md
+memory/
+
+# This install's Discord ids, written by ./setup.
+etc/channels.local.json
+
+# Runtime state: the queue store, logs, scratch.
+var/
+temp/
+.DS_Store
 
 # Data files almost always contain real people, whatever folder they sit in.
 *.csv
 
-# Scratch
-var/*.html
-temp/
-
-# Skills keep personal detail on disk: answers given once, addresses, drafts to
-# named people. The rules cover whole directories, so a new file in one of them
-# cannot slip through. Only files named *.example.* are shared.
+# Skills keep personal detail on disk: answers given once, addresses, drafts to named
+# people. The rules cover whole directories, so a new file in one of them cannot slip
+# through. Only files named *.example.* are shared.
 skills/*/state/
 skills/*/config/*
 !skills/*/config/*.example.*
@@ -27,5 +29,5 @@ skills/*/config/*
 __pycache__/
 *.pyc
 
-# Skills the Claude app syncs into ~/.claude/skills, which is a symlink to skills/
+# Skills the Claude app syncs into ~/.claude/skills, when that is a link to skills/
 skills/synced/

@@ -1,54 +1,7 @@
 {
-  "_comment": "Editable routing table for the dispatch skill. Jai messages #dexter and Dexter files the work in the right channel. This is a file he can read and correct, not a prompt-time judgment \u2014 corrections persist. Match on signals, not keywords alone; the hints just weight the decision.",
+  "_comment": "Editable routing table for the dispatch skill. You message #dexter and Dexter files the work in the right channel. This is a file you can read and correct, not a prompt-time judgment, so corrections persist. Match on signals, not keywords alone; the hints just weight the decision. Every channel here must exist in etc/channels.json.",
   "default": "dexter",
   "routes": [
-    {
-      "channel": "recruiting",
-      "hints": [
-        "apply",
-        "application",
-        "job",
-        "new grad",
-        "internship",
-        "resume",
-        "essay",
-        "interview"
-      ]
-    },
-    {
-      "channel": "outreach",
-      "hints": [
-        "email",
-        "cold",
-        "reach out",
-        "intro",
-        "warm intro",
-        "draft to",
-        "contact them"
-      ]
-    },
-    {
-      "channel": "sourcing",
-      "hints": [
-        "saas",
-        "clients",
-        "prospects",
-        "leads",
-        "companies to sell",
-        "icp"
-      ]
-    },
-    {
-      "channel": "people",
-      "hints": [
-        "who is",
-        "vc",
-        "investor",
-        "superconnector",
-        "worth knowing",
-        "add to contacts"
-      ]
-    },
     {
       "channel": "learning",
       "hints": [
@@ -58,8 +11,7 @@
         "learn",
         "explain",
         "teach me",
-        "curriculum",
-        "video"
+        "curriculum"
       ]
     },
     {
@@ -93,14 +45,12 @@
       ]
     },
     {
-      "channel": "health",
+      "channel": "building",
       "hints": [
-        "sleep",
-        "workout",
-        "diet",
-        "health",
-        "hours",
-        "tracking"
+        "new skill",
+        "dexter should",
+        "fix dexter",
+        "add a lens"
       ]
     },
     {
@@ -114,21 +64,5 @@
       ]
     }
   ],
-  "bigFeatureGoesToQueue": true,
-  "skillDisambiguation": {
-    "_comment": "Two families look alike and are not. Getting this wrong sends a whole research run down the wrong pipeline, which happened on 2026-08-31.",
-    "jobSeeking": {
-      "skills": [
-        "role-sourcing",
-        "role-outreach"
-      ],
-      "use_when": "Jai wants a job, internship, or new-grad role. 'companies I'd want on my resume', 'where should I apply', 'reach out about a role'. role-sourcing qualifies targets; role-outreach writes the approach."
-    },
-    "clientSeeking": {
-      "skills": [
-        "outbound-sourcing"
-      ],
-      "use_when": "Jai is selling something \u2014 finding clients, SaaS prospects, research collaborators. NOT for job applications."
-    }
-  }
+  "bigFeatureGoesToQueue": true
 }

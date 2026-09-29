@@ -11,7 +11,7 @@
 # lines, because the log writes '[discord] gateway: …'. It silently missed two real
 # transport drops. Before adding a pattern, grep the log for it and confirm it hits.
 #
-#   trigger=user                  Jai sent a message; a run started
+#   trigger=user                  the operator sent a message; a run started
 #   cli turn:                     turn finished — carries durationMs and outBytes.
 #                                 outBytes distinguishes "model produced nothing"
 #                                 from "reply was not delivered".

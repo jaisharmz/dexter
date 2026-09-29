@@ -1,15 +1,15 @@
 ---
 name: guidelines
-description: List, show, and apply Jai's engineering guidelines and perspectives — the plug-and-play prompt fragments in kernel/guidelines/. Use when the user runs /guidelines, asks which guidelines exist, asks to apply one to a piece of work, wants a guideline added or edited, or when starting work where a guideline plausibly applies (writing prose, designing a system, deciding whether to build or reuse).
+description: List, show, and apply the operator's engineering guidelines and perspectives — the plug-and-play prompt fragments in kernel/guidelines/. Use when the user runs /guidelines, asks which guidelines exist, asks to apply one to a piece of work, wants a guideline added or edited, or when starting work where a guideline plausibly applies (writing prose, designing a system, deciding whether to build or reuse).
 user-invocable: true
 argument-hint: "[list | show <name> | apply <name> to <target> | add <name>]"
 ---
 
 # Guidelines
 
-Guidelines are prompt fragments Jai can pull into any request. They live in
+Guidelines are prompt fragments the operator can pull into any request. They live in
 `kernel/guidelines/` as markdown with frontmatter (`name`, `summary`, `triggers`).
-They are an option, never an obligation — he brings them up when he wants them, and
+They are an option, never an obligation — they bring them up when they want them, and
 you apply them silently when their `triggers` obviously match.
 
 ## list
@@ -28,14 +28,15 @@ Report concretely: what violates it, where, and the fix. Not a general appreciat
 the guideline.
 
 For `deslopification` specifically, prefer the executable version:
-`python3 skills/papers/scripts/deslop.py <path>` catches title shapes and density
-budgets that a read-through misses. Run it, then fix what it flags.
+`python3 skills/papers/scripts/deslop.py <run>` catches title shapes and density
+budgets that a read-through misses, on a papers run's folder. For any other page, read
+it against the guideline by hand.
 
 ## add <name>
 
-Create `kernel/guidelines/<name>.md` with the frontmatter above. Write it in Jai's
+Create `kernel/guidelines/<name>.md` with the frontmatter above. Write it in the operator's
 register: concrete, worked examples over abstractions, no throat-clearing. Then commit
-it. If he described the guideline in his own words, preserve his phrasing in the body
+it. If they described the guideline in their own words, preserve their phrasing in the body
 rather than paraphrasing it into something blander.
 
 ## Applying without being asked
@@ -53,9 +54,9 @@ reason. Don't silently average them.
 `LEARNED.md` in this folder is part of this skill. **Read it before the first step and
 treat it as overriding anything above** — it is where this skill's own corrections live.
 
-When a run teaches something durable — Jai rewrites the output, states a preference in
-passing, a step fails the same way twice, a default turns out to be wrong for how he
-actually works — record it and say so in one line:
+When a run teaches something durable — the operator rewrites the output, states a
+preference in passing, a step fails the same way twice, a default turns out to be wrong
+for how they actually work — record it and say so in one line:
 
     bash kernel/skill-learn.sh record guidelines "<what to do differently>"
 

@@ -153,7 +153,7 @@ a single comma.
 
 Found on 2026-09-25, when a literature review built from agent notes was rejected as "not
 readable for humans. It looks like notes an AI would take for AI's usage... I care about
-intuitions, overall ideas and methods." The rewrite he called "so much better" did this:
+intuitions, overall ideas and methods." The rewrite Jai called "so much better" did this:
 
 - **Open with "In one minute":** four or five bullets that are the whole answer on their own.
 - **Very direct headings** that say what the section holds: "What the papers found", "What to

@@ -1,6 +1,6 @@
 # Surfacing reasoning
 
-Jai wants to see Dexter think, the way a chat model shows its work. The risk is
+The operator wants to see Dexter think, the way a chat model shows its work. The risk is
 noise: reasoning that clutters every channel makes the answers harder to find, which
 is the opposite of the goal.
 
@@ -19,21 +19,19 @@ answer. Reasoning is for showing the path, never for hiding the result.
 **Short tasks — nothing.** A one-line answer with three lines of reasoning attached is
 worse than the answer alone. If the work took one step, just answer.
 
-**Long tasks in a channel — a thread.** Open a thread on the message that triggered
-the work, titled `reasoning`, and post steps there as they happen. Threads are
-collapsed by default, sit next to the thing they explain, and cost nothing to ignore.
-This is the default for anything multi-step.
+**Long tasks — `#thinking`.** Anything multi-step leaves its trail in `#thinking`, as
+described under "Retained" below, and each entry names the channel the work came from.
+The channel where the operator asked keeps only the answer.
 
-**Unattended work — `#thinking`.** Cron jobs, heartbeat drains, and autonomy windows
-have no triggering message to thread from, so their reasoning goes to `#thinking` as
-the firehose. Each entry names the job and links back to whatever channel the result
-landed in.
+**Unattended work — `#thinking` too.** Cron jobs, heartbeat drains, and autonomy
+windows have no triggering message, so each entry names the job and links back to
+whatever channel the result landed in.
 
 ## What belongs in it
 
 Decisions and their alternatives, dead ends and why they were abandoned, assumptions
 being made, and the moment a plan changes. Not a narration of every tool call — that
-is what `#log` is for. The test: would this help Jai catch a wrong turn early? If not,
+is what `#log` is for. The test: would this help the operator catch a wrong turn early? If not,
 leave it out.
 
 ## Two layers, because the live one is ephemeral
@@ -46,7 +44,7 @@ is for watching, not for keeping. Nothing is configured per-run; it just happens
 
 **Retained (your job, Dexter).** Because the draft evaporates, any run that will take
 more than about two minutes or more than three tool calls must also leave a permanent
-trail in `#thinking` (`000000000000000000`).
+trail in `#thinking`.
 
 ### How to write the trail
 
@@ -57,7 +55,7 @@ skim is as useless as no trail, and per-call posting burns tokens for noise.
 
 Each update is one or two lines: what you just established, and what it changed about
 the plan. Post immediately when a plan changes, an assumption breaks, or you hit
-something surprising — those are the moments Jai would want to interrupt, and a trail
+something surprising — those are the moments the operator would want to interrupt, and a trail
 that arrives after the decision is worthless.
 
 Close with a last line naming where the result landed.
@@ -68,7 +66,7 @@ than a wall of disconnected lines.
 ### What it is not
 
 Not a narration of every tool call — `#log` holds run mechanics. Not the answer: the
-conclusion always goes in the channel Jai asked in. The test is the same as before:
-would this let him catch a wrong turn before it costs an hour? On one research run,
+conclusion always goes in the channel the operator asked in. The test is the same as
+before: would this let them catch a wrong turn before it costs an hour? On one research run,
 the useful trail was "29 companies found, 7 rejected and why" — decisions and their
 reasons, not a list of fetches.

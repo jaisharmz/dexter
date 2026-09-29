@@ -61,9 +61,9 @@ check the user asked for is worse than not running it.
 `LEARNED.md` in this folder is part of this skill. **Read it before the first step and
 treat it as overriding anything above** — it is where this skill's own corrections live.
 
-When a run teaches something durable — Jai rewrites the output, states a preference in
-passing, a step fails the same way twice, a default turns out to be wrong for how he
-actually works — record it and say so in one line:
+When a run teaches something durable — the operator rewrites the output, states a
+preference in passing, a step fails the same way twice, a default turns out to be wrong
+for how they actually work — record it and say so in one line:
 
     bash kernel/skill-learn.sh record loops "<what to do differently>"
 

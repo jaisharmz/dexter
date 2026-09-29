@@ -7,7 +7,7 @@
 # This one answers "which node binary do I get".
 #
 # WHY THIS EXISTS. Cron runs jobs as `sh -lc`, which builds PATH from the system
-# profile, not from the interactive shell Jai sees. On the Mac that PATH puts
+# profile, not from the interactive shell the operator sees. On the Mac that PATH puts
 # /usr/local/bin ahead of Homebrew, and /usr/local/bin/node is a root-owned Node
 # 22.20.0 left over from Sep 2025. openclaw needs >=22.22.3, refuses to start, and
 # exits 1. Every job that calls `openclaw` therefore died -- silently, because

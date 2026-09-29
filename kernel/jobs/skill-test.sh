@@ -19,13 +19,14 @@ INTEL_ROOT=${_job_dir%/kernel/jobs}
 # Cron gets a login-shell PATH where a stale node shadows the current one, and
 # `openclaw` refuses to start on it. See kernel/jobs/nodejs-path.sh.
 . "$INTEL_ROOT/kernel/jobs/nodejs-path.sh"
+. "$INTEL_ROOT/kernel/jobs/channel.sh"
 
 cd "$INTEL_ROOT"
 
 SKILL="$1"
 PROMPT="$2"
 DELAY="${3:-30s}"
-BUILDING=000000000000000000
+BUILDING=$(channel_id building) || { echo "skill-test: no id for #building in etc/channels.json; run ./setup" >&2; exit 1; }
 
 [ -n "$SKILL" ] && [ -n "$PROMPT" ] || {
   echo "usage: skill-test.sh <skill-name> \"<prompt>\" [delay]" >&2; exit 1; }
@@ -42,7 +43,7 @@ bash kernel/skill-learn.sh sync
 touch "skills/$SKILL/SKILL.md"
 
 JOB="skilltest-$SKILL-$(date +%s)"
-openclaw cron add "$JOB" \
+openclaw cron add "$JOB" --agent dexter \
   --at "$DELAY" \
   --message "$PROMPT
 

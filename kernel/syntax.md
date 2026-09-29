@@ -13,11 +13,10 @@ That's the whole language — if you have to look anything else up, it failed.
 ## `/` — skills
 
 `/<skill> <args>`. Native OpenClaw slash commands, so Discord autocompletes them and
-the argument hints show inline. `/papers`, `/loops`, `/dispatch`, `/guidelines`,
-`/industry-research`, `/outbound-sourcing`, `/proof-project`, `/role-sourcing`,
-`/role-outreach`.
+the argument hints show inline: `/dispatch`, `/guidelines`, `/loops`, `/papers`,
+`/skill-test`, and whatever you add.
 
-Anything in `intel/skills/` with a `SKILL.md` shows up here automatically, on the next
+Anything in `skills/` with a `SKILL.md` shows up here automatically, on the next
 message. Nothing to register.
 
 ## `+` — guidelines and perspectives
@@ -43,7 +42,7 @@ Prints skills and lenses side by side with one-line summaries. Also posted daily
 
 ## Adding to either
 
-Drop a `SKILL.md` in `intel/skills/<name>/` and it's a `/command`. Drop a markdown
+Drop a `SKILL.md` in `skills/<name>/` and it's a `/command`. Drop a markdown
 file with frontmatter in `kernel/guidelines/` and it's a `+lens`. Both hot-reload —
 no registration step, and both directions work: made in Discord, it's in the folder;
 made in the folder, it's in Discord.

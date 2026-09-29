@@ -1,0 +1,34 @@
+#!/bin/sh
+# From a fresh clone to Dexter answering in your Discord. Safe to run again: every
+# step looks before it changes anything, so a second run finishes what the first began.
+#
+#   ./setup           set up, or finish setting up
+#   ./setup doctor    check every piece and say what to fix, changing nothing
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+if ! command -v openclaw >/dev/null 2>&1; then
+  cat <<'EOF'
+Dexter runs on OpenClaw, which is not installed yet. Install it, then run ./setup again:
+
+    curl -fsSL https://openclaw.ai/install.sh | bash
+EOF
+  exit 1
+fi
+
+if ! command -v claude >/dev/null 2>&1; then
+  cat <<'EOF'
+Dexter thinks with Claude Code, which is not installed yet. Install it and log in once
+(https://claude.com/claude-code), then run ./setup again.
+EOF
+  exit 1
+fi
+
+# A plain clone leaves submodules empty, and papers is one.
+if [ -e "$ROOT/.git" ] && [ ! -f "$ROOT/skills/papers/SKILL.md" ]; then
+  git -C "$ROOT" submodule update --init --quiet || echo "note: could not fetch skills/papers"
+fi
+
+# openclaw needs a recent Node, and the first node on PATH is not always that one.
+. "$ROOT/kernel/jobs/nodejs-path.sh"
+exec node "$ROOT/kernel/setup.mjs" "$@"

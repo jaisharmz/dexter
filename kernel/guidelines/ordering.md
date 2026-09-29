@@ -4,7 +4,7 @@ summary: Order N items so that reading only the first M is approximately the bes
 triggers: [presenting, lists, recommending, writing]
 ---
 
-Jai's own formulation, and it governs every ordered thing you hand him — papers,
+Jai's own formulation, and it governs every ordered thing you hand the operator — papers,
 companies, options, findings, queue items:
 
 > Suppose you give me N papers to read about a topic, presented in order. Suppose I
@@ -22,7 +22,7 @@ same point are a bad pair; the second should have been something else.
   that says one thing three times.
 - **Chronological or alphabetical order**, unless the sequence itself carries the
   argument.
-- **Saving the best for last.** He may stop at any point. There is no last.
+- **Saving the best for last.** The reader may stop at any point. There is no last.
 - **Comprehensiveness as a defense.** A long list that must be read in full to be
   useful has failed this test regardless of its coverage.
 
@@ -35,4 +35,4 @@ not obvious — that reasoning is often more useful than the item.
 
 The same rule applies to prose: the first paragraph should be the best one-paragraph
 version, and the first section the best short version. Applies to your own reports
-back to him, not just to lists you curate.
+back to the operator, not just to lists you curate.

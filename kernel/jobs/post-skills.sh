@@ -1,5 +1,5 @@
 #!/bin/sh
-# Regenerates the skill registry in #skills from whatever is on disk in intel/skills.
+# Regenerates the skill registry in #skills from whatever is on disk in skills/.
 set -e
 
 # Paths are derived from this script's own location, not baked in. Dexter now runs
@@ -11,16 +11,19 @@ INTEL_ROOT=${_job_dir%/kernel/jobs}
 # Cron gets a login-shell PATH where a stale node shadows the current one, and
 # `openclaw` refuses to start on it. See kernel/jobs/nodejs-path.sh.
 . "$INTEL_ROOT/kernel/jobs/nodejs-path.sh"
+. "$INTEL_ROOT/kernel/jobs/channel.sh"
 
-# Only the node currently holding Dexter may do this. See kernel/ha/guard.sh.
-sh "$INTEL_ROOT/kernel/ha/guard.sh" skill-registry || exit 0
+# On a two-machine pair, only the node currently holding Dexter may do this
+# (kernel/ha/guard.sh). A single machine has no guard, and always may.
+[ ! -f "$INTEL_ROOT/kernel/ha/guard.sh" ] || sh "$INTEL_ROOT/kernel/ha/guard.sh" skill-registry || exit 0
 
 cd "$INTEL_ROOT"
 BODY=$(openclaw skills list 2>/dev/null | grep 'openclaw-workspace' | sed 's/│//g' \
   | awk '{$1=$1};1' | cut -c1-150)
-openclaw message send --channel discord --target 000000000000000000 \
+TARGET=$(channel_id skills) || { echo "post-skills: no id for #skills in etc/channels.json; run ./setup" >&2; exit 1; }
+openclaw message send --channel discord --target "$TARGET" \
   -m "**Skill registry** — $(date '+%Y-%m-%d')
 \`\`\`
 $BODY
 \`\`\`
-Invoke any of these here, or add one to intel/skills and it appears on the next run."
+Invoke any of these here, or add one to skills/ and it appears on the next run."

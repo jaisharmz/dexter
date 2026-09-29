@@ -1,4 +1,0 @@
-#!/bin/sh
-# Says when a commit touched something the public mirror carries. A nudge, never a
-# gate: it cannot fail the commit. Installed by `git config core.hooksPath kernel/hooks`.
-sh "$(git rev-parse --show-toplevel)/kernel/public/sync.sh" hook 2>/dev/null || true
