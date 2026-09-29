@@ -74,8 +74,12 @@ cmd_list() {
     [ -f "${d%/}/SKILL.md" ] || continue
     name="$(basename "$d")"; f="${d%/}/LEARNED.md"; n=0
     if [ -f "$f" ]; then
-      n="$(grep -c '^- \*\*[0-9]' "$f" || true)"
-      n="$(( n - $(grep -c 'retired [0-9]' "$f" || true) ))"
+      # A lesson inside a multi-line HTML comment is not in force, so it does not count.
+      n="$(awk '/^<!--/ && !/-->/ { skip = 1; next }
+                skip { if (/-->/) skip = 0; next }
+                /^- \*\*[0-9]/ { c++ }
+                /retired [0-9]/ { r++ }
+                END { print c - r }' "$f")"
     fi
     local hook=""
     grep -qF "$MARKER" "${d%/}/SKILL.md" || hook="   (no footer — run: sync)"

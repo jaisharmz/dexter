@@ -4,7 +4,7 @@ summary: Make something work at the smallest scale that can show it, check it by
 triggers: [experiments, scaling, synthetic-data, post-training, sweeps, generation]
 ---
 
-Stated by Jai on 2026-09-28 (`home/prompts/`):
+Stated by Jai:
 
 > be very mindful about making sure something works at the small scale before going to larger
 > scale.
@@ -14,9 +14,9 @@ Stated by Jai on 2026-09-28 (`home/prompts/`):
 - **Generation.** Make 1-2 items first and check them by eye. If they look right, make 4-5.
   Only after that, generate at scale. Dozens of synthetic documents built on an unchecked
   generator are dozens of copies of its bugs.
-- **Post-training.** Train on one document type and measure that type **and** 3-4 others, so
-  you see both the gain and the damage. Then train on 2-3 types and measure those and the
-  rest. Only then scale.
+- **Post-training.** Train on one task or data type and measure that type **and** 3-4
+  others, so you see both the gain and the damage. Then train on 2-3 types and measure
+  those and the rest. Only then scale.
 - **Sweeps and paid runs.** Pilot on the smallest set that can answer the question, then scale
   only if it moved. State the cost before running.
 

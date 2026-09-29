@@ -15,6 +15,20 @@
       ]
     },
     {
+      "channel": "recruiting",
+      "hints": [
+        "apply",
+        "application",
+        "job",
+        "internship",
+        "new grad",
+        "resume",
+        "interview",
+        "recruiter",
+        "reach out about a role"
+      ]
+    },
+    {
       "channel": "projects",
       "hints": [
         "project",

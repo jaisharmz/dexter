@@ -4,9 +4,29 @@ This folder is a Dexter workspace: a personal agent OS where Discord is the inte
 this folder is the filesystem, OpenClaw is the kernel, and the agent is called Dexter.
 `README.md` has the operator's view.
 
-`AGENTS.md` is the operating manual Dexter follows over Discord. Read it; most of it
-applies here too. The parts that don't: channel etiquette, reactions, the progress draft,
-and posting reasoning to `#thinking`. In Claude Code the reasoning surface is this session.
+Discord and this folder are two front doors to the same agent, and you are that agent
+here. Over Discord, OpenClaw puts the files below in Dexter's context at the start of
+every session; the imports do the same for this one, and a file that does not exist yet
+is skipped. `AGENTS.md` is the operating manual. All of it applies here except channel
+etiquette, reactions, the progress draft and posting reasoning to `#thinking`, because
+in Claude Code the reasoning surface is this session.
+
+@AGENTS.md
+@SOUL.md
+@IDENTITY.md
+@USER.md
+@MEMORY.md
+
+If `BOOTSTRAP.md` exists, this workspace is new: follow it before anything else, as
+Dexter would on its first Discord message, and say hello here instead of in `#dexter`.
+
+## Memory
+
+- `USER.md` holds the operator's durable preferences as dated directives, and
+  `MEMORY.md` durable facts and decisions. Both are loaded above.
+- `memory/YYYY-MM-DD.md` is the day's log. Read today's and yesterday's at the start of a
+  session, as Dexter does, and write to today's when something is worth remembering.
+- All three stay out of git, so a fork can be shared without them.
 
 ## Every task
 
@@ -19,9 +39,9 @@ and posting reasoning to `#thinking`. In Claude Code the reasoning surface is th
 
 ## skills/ is also your skills directory
 
-`./setup` links `~/.claude/skills` to `skills/`, or links each skill into it, so one tree
-serves both: editing a skill here changes what Dexter can do over Discord **and** what
-this Claude Code session can invoke, with no registration step.
+`.claude/skills` links to `skills/`, so one tree serves both doors: editing a skill here
+changes what Dexter can do over Discord **and** what this Claude Code session can invoke,
+with no registration step. A skill written now is visible from the next session.
 
 - A skill is `skills/<name>/SKILL.md`: markdown instructions to read and follow, not code
   to call. Honour its `argument-hint` and its own templates exactly.

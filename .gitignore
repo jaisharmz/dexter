@@ -22,8 +22,9 @@ temp/
 # people. The rules cover whole directories, so a new file in one of them cannot slip
 # through. Only files named *.example.* are shared.
 skills/*/state/
-skills/*/config/*
-!skills/*/config/*.example.*
+skills/*/config/**
+!skills/*/config/**/
+!skills/*/config/**/*.example.*
 
 # Python bytecode
 __pycache__/

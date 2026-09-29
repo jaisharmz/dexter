@@ -387,34 +387,31 @@ const ensureJobs = () => {
   }
 };
 
-// Claude Code reads ~/.claude/skills. A missing folder becomes a link to skills/; an
-// existing folder gets one link per skill it lacks; a link that points elsewhere
-// belongs to someone else's setup and is left alone.
-const linkSkills = () => {
-  const target = join(homedir(), ".claude", "skills");
-  const source = join(ROOT, "skills");
+// Claude Code opened in this folder reads .claude/skills, a link to skills/, so the
+// folder works like Discord does with nothing linked globally. ~/.claude/skills belongs to
+// the person and is left alone.
+const projectSkillsSeen = () => {
+  const skills = join(ROOT, "skills");
+  const pointsHere = (path) => {
+    try { return lstatSync(path).isSymbolicLink() && resolve(dirname(path), readlinkSync(path)) === skills; }
+    catch { return false; }
+  };
+  const global = join(homedir(), ".claude", "skills");
+  const everySkillGlobal = readdirSync(skills).filter((name) => existsSync(join(skills, name, "SKILL.md")))
+    .every((name) => existsSync(join(global, name, "SKILL.md")));
+  return pointsHere(join(ROOT, ".claude", "skills")) || pointsHere(global) || everySkillGlobal;
+};
+
+const ensureProjectSkills = () => {
+  const link = join(ROOT, ".claude", "skills");
   let stat;
-  try { stat = lstatSync(target); } catch { stat = undefined; }
-  if (!stat) {
-    mkdirSync(dirname(target), { recursive: true });
-    symlinkSync(source, target);
-    return done(`~/.claude/skills links to ${source}`);
+  try { stat = lstatSync(link); } catch { stat = undefined; }
+  if (!stat && !projectSkillsSeen()) {
+    mkdirSync(dirname(link), { recursive: true });
+    symlinkSync("../skills", link);
   }
-  if (stat.isSymbolicLink()) {
-    const pointsAt = resolve(dirname(target), readlinkSync(target));
-    if (pointsAt === source) return done(`~/.claude/skills links to ${source}`);
-    return warn(`~/.claude/skills links to ${pointsAt}, so Claude Code will not see these skills. ` +
-      "Link the ones you want from skills/ into it by hand.");
-  }
-  const added = [];
-  for (const name of readdirSync(source)) {
-    if (!existsSync(join(source, name, "SKILL.md"))) continue;
-    try { lstatSync(join(target, name)); } catch {
-      symlinkSync(join(source, name), join(target, name));
-      added.push(name);
-    }
-  }
-  done(`Claude Code sees the skills${added.length ? ` (linked ${added.join(", ")})` : ""}`);
+  if (projectSkillsSeen()) return done("Claude Code opened in this folder sees skills/");
+  warn(".claude/skills is not a link to skills/, so Claude Code here may not see these skills");
 };
 
 const HOME_README = `# home
@@ -479,10 +476,7 @@ const doctor = () => {
     check(jobs.some((existing) => existing.name === job.name), `the ${job.display} job is scheduled`, "./setup");
   }
 
-  const skills = join(homedir(), ".claude", "skills");
-  const seen = readdirSync(join(ROOT, "skills")).filter((name) => existsSync(join(ROOT, "skills", name, "SKILL.md")))
-    .every((name) => existsSync(join(skills, name, "SKILL.md")));
-  check(seen, "Claude Code sees every skill in skills/", "./setup, or link them into ~/.claude/skills");
+  check(projectSkillsSeen(), "Claude Code opened in this folder sees skills/", "./setup");
 
   for (const { passed, what, fix } of checks) say(`  ${passed ? "ok  " : "FIX "}  ${what}${passed ? "" : `  ->  ${fix}`}`);
   const failed = checks.filter((result) => !result.passed).length;
@@ -507,7 +501,7 @@ const setup = async () => {
   const changed = configure();
   await ensureGateway(changed || tokenStored || installed === true);
   ensureJobs();
-  linkSkills();
+  ensureProjectSkills();
   ensureHome();
   if (created) {
     const index = spawnSync("sh", [join(ROOT, "kernel/jobs/post-index.sh")], { encoding: "utf8" });

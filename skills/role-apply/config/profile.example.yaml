@@ -1,0 +1,166 @@
+# Application profile — every field a form has ever asked, answered once.
+#
+# Copy this file to profile.yaml in the same folder and fill it in. profile.yaml is yours
+# and never committed: config/ is gitignored apart from the *.example.* files.
+#
+# `ASK` means: the skill asks the operator the first time a form needs it, then replaces
+# `ASK` here with the answer. Never guess a value marked ASK — a guessed address, GPA,
+# visa status or start date goes onto the record and nobody catches it.
+#
+# Last reviewed: YYYY-MM-DD
+
+identity:
+  legal_first_name: Firstname
+  legal_last_name: Lastname
+  # CASING RULE. If the résumé prints the name in capitals as its header, every portal that
+  # parses the PDF prefills the name in capitals. That is the résumé's typography, not the
+  # name. Always overwrite the parsed value with proper case, and re-read the field
+  # afterwards: some parsers rewrite it a second time after the upload completes. The same
+  # applies to any other parsed field. The values in this file win.
+  preferred_name: ASK
+  pronouns_for_forms: ASK
+
+contact:
+  email_primary: you@example.com
+  email_alternate: you@example.org
+  # Say which address applications go out under (a school address, for example). Use the
+  # alternate only when a portal rejects the primary. Check which account the browser is
+  # signed into before composing anything from it.
+  phone: ASK
+  phone_country_code: "+1"
+  address_line_1: ASK
+  address_line_2: ""
+  city: ASK
+  state: ASK
+  postal_code: ASK
+  country: ASK
+  # Forms asking for a mailing or permanent address get this one, even when the résumé
+  # prints a different current city.
+
+links:
+  linkedin: https://www.linkedin.com/in/<you>
+  github: https://github.com/<you>
+  google_scholar: ""
+  website: ""
+  youtube: ""
+  # Standard block for a free-text "relevant links" field, in the operator's priority
+  # order. Trim from the bottom when the field is short. For a single-URL field use
+  # LinkedIn, or the website if the role is research-facing. Check that every link opens
+  # for a reader with no account: a link that shows "Request access" is worse on an
+  # application than no link at all.
+  # If the form has a repeatable link field (an "Add Link" button, or a name ending in []),
+  # add a box per URL and paste the bare URL alone. Do not concatenate with separators.
+  links_block: |
+    Featured work: <url>
+    Website: <url>
+    LinkedIn: <url>
+    GitHub: <url>
+
+education:
+  school: ASK
+  degrees:
+    - ASK   # e.g. "B.S. Computer Science", one entry per degree
+  program: ""   # a named joint or dual-degree program, if there is one
+  level_for_dropdowns: ASK   # e.g. "Bachelor's"
+  degree_code_for_dropdowns: ASK   # e.g. "BS"
+  major_for_single_field: ASK   # what to enter when a form has room for one major
+  start_date: ASK   # MM/YYYY
+  high_school_graduation_year: ASK
+  graduation_date: ASK   # MM/YYYY, exactly as the résumé prints it
+  # How the graduation term maps onto what forms actually offer. Getting this wrong is how
+  # a candidate gets filtered into the wrong cohort.
+  grad_term_equivalents:
+    academic_term: ASK   # e.g. "Spring 2027"
+    class_year_risk: |
+      Firms that write eligibility as date ranges and firms that write it as class years
+      can file the same graduation under different cohorts. Note which cohort each style
+      puts you in, and email recruiting before applying where a class-year label would
+      filter you out.
+  gpa_technical: ASK
+  gpa_cumulative: ASK
+  gpa_scale: 4.0
+  sat_total: ASK
+  act_composite: ASK
+  # Market makers routinely make SAT/ACT a REQUIRED field on intern applications and offer
+  # a per-test "I don't have X score" opt-out.
+  honors: []
+
+work_authorization:
+  authorized_to_work_us: ASK
+  requires_sponsorship_now_or_future: ASK
+  visa_status: ASK
+  citizenship_for_dropdowns: ASK
+  # Phrasing flips between forms: "are you authorized to work in the US?" and "will you now
+  # or in the future require sponsorship?" are near opposites. Read which question is being
+  # asked before answering. These four travel together, and a wrong answer is
+  # disqualifying in both directions. Never infer any of them from the others, from the
+  # school, or from a name. Defense-adjacent postings (robotics and simulation, for one)
+  # often gate on US Person status, ITAR or a clearance: answer those questions accurately,
+  # exactly as recorded here.
+
+logistics:
+  # ROLE-TYPE RULE. If different tracks apply to different kinds of firm (an internship at
+  # one kind, full-time new grad at another), write the rule here, with the résumé variant
+  # each track uses.
+  earliest_start_date: ASK
+  target_term: ASK   # e.g. "Summer 2027 internship" or "Full-time new grad"
+  willing_to_relocate: ASK
+  location_preferences: ASK
+  pursuing_further_education_immediately: ASK
+  current_offers: ASK
+  # TWO DIFFERENT QUESTIONS. Read which one is being asked before answering:
+  #   "Did you receive a RETURN OFFER from your internship?"
+  #   "Do you have competing or pending offers, or are you in late-stage processes
+  #    elsewhere?"
+  internship_return_offer: ASK
+  salary_expectation: ASK   # not a lookup: ask every time
+  programming_languages: ASK
+  interview_language_preference: ASK
+  requires_visa_for_travel: ASK
+  # Years of use and lifetime lines of code, per language. Research-org forms ask for both.
+  language_years_and_loc: ASK
+  coding_harness: ASK
+  publications_read: ASK
+  current_sector_for_forms: ASK
+  top_open_project: ASK
+  roles_dropped_from_resume_but_usable: []   # real roles a form may ask about that no longer fit on the résumé
+  list_style_in_text_boxes: ASK   # how lists are written inside plain-text answer boxes
+
+self_identification:
+  # Answered exactly as written. Never inferred. If a value says decline, select exactly
+  # the decline option rather than skipping the question.
+  gender: ASK
+  race_ethnicity: ASK
+  hispanic_latino: ASK
+  veteran_status: ASK
+  disability_status: ASK
+  # The US federal disability form (CC-305) also has a name-and-date signature line.
+  # Fill the radio; leave the signature for the operator.
+
+history:
+  previously_applied_to_this_firm: ASK   # check state/applications.jsonl first
+  previously_employed_by_this_firm: ASK
+  referred_by: ASK
+  non_compete_agreement: ASK
+  how_did_you_hear_about_us: ASK
+  # Few dropdowns offer the exact string. Pick the nearest truthful option. When only
+  # ambiguous ones exist ("Campus recruiting event" against "University career services"),
+  # pick one and flag it rather than treating it as settled.
+
+resumes:
+  # FILENAME RULE: every variant uploads as a plain Firstname_Lastname_Resume.pdf. The
+  # recruiter sees the filename, so it carries no version or variant label. Variants live
+  # in their own folders. Never rename the operator's files.
+  # Variants differ in emphasis, never in facts: each prints the same degree, school, dates
+  # and education.graduation_date.
+  quant: ~/Documents/resume/quant/Firstname_Lastname_Resume.pdf
+  mle: ~/Documents/resume/mle/Firstname_Lastname_Resume.pdf
+  # Readable copies for subagents, when the originals live outside the session's readable
+  # paths:
+  quant_staged: ""
+  mle_staged: ""
+  research: ""
+  links_pdf: ""
+  transcript: ""
+  transcript_staged_copy: ""
+  cover_letter: ""

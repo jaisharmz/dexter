@@ -66,6 +66,13 @@
       "write": "both",
       "id": "000000000000000000"
     },
+    "recruiting": {
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "The job search: companies worth a decade, the right person to reach, and applications that stop at Submit.",
+      "write": "both",
+      "id": "000000000000000000"
+    },
     "experiments": {
       "group": "domain",
       "mode": "auto",
@@ -102,6 +109,7 @@
       "dexter",
       "inbox",
       "projects",
+      "recruiting",
       "experiments",
       "ideas",
       "learning"

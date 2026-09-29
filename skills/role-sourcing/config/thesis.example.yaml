@@ -1,0 +1,133 @@
+# What the operator is actually competitive for, and where.
+#
+# Copy this file to config/thesis.yaml and replace every <placeholder>. The copy is the
+# operator's own and never ships. Rename each area to a short slug for its field; the
+# slug is what `--area` takes. The four example areas show the four roles an area can
+# play in the plan.
+#
+# Every area is scored on TWO axes, and collapsing them is the mistake this file
+# exists to prevent.
+#
+#   leverage  -- how strongly the existing work opens a door there this season.
+#                This decides what the email leads with.
+#   ten_year  -- whether the field is worth staying in for a decade.
+#                This decides which doors are worth opening at all.
+#
+# They diverge. The operator's strongest leverage is often a mediocre ten-year home,
+# and their weakest leverage can have the most headroom left. Past work is the key,
+# not the room. Score accordingly.
+#
+# `signals` are the things a company must show for the area to apply at all.
+# `artifacts` are what the email leads with -- they must exist in persona.md.
+
+meta:
+  graduating: <YYYY-MM>
+  # New-grad full-time is the usual primary target. An internship only makes sense at
+  # a company that converts, and only if it starts before graduation.
+  primary_target: new_grad_fulltime
+  # Past work is proof of capability, not a description of where the operator wants
+  # to stay. Rank by ten_year first, then use the highest-leverage artifact as the way
+  # in. Never argue someone out of a pivot on the grounds that their resume does not
+  # already match it.
+  strategy: pick_destination_by_ten_year__enter_via_highest_leverage
+  season_opens: <YYYY-MM>
+  season_peak: <YYYY-MM>..<YYYY-MM>
+
+areas:
+
+  strongest-field:
+    leverage: highest
+    ten_year: medium
+    role: the key -- lead every email with this, in every area
+    label: <The field the operator's existing work is strongest in>
+    why: >
+      <Why the existing work opens doors here this season. Papers, projects and
+      internships, each with the number that makes it concrete, and the combination
+      few new grads can claim, if there is one.>
+    artifacts: [main_project, first_paper, research_group]
+    signals:
+      - <a model or method in the product that the operator's work speaks to>
+      - <a team named on the careers page, such as post-training or evals>
+      - <public work in the area, such as papers or repositories>
+    subareas:
+      <sharpest_subarea>:
+        note: >
+          <Why this subarea is the sharpest match in the whole file, and the one
+          artifact to lead with there and nothing else.>
+        companies: [<Company A>, <Company B>]
+      <second_subarea>:
+        companies: [<Company C>, <Company D>, <Company E>]
+
+  destination-field:
+    leverage: high
+    ten_year: highest
+    role: candidate destination
+    label: <A field worth a decade, where the existing work still clears the bar>
+    why: >
+      <What in the operator's record clears the bar that stops most new grads applying
+      here: shipped work against real data rather than benchmarks, for example.>
+    artifacts: [domain_project]
+    signals:
+      - <a model or method of the kind this field is built on, in the product>
+      - <a published methods paper with a named ML author>
+      - <an ML team that is separable from the rest of the company>
+    companies_frontier: [<Company F>, <Company G>, <Company H>]
+    companies_adjacent: [<Company I>, <Company J>]
+    caution: >
+      <Which companies in this area are a poor use of a week, and why. Companies with
+      no public ML surface, whose small ML teams hire through networks, are the usual
+      case.>
+
+  fallback-field:
+    leverage: high
+    ten_year: high, but supporting
+    role: highest-conversion fallback, not a destination
+    label: <A field where the operator converts well but would not choose to stay>
+    why: >
+      <The differentiator: what most applicants here have not done that the operator
+      has.>
+    artifacts: [industry_internship]
+    signals:
+      - <the team or stack a company must have for this area to apply>
+      - <a public benchmark, or a number in the marketing copy>
+    companies: [<Company K>, <Company L>, <Company M>]
+
+  stretch-field:
+    leverage: low
+    ten_year: highest headroom
+    role: candidate destination -- the fit gap is the price of entry, not a verdict
+    label: <The field with the most headroom, where the operator's record is thin>
+    why: >
+      <Low leverage, stated honestly: what the record lacks here. Then why that is a
+      statement about this season and not the decade, and the one visible gap to close
+      before applying.>
+    artifacts: [stretch_project]
+    bridge: >
+      <The door from the operator's strongest work into this field: a method or
+      credential that is also current practice here. Which team to apply to, what to
+      say plainly about the part still to learn, and which roles not to apply to.>
+    companies_learning_first: [<Company N>, <Company O>]
+    companies_avoid: [<Company P>]
+    avoid_reason: <why the profile does not compete at those companies>
+
+# Company size bands. A job ask behaves very differently across them.
+bands:
+  seed_to_a:
+    headcount: "<50"
+    who_to_write: a founder or the first ML hire
+    cap: 1
+    note: >
+      No recruiter, no ATS worth using, and the founder reads their own mail. This is
+      where a specific note beats an application outright.
+  b_to_c:
+    headcount: "50-300"
+    who_to_write: the team lead who owns the role, plus the recruiter named on the posting
+    cap: 2
+    note: Apply through the form as well. Email first, form same day.
+  late_stage:
+    headcount: ">300"
+    who_to_write: the hiring manager, and only with a referral in hand
+    cap: 2
+    note: >
+      Structured new-grad pipelines. The email is a supplement to the application, not
+      a replacement, and the referral matters more than either.

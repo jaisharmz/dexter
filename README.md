@@ -46,11 +46,19 @@ minutes in Discord's developer portal, and does the rest itself:
 - lets only you drive Dexter: the bot answers your Discord account and nobody else's
 - installs the gateway as a service, so Dexter survives reboots
 - schedules the daily `#queue` digest and `#skills` registry
-- links `skills/` into Claude Code, and creates `home/` as its own private repository
+- creates `home/`, your private half, as its own repository
 
 Run it again any time; it only does what is missing. `./setup doctor` checks every piece
 and says what to fix. Then say hello in `#dexter`: on its first message Dexter reads
 `BOOTSTRAP.md`, picks its own name, vibe and emoji, and asks you a few questions.
+
+## From the folder
+
+Discord and this folder are two front doors to the same agent. Open Claude Code in the
+clone (`cd dexter && claude`) and you get the same skills, lenses, queue, memory,
+personality and operating manual, before or without `./setup`: `.claude/skills` links to
+`skills/`, and `CLAUDE.md` loads the same files OpenClaw loads for Dexter. Discord adds
+the channels, the daily posts, the heartbeat and your phone.
 
 ## In one minute
 
@@ -70,7 +78,7 @@ and says what to fix. Then say hello in `#dexter`: on its first message Dexter r
 | path | what it is |
 |---|---|
 | `AGENTS.md` | the operating manual Dexter reads every session |
-| `skills/` | `dispatch` routes `#dexter` into channels, `guidelines` lists and applies lenses, `loops` runs adversarial and judge subagents over finished work, `skill-test` tries a new skill in a fresh session, and `papers` builds an ordered reading path on any topic |
+| `skills/` | the starter skills below, each a folder with a `SKILL.md` |
 | `kernel/guidelines/` | the lenses: short rules pulled into any message with `+` |
 | `kernel/queue.mjs` | deferred work with dependencies, so blocked work waits instead of vanishing |
 | `kernel/skill-learn.sh` | records a correction into a skill's `LEARNED.md` |
@@ -78,6 +86,25 @@ and says what to fix. Then say hello in `#dexter`: on its first message Dexter r
 | `etc/channels.json` | the channel map: purpose, default mode and id of every channel |
 | `kernel/routing-table.json` | how `dispatch` decides where a message goes, in a file you can correct |
 | `home/` | your private half: raw prompts, your writing, other people's writing, contacts |
+
+## The starter skills
+
+| skill | what it does |
+|---|---|
+| `/papers <topic>` | Builds one ordered reading path, where the first M entries are about the best M you could have read, each saying which lab it came from and what that lab believes. |
+| `/industry-research <field>` | Maps a field end to end with ten agents, from scouts to a page builder. The fact-checker runs before the style edit, so a fabricated finding can't hide behind good prose. |
+| `/guided-learning <topic>` | Teaches by asking one guiding question at a time, so you derive the idea instead of being handed it. `n` answers the current step for you; `q` steps back to first principles. |
+| `/proof-project <field>` | Finds the one project that would prove you can work in a field you haven't worked in yet, ending in a sentence with a number that did not exist before. |
+| `/role-sourcing` | Finds and qualifies companies worth applying to, and decides per company whether a decade there is well spent and what you would lead with. |
+| `/role-outreach <company>` | Chooses the channel, finds the right person, and leaves the email as a Gmail draft. It never sends. |
+| `/role-apply <company>` | Fills a company's application forms in your browser and stops at the Submit button. |
+| `/grubhub` | Orders food through a few multiple-choice questions, reads back the real total with every fee, and stops at Place Order. |
+| `/loops` | Runs adversarial and judge subagents over work that looks finished, before anyone else sees it. |
+| `/dispatch` `/guidelines` `/skill-test` | The plumbing: routing a message to its channel, listing the lenses, and testing a new skill in a fresh session. |
+
+Skills that need your details, such as the job-search ones or `/grubhub`, read them from
+their `config/` folder. Each ships `*.example.*` files: copy one without `.example`, fill
+it in, and git ignores the result.
 
 ## The lenses
 
@@ -117,7 +144,7 @@ folder and nothing personal goes with it.
 
 | Section | Channels | Who writes |
 |---|---|---|
-| **Yours** | `#dexter` `#inbox` `#general` · `#projects` `#experiments` `#ideas` `#learning` | you; Dexter replies |
+| **Yours** | `#dexter` `#inbox` `#general` · `#projects` `#recruiting` `#experiments` `#ideas` `#learning` | you; Dexter replies |
 | **Builder** | `#skills` `#queue` `#log` `#thinking` `#building` | the system building itself |
 | **Notes** | `#notes` | you alone: Dexter reads it for context and never posts there |
 

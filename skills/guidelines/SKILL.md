@@ -28,9 +28,10 @@ Report concretely: what violates it, where, and the fix. Not a general appreciat
 the guideline.
 
 For `deslopification` specifically, prefer the executable version:
-`python3 skills/papers/scripts/deslop.py <run>` catches title shapes and density
-budgets that a read-through misses, on a papers run's folder. For any other page, read
-it against the guideline by hand.
+`python3 skills/papers/scripts/deslop.py <page.md>` catches title shapes and density
+budgets that a read-through misses. It takes a markdown page, reading its first heading
+as the title and skipping code, tables and frontmatter, or a papers run's folder. Run
+it, then fix what it flags.
 
 ## add <name>
 

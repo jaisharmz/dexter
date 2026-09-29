@@ -44,6 +44,18 @@ testing included." "This comes up roughly four times a quarter rather than
 weekly." The number is invented precision that performs diligence and commits
 the writer to something they cannot control. Cut the tally; state the commitment.
 
+**The narrated argument.** Prose that describes its own moves reads as generated: "I
+follow the chain from X to Y", "The first link is why...", "The second link is what...".
+So does a writer grading their own case in passing: "the argument is a chain, and I find
+it convincing." State the claim and let the paragraph carry it. In analytical writing
+(a review, an essay, a report) keep the writer out of it: no "I follow", "I find", "I
+argue". The operator marked all three as AI on sight.
+
+**Stacked semicolons.** One semicolon in a sentence is a choice. A sentence that chains
+three clauses with semicolons is an outline compressed into one line: "the need was
+inelastic, so it accepted X; those conditions opened Y; and shoppers saved a little
+while Z." Split it into sentences.
+
 **Manufactured completeness.** Risk sections with five entries where two are real,
 deliverable tables with a Completion Criterion column for every row, a reference list
 padded to look like a literature review. The shape of rigor without its substance.
