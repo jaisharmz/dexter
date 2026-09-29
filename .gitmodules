@@ -1,0 +1,3 @@
+[submodule "skills/papers-skill"]
+	path = skills/papers
+	url = https://github.com/jaisharmz/papers-skill.git

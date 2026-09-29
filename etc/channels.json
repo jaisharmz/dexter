@@ -1,0 +1,177 @@
+{
+  "guild": "000000000000000000",
+  "guildName": "dexter",
+  "_comment": "Channel map for the dexter server. mode is the default approval posture per DESIGN.md \u00a77: auto acts, plan proposes first, approve requires a yes before any action. Blast radius sets the default, and any message can override it.",
+  "channels": {
+    "general": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "plan",
+      "purpose": "Discord's default channel. Scratch space; nothing routes here.",
+      "write": "both"
+    },
+    "dexter": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "plan",
+      "purpose": "Main line to Dexter. Anything without a better home.",
+      "write": "both"
+    },
+    "skills": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "auto",
+      "purpose": "Live skill registry, regenerated from intel/skills by cron. Invoke skills here.",
+      "write": "dexter"
+    },
+    "queue": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "auto",
+      "purpose": "Deferred work, dependency-ordered. Nothing is dropped, only blocked.",
+      "write": "dexter"
+    },
+    "inbox": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "auto",
+      "purpose": "Dexter asks, you answer. Buttons and polls land here so a reply is one tap.",
+      "write": "both"
+    },
+    "log": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "auto",
+      "purpose": "Run history, router decisions, cost. Quiet unless you go looking.",
+      "write": "dexter"
+    },
+    "thinking": {
+      "id": "000000000000000000",
+      "group": "system",
+      "mode": "auto",
+      "purpose": "Dexter's reasoning, rendered as muted embeds so it never reads as an answer. Firehose for long-running tasks; short tasks thread their reasoning off the triggering message instead.",
+      "write": "dexter"
+    },
+    "recruiting": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "Recruiting. The job-search skills run here.",
+      "write": "both"
+    },
+    "outreach": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "approve",
+      "purpose": "Cold outreach and warm intros. Drafts only; nothing sends without an explicit yes.",
+      "write": "both"
+    },
+    "sourcing": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "SaaS and client sourcing. outbound-sourcing runs here.",
+      "write": "both"
+    },
+    "projects": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "Ongoing project work and brainstorming.",
+      "write": "both"
+    },
+    "experiments": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "auto",
+      "purpose": "Run things and see. Low blast radius on purpose, so Dexter acts without asking.",
+      "write": "both"
+    },
+    "learning": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "Reading paths, papers, teaching videos. The papers skill runs here.",
+      "write": "both"
+    },
+    "people": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "People worth knowing, VC contacts, the superconnector map.",
+      "write": "both"
+    },
+    "health": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "plan",
+      "purpose": "Personal health tracking.",
+      "write": "both"
+    },
+    "prospective-ideas": {
+      "id": "000000000000000000",
+      "group": "domain",
+      "mode": "auto",
+      "purpose": "Prospective ideas, captured verbatim. Distant connections get surfaced here.",
+      "write": "both"
+    },
+    "building": {
+      "id": "000000000000000000",
+      "group": "builder",
+      "mode": "plan",
+      "write": "both",
+      "purpose": "Building Dexter itself \u2014 features, architecture, what to build next."
+    },
+    "guidelines": {
+      "id": "000000000000000000",
+      "group": "builder",
+      "mode": "plan",
+      "write": "both",
+      "purpose": "Engineering guidelines. Each is a +lens; full references in kernel/guidelines/."
+    },
+    "perspectives": {
+      "id": "000000000000000000",
+      "group": "builder",
+      "mode": "plan",
+      "write": "both",
+      "purpose": "How Jai sees things \u2014 perspectives and further insights, plug-and-play into prompts."
+    },
+    "notes": {
+      "id": "000000000000000000",
+      "group": "notes",
+      "mode": "read-only",
+      "write": "jai",
+      "purpose": "Jai's own notes: life, meetings, thinking. Dexter READS this for context and NEVER writes here."
+    }
+  },
+  "_writeComment": "write=dexter means Dexter maintains it and Jai reads it; he never files entries there by hand. Ask for a feature anywhere and Dexter writes the queue item itself. write=both means either party starts a conversation.",
+  "categories": {
+    "Yours": [
+      "general",
+      "dexter",
+      "inbox",
+      "recruiting",
+      "outreach",
+      "sourcing",
+      "projects",
+      "experiments",
+      "prospective-ideas",
+      "learning",
+      "people",
+      "health"
+    ],
+    "Builder": [
+      "skills",
+      "queue",
+      "log",
+      "thinking",
+      "building",
+      "guidelines",
+      "perspectives"
+    ],
+    "Notes": [
+      "notes"
+    ]
+  },
+  "_categoryComment": "Three sections. 'Yours' is your life and work \u2014 you write, Dexter replies. 'Builder' is the system building itself. 'Notes' is yours alone: Dexter reads it for context and never posts there."
+}

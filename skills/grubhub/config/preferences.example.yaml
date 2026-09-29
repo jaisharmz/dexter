@@ -1,0 +1,65 @@
+# Copy to preferences.yaml and fill in. That file is gitignored: it holds a home
+# address and any allergies, and neither belongs in git history.
+#
+# Everything here exists to remove a question. If this skill ever asks something
+# twice, the answer belongs in this file — write it back on the spot.
+
+addresses:
+  # `default` is used without asking. A second entry is only ever asked about when
+  # the request does not say which, because delivering to the wrong one is the single
+  # unrecoverable mistake available here.
+  default: home
+  home:
+    label: "Home"
+    note: "leave at door"
+  work:
+    label: "Office"
+    note: "call on arrival"
+
+# Three tiers, because "I am allergic", "I don't eat that" and "not my first choice"
+# fail in completely different ways and collapsing them makes the skill feel stupid.
+
+# MEDICAL. A hard gate, checked against every item before it enters the cart. An item
+# whose description does not rule these out is asked about or dropped, never added
+# hopefully. Empty means no allergies, not "unknown" — say which in a comment.
+allergies: []
+  # - peanuts
+
+# ABSOLUTE, but not medical. Filter these out silently and never ask. Offering them is
+# not dangerous, it just wastes a question on an answer that will not change.
+never: []
+  # - cilantro
+
+# SOFT, with named exceptions. `unless` is the whole point: a blanket avoid on an
+# ingredient hides the one form of it they actually want, which is worse than not
+# filtering at all.
+#
+# `unless` matches either an ingredient or a dish/cuisine — "parmesan" is the first,
+# "pizza" the second.
+avoid: []
+  # - item: cheese
+  #   unless: [parmesan]
+  # - item: mushrooms
+  #   unless: [pizza]
+  #   trending: true      # they are actively eating more of this — surface it, do not bury it
+
+tip:
+  # Set it on every order. Grubhub pre-fills about 10% and its presets stop at $4.00,
+  # so any other amount needs the Custom tip field.
+  amount: 5        # or: percent: 20 / minimum: 5
+
+order:
+  utensils: false
+  # Presented first when no craving is named: a repeat is the likeliest answer.
+  prefer_reorder: true
+  # Stores worth surfacing before a generic search.
+  favourites: []
+    # - "Example Trattoria"
+    # - "Example Thai"
+  # Above this, say the number out loud before building the cart rather than after.
+  flag_total_above: 45
+
+defaults:
+  # Ignored when the operator says otherwise in the request.
+  mode: delivery       # delivery | pickup
+  max_eta_minutes: 45

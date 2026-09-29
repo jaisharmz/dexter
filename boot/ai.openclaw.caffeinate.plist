@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>ai.openclaw.caffeinate</string>
+  <!-- -i idle, -m disk, -s system-sleep-while-on-AC.
+       WHAT THIS DOES NOT DO: it cannot stop an *explicit* sleep. Closing the lid,
+       or running on battery, sleeps the Mac regardless — caffeinate only holds
+       PreventUserIdleSystemSleep. Confirmed 2026-08-31: this agent held its
+       assertion for 4 hours and the machine still froze four times
+       (90s, 11min, 15min, 78s), dropping the Discord socket each time.
+       The only real fixes are `sudo pmset -a disablesleep 1` (needs a password,
+       so it is Jai's to run) or moving the gateway to a machine that stays up —
+       queue #8 and #22. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/caffeinate</string>
+    <string>-i</string><string>-m</string><string>-s</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/tmp/openclaw-caffeinate.err</string>
+</dict>
+</plist>

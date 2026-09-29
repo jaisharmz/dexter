@@ -1,0 +1,31 @@
+# The private half of this workspace is its own repository.
+home/
+
+# OpenClaw runtime state
+var/log/
+var/run/
+.DS_Store
+
+# What the agent learns about its operator
+USER.md
+
+# Data files almost always contain real people, whatever folder they sit in.
+*.csv
+
+# Scratch
+var/*.html
+temp/
+
+# Skills keep personal detail on disk: answers given once, addresses, drafts to
+# named people. The rules cover whole directories, so a new file in one of them
+# cannot slip through. Only files named *.example.* are shared.
+skills/*/state/
+skills/*/config/*
+!skills/*/config/*.example.*
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Skills the Claude app syncs into ~/.claude/skills, which is a symlink to skills/
+skills/synced/

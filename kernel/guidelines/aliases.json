@@ -1,0 +1,14 @@
+{
+  "_comment": "Short forms for the + sigil. kernel/syntax.md is the human doc.",
+  "aliases": {
+    "+abstraction": "software-abstraction",
+    "+deslop": "deslopification",
+    "+system-design": "system-design",
+    "+autonomy": "autonomy",
+    "+throughput": "throughput",
+    "+ordering": "ordering",
+    "+presentation": "presentation",
+    "+core": "core-idea",
+    "+small": "start-small"
+  }
+}

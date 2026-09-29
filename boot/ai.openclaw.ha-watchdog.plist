@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>ai.openclaw.ha-watchdog</string>
+  <!-- One failover decision every 30s. See docs/HA.md.
+
+       This runs on BOTH nodes and is the only writer of ~/.openclaw/ha/role. It
+       only ever changes its own node's role, so there is no distributed agreement
+       here to get wrong.
+
+       Deliberately NOT tied to the gateway service: on the standby the gateway is
+       stopped, and the watchdog is the thing that has to notice the primary died
+       and start it. A watchdog that needed the gateway to be running could never
+       recover the case it exists for. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/you/Documents/intel/kernel/ha/watchdog.sh</string>
+  </array>
+  <key>StartInterval</key><integer>30</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/tmp/openclaw-ha-watchdog.out</string>
+  <key>StandardErrorPath</key><string>/tmp/openclaw-ha-watchdog.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>
