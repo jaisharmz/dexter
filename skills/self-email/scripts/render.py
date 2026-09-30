@@ -31,6 +31,11 @@ Spec shape (every key but "summary" and "sections" is optional):
 
 A cell is a string, a list of strings (one per line), or {"text": ..., "href": ...}.
 A column with "chips": true renders each string as a small label.
+
+A section can also carry "paragraphs" (a list of strings) and "blocks", a list of
+{"label": ..., "note": ..., "text": str or [str]} for drafts the reader is asked to
+review, such as essays: each renders as a bold label, a muted note, and the text set
+off by a left rule so a reply can quote it by label.
 """
 
 from __future__ import annotations
@@ -118,6 +123,15 @@ def render(spec: dict) -> str:
             parts.append(render_table(section))
         for paragraph in section.get("paragraphs", []):
             parts.append(f'<p style="font-size:14px;line-height:1.55;margin:8px 0;">{escape(paragraph)}</p>')
+        for block in section.get("blocks", []):
+            parts.append(f'<div style="font-size:14px;font-weight:700;margin:16px 0 4px;">{escape(block["label"])}</div>')
+            if block.get("note"):
+                parts.append(f'<div style="font-size:12px;line-height:1.45;color:{MUTED};margin:0 0 4px;">{escape(block["note"])}</div>')
+            texts = block["text"] if isinstance(block["text"], list) else [block["text"]]
+            for paragraph in texts:
+                parts.append(
+                    f'<p style="font-size:14px;line-height:1.6;margin:4px 0 8px;padding-left:10px;border-left:3px solid {RULE};">{escape(paragraph)}</p>'
+                )
     if spec.get("footer"):
         parts.append(f'<p style="font-size:12px;line-height:1.5;color:{MUTED};margin:22px 0 0;border-top:1px solid {RULE};padding-top:10px;">{escape(spec["footer"])}</p>')
     parts.append("</div>")
@@ -129,6 +143,9 @@ def render_text(spec: dict) -> str:
     for section in spec["sections"]:
         lines += ["", section["heading"], section.get("intro", "")]
         lines += section.get("paragraphs", [])
+        for block in section.get("blocks", []):
+            lines += ["", block["label"], block.get("note", "")]
+            lines += block["text"] if isinstance(block["text"], list) else [block["text"]]
     return "\n".join(line for line in lines if line is not None)
 
 
