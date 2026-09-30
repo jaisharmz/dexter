@@ -99,10 +99,11 @@ the channels, the daily posts, the heartbeat and your phone.
 | `/role-outreach <company>` | Chooses the channel, finds the right person, and leaves the email as a Gmail draft. It never sends. |
 | `/role-apply <company>` | Fills a company's application forms in your browser and stops at the Submit button. |
 | `/grubhub` | Orders food through a few multiple-choice questions, reads back the real total with every fee, and stops at Place Order. |
+| `/slides <topic>` | Makes slides that look like yours: it measures your style from your own decks, builds a .pptx from that profile, and checks every slide in Google Slides before handing it over. |
 | `/loops` | Runs adversarial and judge subagents over work that looks finished, before anyone else sees it. |
 | `/dispatch` `/guidelines` `/skill-test` | The plumbing: routing a message to its channel, listing the lenses, and testing a new skill in a fresh session. |
 
-Skills that need your details, such as the job-search ones or `/grubhub`, read them from
+Skills that need your details, such as the job-search ones, `/grubhub` or `/slides`, read them from
 their `config/` folder. Each ships `*.example.*` files: copy one without `.example`, fill
 it in, and git ignores the result.
 

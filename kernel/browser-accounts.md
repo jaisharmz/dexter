@@ -66,4 +66,15 @@ the earlier reading. The rules that follow from it:
 - **Screenshot after opening find, and confirm the box has focus before typing anything.**
 - **Read the doc's text first (the `/mobilebasic` view), then check it again after every edit.** A length and section check catches a replacement right away.
 - **If an edit goes wrong, undo immediately.** Undo in that tab only reaches your own changes since the tab loaded, so extra undos are safe. Then verify with `/mobilebasic` and tell the operator what happened.
-- **For an insertion into the operator's own doc, prefer handing them paste-ready text** unless the edit is large or repetitive. The canvas UI in a narrow window is where this went wrong.
+- **Do the insertion yourself, don't hand it back.** The operator wants agents to learn the procedure.
+
+**The insertion procedure that worked** (a bold title plus a numbered list, placed before an existing heading):
+
+1. Open `docs.google.com/document/u/<N>/d/<id>/edit` and screenshot. The full toolbar and menus must show; a narrow window collapses the UI.
+2. Press `cmd+f`, wait 2 seconds, and **screenshot**: the "Find in document" box must have focus.
+3. Type a unique anchor, the text of the paragraph you are inserting *before*. Screenshot: the text is in the box and the doc is unchanged.
+4. `Escape` (the match stays selected), then `Left` (the caret moves to the anchor's start). **Zoom** to confirm the caret.
+5. Type the new title and press `Return`. The title inherits the anchor's style.
+6. `Up`, `cmd+Right`, `Return`, then `cmd+shift+7` for a numbered list. Type one test character and zoom to check the formatting (`cmd+b` toggles inherited bold). Delete the test character.
+7. Type the items with `Return` between them, and no `Return` after the last.
+8. Verify through `/mobilebasic`: the tag and font-weight sequence around the insertion, the other sections' counts, and the total length.
