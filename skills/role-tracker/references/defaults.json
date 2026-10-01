@@ -1,0 +1,126 @@
+{
+  "palette": {
+    "red": {"background": "#FFD9D9", "text": "#B20D0D"},
+    "blue": {"background": "#DEEDFF", "text": "#2659A6"},
+    "green": {"background": "#D9F2D9", "text": "#1A7326"},
+    "purple": {"background": "#EDE0FF", "text": "#663399"},
+    "amber": {"background": "#FFEDD1", "text": "#99590D"},
+    "orange": {"background": "#FFE6CC", "text": "#A64C00"},
+    "teal": {"background": "#D1F2F2", "text": "#006B73"},
+    "pink": {"background": "#FFE0ED", "text": "#A61A59"},
+    "indigo": {"background": "#E0E0FF", "text": "#4040A6"},
+    "yellow": {"background": "#FFF7C7", "text": "#806B00"},
+    "grey": {"background": "#F0F0F0", "text": "#595959"},
+    "muted": {"text": "#999999"}
+  },
+  "header": {"background": "#1F2937", "text": "#FFFFFF"},
+  "bands": ["#FFFFFF", "#F8FAFC"],
+  "font": {"family": "Arial", "size": 10},
+
+  "chips": {
+    "Status": {"Offer": "green", "Interviewing": "blue", "Assessment": "amber", "Applied": "grey", "Held": "purple", "Rejected": "red", "Withdrawn/Closed": "muted"},
+    "Whose move": {"Your move": "red", "Waiting on them": "blue", "Scheduled": "green", "Agent's move": "purple", "On hold": "grey", "Closed": "muted"},
+    "Track": {"Full-time": "blue", "Internship": "amber", "Fellowship": "purple", "Unknown": "grey"},
+    "Area": {"bio": "green", "robotics": "orange", "world models": "teal", "RL": "pink", "inference": "indigo", "quant": "yellow", "other": "grey"},
+    "Stage": {"Offer": "green", "Interviewing": "blue", "Assessment": "amber", "Referral": "purple", "Warm path": "purple"},
+    "Who": {"You": "red", "Them": "blue", "Agent": "purple"},
+    "Action status": {"Open": "yellow", "In progress": "blue", "Scheduled": "green", "Waiting": "grey", "Done": "green"},
+    "Channel": {"Referral": "green", "Recruiter": "blue", "Talent partner": "teal", "Directory": "purple", "Warm": "orange"},
+    "Outreach status": {"Waiting on you": "red", "Draft ready": "green", "Not contacted": "yellow", "Applied": "blue", "Sent": "blue"}
+  },
+  "bold": ["Your move", "Scheduled", "You", "In progress", "Offer", "Interviewing", "Assessment", "Waiting on you", "Draft ready"],
+
+  "tabs": [
+    {"name": "Next actions", "color": "red", "align": "TOP",
+     "columns": [
+       {"name": "When", "width": 170, "bold": true, "wrap": true},
+       {"name": "Who", "width": 70, "chips": "Who"},
+       {"name": "What to do", "width": 520, "wrap": true},
+       {"name": "Company", "width": 170, "wrap": true},
+       {"name": "Link", "width": 100},
+       {"name": "Status", "width": 100, "chips": "Action status"}
+     ],
+     "urgent": {"column": "When", "starts": ["Today", "Overdue", "Ask now", "This week"]},
+     "done": {"column": "Status", "value": "Done"}},
+    {"name": "Applications", "color": "blue", "freeze_columns": 1, "filter": true, "bands": true,
+     "columns": [
+       {"name": "Company", "width": 210, "bold": true},
+       {"name": "Role", "width": 290, "wrap": true},
+       {"name": "Track", "width": 90, "chips": "Track"},
+       {"name": "Area", "width": 105, "chips": "Area"},
+       {"name": "Applied", "width": 80, "date": "mmm d"},
+       {"name": "Status", "width": 130, "chips": "Status"},
+       {"name": "Whose move", "width": 130, "chips": "Whose move"},
+       {"name": "Latest update", "width": 330, "wrap": true},
+       {"name": "Next step / date", "width": 320, "wrap": true},
+       {"name": "Link", "width": 80},
+       {"name": "Email", "width": 80}
+     ]},
+    {"name": "Pipeline", "color": "green", "bands": true,
+     "columns": [
+       {"name": "Company", "width": 200, "bold": true},
+       {"name": "Role", "width": 250, "wrap": true},
+       {"name": "Stage", "width": 130, "chips": "Stage"},
+       {"name": "Whose move", "width": 130, "chips": "Whose move"},
+       {"name": "Next date", "width": 105, "date": "ddd, mmm d"},
+       {"name": "When", "width": 250, "wrap": true},
+       {"name": "What to do", "width": 380, "wrap": true},
+       {"name": "Email", "width": 80}
+     ]},
+    {"name": "Outreach", "color": "purple", "align": "TOP",
+     "columns": [
+       {"name": "Company", "width": 140, "bold": true, "wrap": true},
+       {"name": "Person", "width": 260, "wrap": true},
+       {"name": "Channel", "width": 260, "wrap": true, "chips": "Channel", "match": "contains"},
+       {"name": "Status", "width": 280, "wrap": true, "chips": "Outreach status", "match": "contains"},
+       {"name": "Next step", "width": 280, "wrap": true},
+       {"name": "Updated", "width": 80, "date": "mmm d"}
+     ]},
+    {"name": "Summary", "color": "grey", "summary": true, "widths": [330, 105]}
+  ],
+
+  "records": {
+    "submitted": "Applied",
+    "awaiting-submit": "Held", "drafted": "Held", "security-code-sent": "Held",
+    "skipped": "Withdrawn/Closed", "not-eligible": "Withdrawn/Closed", "not-applying": "Withdrawn/Closed",
+    "blocked-account-wall": "Withdrawn/Closed", "withdrawn": "Withdrawn/Closed"
+  },
+  "replies": {
+    "offer": {"status": "Offer", "label": "Offer"},
+    "interview_invite": {"status": "Interviewing", "label": "Interview invite"},
+    "assessment": {"status": "Assessment", "label": "Assessment"},
+    "rejection": {"status": "Rejected", "label": "Rejection"},
+    "recruiter_outreach": {"status": null, "label": "Recruiter reply"}
+  },
+  "live": ["Offer", "Interviewing", "Assessment"],
+  "whose_move": {
+    "by_status": {"Offer": "Your move", "Interviewing": "Your move", "Assessment": "Your move", "Applied": "Waiting on them", "Held": "Your move", "Rejected": "Closed", "Withdrawn/Closed": "Closed"},
+    "by_action": [["wait*", "Waiting on them"], ["await*", "Waiting on them"], ["attend*", "Scheduled"]]
+  },
+
+  "tracks": {
+    "keywords": {
+      "Fellowship": ["fellow*", "residency", "talent network", "cohort", "scholar*"],
+      "Full-time": ["new grad*", "full-time"],
+      "Internship": ["intern", "interns", "internship*", "co-op"]
+    },
+    "default": "Full-time"
+  },
+  "areas": {
+    "keywords": {
+      "quant": ["quant", "quants", "quantitative", "trading", "trader*", "market mak*", "hedge fund*", "investment*"],
+      "bio": ["bio*", "protein*", "drug*", "therapeut*", "molecul*", "genom*", "pharma*", "chemi*", "clinical", "life science*"],
+      "robotics": ["robot*", "autonom*", "humanoid*", "embodied", "driving", "drone*", "perception", "manipulation"],
+      "world models": ["world model*", "video generat*", "video model*", "visual generative", "generative video"],
+      "RL": ["rl", "reinforcement", "post-train*", "posttrain*", "rlhf", "environments"],
+      "inference": ["inference", "serving", "kernel*", "gpu*", "performance", "runtime", "compiler*", "ml infra*", "training infra*", "ml system*", "ml platform", "model optimization", "accelerat*"]
+    },
+    "default": "other"
+  },
+
+  "summary": {
+    "not_submitted": ["Held", "Withdrawn/Closed"],
+    "replied": ["Interviewing", "Assessment", "Offer", "Rejected"],
+    "forward": ["Interviewing", "Assessment", "Offer"]
+  }
+}

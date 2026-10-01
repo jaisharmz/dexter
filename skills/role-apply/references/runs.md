@@ -27,8 +27,9 @@ broke it.
    optional "contact me about future roles" boxes are ticked, then the form is submitted. An
    agreement that waives a right, such as an arbitration agreement or a non-compete, goes to the
    operator, even when they accepted the same agreement on an earlier form at that company.
-4. **Hand over instead of working around** a sign-in, an account creation, a captcha, or a
-   "verification code to confirm you're a human". Leave the filled tab open, tell the operator,
+4. **Hand over instead of working around** a sign-in, an account creation, a captcha, a
+   "verification code to confirm you're a human", or a required question the form says exists
+   to stop bots (such as "what is the twelfth word of the job description"). Leave the filled tab open, tell the operator,
    and continue in a new tab. Never read such a code from the operator's inbox and type it. Also
    hand over anything only the operator can answer: a salary figure, a phonetic spelling of their
    name, a ranking of desks.
