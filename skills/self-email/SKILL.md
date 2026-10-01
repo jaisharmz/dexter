@@ -58,7 +58,15 @@ from a JSON spec; its docstring shows the shape.
 
 ## Sending it
 
-Through Claude in Chrome, in the operator's signed-in Gmail.
+**With the Gmail connector** (Google's own, in the session's tool list as `send_message`,
+`search_threads` and so on), send it directly. First confirm the connector is signed into
+the operator's account: `search_threads` for `in:sent newer_than:30d` and read the sender.
+Then `send_message` with `to` set to the operator's own address and nothing else,
+`subject`, `htmlBody` set to the rendered HTML and `body` set to the `--text` version.
+Confirm with `search_threads` that it landed in the inbox, unread. That is the whole send:
+no compose window, no paste.
+
+**Without the connector,** through Claude in Chrome, in the operator's signed-in Gmail.
 
 1. Write the spec to `temp/emails/<YYYY-MM-DD>-<slug>.json`, render it to `.html`
    beside it, and render `--text` for the deslop gate.

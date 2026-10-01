@@ -20,7 +20,9 @@ INTEL_ROOT=${_job_dir%/kernel/jobs}
 
 cd "$INTEL_ROOT"
 TARGET=$(channel_id queue) || { echo "post-queue: no id for #queue in etc/channels.json; run ./setup" >&2; exit 1; }
-BODY=$(node kernel/queue.mjs list)
+# The layered queue (kernel/pqueue.mjs) is in beta in intel; an install without it posts the
+# flat list.
+if [ -f kernel/pqueue.mjs ]; then BODY=$(node kernel/pqueue.mjs list); else BODY=$(node kernel/queue.mjs list); fi
 openclaw message send --channel discord --target "$TARGET" \
   -m "**Queue** — $(date '+%Y-%m-%d')
 \`\`\`

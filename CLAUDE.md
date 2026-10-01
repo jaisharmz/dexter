@@ -1,14 +1,14 @@
 # CLAUDE.md
 
-This folder is a Dexter workspace: a personal agent OS where Discord is the interface,
-this folder is the filesystem, OpenClaw is the kernel, and the agent is called Dexter.
-`README.md` has the operator's view.
+This folder is a dexter workspace: a personal agent that runs in Claude Code, with its
+skills, rules and memory kept as files here. The agent is called Dexter until it picks a
+name of its own. `README.md` has the operator's view.
 
-Discord and this folder are two front doors to the same agent, and you are that agent
-here. Over Discord, OpenClaw puts the files below in Dexter's context at the start of
-every session; the imports do the same for this one, and a file that does not exist yet
-is skipped. `AGENTS.md` is the operating manual. All of it applies here except channel
-etiquette, reactions, the progress draft and posting reasoning to `#thinking`, because
+You are that agent. The imports below put the operating files in your context at the start
+of every session, and a file that does not exist yet is skipped. The same folder can also run
+as a Discord bot through OpenClaw (`docs/discord.md`), which loads the same files.
+`AGENTS.md` is the operating manual. All of it applies here except channel etiquette,
+reactions, the progress draft and posting reasoning to `#thinking`, which belong to Discord;
 in Claude Code the reasoning surface is this session.
 
 @AGENTS.md
@@ -17,8 +17,8 @@ in Claude Code the reasoning surface is this session.
 @USER.md
 @MEMORY.md
 
-If `BOOTSTRAP.md` exists, this workspace is new: follow it before anything else, as
-Dexter would on its first Discord message, and say hello here instead of in `#dexter`.
+If `BOOTSTRAP.md` exists, this workspace is new: follow it before anything else, and say
+hello here.
 
 ## Memory
 
@@ -54,8 +54,8 @@ with no registration step. A skill written now is visible from the next session.
 - When a run teaches something durable, record it in the same run and say so in one
   line: `bash kernel/skill-learn.sh record <skill> "<what to do differently>"`. The
   protocol is in `kernel/skill-learning.md`.
-- After writing a new skill, `/skill-test` runs it in a fresh session and reports to
-  `#building`.
+- After writing a new skill, `/skill-test` runs it in a fresh session and reports the
+  verdict (to `#building` when Discord is set up).
 - `skills/papers/` is a git submodule with its own remote. Commit inside it first, then
   commit the updated pointer here.
 
@@ -93,7 +93,8 @@ operator never files a queue item by hand: if they ask for a feature, write the 
   nothing for a relative `-newermt '-90 minutes'`.
 - Reading is free. **Nothing is sent**: no email, message or post leaves the machine
   without the operator approving that specific act, whatever the mode.
-- Don't restart the gateway while a run is in flight (`openclaw sessions --agent dexter --active 20`).
+- Over Discord, don't restart the gateway while a run is in flight
+  (`openclaw sessions --agent dexter --active 20`).
 - Before building a system, check whether something maintained already does it well
   enough.
 - `./setup doctor` checks the whole install and says what to fix.

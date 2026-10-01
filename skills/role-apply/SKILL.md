@@ -303,6 +303,10 @@ design decisions, captchas, credentials and legal agreements — and for nothing
     config/answers.md      free-text seeds: why-this-firm, projects, strengths
     references/fill-rules.md  per-field discipline and the traps
     references/ats.md      Greenhouse, Workday, Lever, SmartRecruiters, Ashby
+    references/runs.md     batch runs: queues, the gate before every Submit, authorized submitting
+    scripts/gate.py        whether the operator may apply to a company today
+    scripts/next_in_queue.py   the next clear entries in a run
+    scripts/log_application.py record a submission and keep its confirmation screenshot
     state/applications.jsonl  what was applied to, when, with which resume
 
 If `config/profile.yaml` does not exist yet, copy `config/profile.example.yaml` to it and

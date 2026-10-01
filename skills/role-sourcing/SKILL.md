@@ -166,6 +166,7 @@ its people, turns a cap-table inference into a live relationship. Results go in
 3. `config/persona.md` — the artifact inventory the `thesis` judgment draws from.
 4. `references/schema.md` — the target record to write.
 5. `references/linkedin-read.md` — the people read, and the slug traps.
+6. `references/rolling-watch.md` — companies that post new-grad roles all year, and the daily watch.
 
 Both config files are the operator's own and never ship. If either is missing, copy
 `config/thesis.example.yaml` to `config/thesis.yaml` and `config/persona.example.md` to

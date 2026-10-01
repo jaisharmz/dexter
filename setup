@@ -9,9 +9,12 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 if ! command -v openclaw >/dev/null 2>&1; then
   cat <<'EOF'
-Dexter runs on OpenClaw, which is not installed yet. Install it, then run ./setup again:
+./setup puts Dexter on Discord through OpenClaw, which is not installed yet. Install it,
+then run ./setup again:
 
     curl -fsSL https://openclaw.ai/install.sh | bash
+
+To use Dexter in Claude Code alone, skip ./setup and run claude in this folder.
 EOF
   exit 1
 fi

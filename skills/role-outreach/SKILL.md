@@ -88,6 +88,10 @@ portfolio company the operator worked at, a partner who knows the work) makes it
 team a warm contact, not a cold one. Where one exists it is the single most underused
 asset on the whole list.
 
+When a fund shares a student directory, it is the warmest list of all: every company on it
+asked to meet students and names the person who reads the email. `references/vc-directories.md`
+has the record and how to use it.
+
 ## Sequencing, and why the order matters
 
 1. **Collision check** the whole target's people before anything else.

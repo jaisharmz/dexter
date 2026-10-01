@@ -89,6 +89,34 @@ confirm which option in the listbox has the focused class, press Return, and rea
 `.select__single-value` back. The Location (City) field can sit on "Loading..." for 5 to
 10 seconds before it offers suggestions, so give it that long.
 
+More from real runs on `job-boards.greenhouse.io`:
+
+- **Never press Return inside a dropdown.** With no option highlighted it submits the form,
+  and the failed attempt leaves "is required" errors that stay after valid picks. Open each
+  dropdown with a click and choose the option by clicking it, scoped to the open listbox,
+  because closed lists such as the phone-country list stay in the page. After a stray
+  submit, reload and refill.
+- **Never set a react-select's value by script** (native setter plus an input event). The
+  async School and Discipline lists then sit on "Loading" until the page is reloaded. Pick
+  each option by dispatching mousedown, mouseup and click on the option element.
+- **Fill the education block before the first Submit.** School, Degree, Discipline and the
+  end month and year can sit after the location fields, where a quick label scan misses
+  them, so read the board API's education setting or search for their refs. A Submit before
+  the block is filled leaves "is required" errors that may clear on the next Submit or may
+  need a reload and a full refill.
+- **"Cannot read properties of undefined (reading uploadFile)"** under Resume/CV means the
+  attachment failed even though the input holds the file. Load
+  `job-boards.greenhouse.io/embed/job_app?for=<board>&token=<id>` fresh and attach the
+  résumé before typing anything.
+- **Click Submit by its ref from `find`,** not by computed coordinates. When the window
+  changes size, the screenshot frame and the page's `innerWidth` stop matching and a
+  computed click lands on nothing.
+- **A message that a verification code was sent to confirm you are a human** is a bot
+  check. Leave the filled tab open and hand it to the operator (`runs.md`).
+- **A company's own careers page can embed the form with hidden native radios.** Set them by
+  clicking the input's label through script, and check the résumé again after upload,
+  because the form can re-render and drop the file.
+
 ## Lever
 
 Single page, simplest of the lot. "Additional Information" is a free-text box, usually
@@ -107,6 +135,42 @@ header in capitals, for one). To compare sibling postings' questions without lea
 filled form, POST the `ApiJobPosting` query to `/api/non-user-graphql` from the
 `jobs.ashbyhq.com` tab. Same-titled variants can carry different screening questions,
 such as a Master's-or-PhD yes/no that the plain posting does not ask.
+
+More from real runs on Ashby:
+
+- **Type email, phone and URL fields with real keystrokes.** The native value setter
+  registers for the name field but not for these, and Submit then fails with "Missing entry
+  for required field". Wait about five seconds after the résumé upload, then use a ref
+  `triple_click` followed by `type` (no cmd+a in between), and read each value back.
+- **Yes/No buttons and radio groups can desync.** A click shows the option pressed while the
+  form still reports the field missing. Answer with real clicks by ref and read
+  `aria-pressed` back. If it desyncs, click a different option first, then the right one.
+- **The first URL field after the résumé** (usually LinkedIn) can lose its value in form
+  state after the parse while the input still shows it. Retype it (ref `triple_click`,
+  `type`, Tab) and submit again.
+- **Blur the focused input before scrolling Submit into view.** When the tab comes to the
+  front, Chrome scrolls back to the focused field and a coordinate computed a moment earlier
+  lands on nothing. If neither a JS click nor a ref click on Submit does anything, click the
+  button's rect center times (screenshot width / `innerWidth`) right after a screenshot.
+- **Success text varies by company** ("successfully submitted", "Thanks for applying", "has
+  been received"). Detect the Success heading in `document.body.innerText` and read the
+  sentence after it.
+- **"There was a problem with the network connection"** did not create an application, so
+  reload and refill once. After a second failure at the same organization Ashby can switch to
+  "Application submission is unavailable at this time", which is a rate limit. Move to
+  another company and retry hours later, never in a loop.
+- **Read the application-limit notice before choosing roles.** It appears only on the
+  application page, so grepping postings misses it. POST
+  `https://jobs.ashbyhq.com/api/non-user-graphql?op=ApiJobPosting` asking for
+  `jobPosting.applicationLimitCalloutHtml`. Notices seen in September 2026: OpenAI 5
+  applications per 180 days, Cohere 5 per 90, Mistral 3 per 90, Harmonic 3 roles per 90,
+  Mercor and Deepgram 2 per 60, Supabase 3 per 60, and Sierra one across its new-grad roles.
+  Limits can differ between groups of roles, so query the posting itself.
+- **A cap can exist with no notice.** A company can refuse a second role at Submit ("you
+  have applied for a position in this domain within the last 90 days"), and no application
+  is created. Treat it as the company's policy, record it, and move on.
+- **Read `employmentType` before queueing.** A plain "Software Engineer" title can be a
+  contract posting.
 
 ## SmartRecruiters
 
@@ -325,7 +389,9 @@ These held on real runs and apply beyond any one firm.
   `input.uppy-Dashboard-input` that lacks `webkitdirectory`, `file_upload` to it, then
   click "Upload 1 file". Short text fields take the native value setter plus an `input`
   event (check `__reactProps.value`); long answers are rich-text editors behind a
-  zero-height input. The form keeps no draft, so a reload loses everything.
+  zero-height input. The form can restore an unsent draft from local storage, so reopen
+  the URL before refilling. If its Submit ignores a ref click, a coordinate click right
+  after a screenshot works.
 - **Google Forms uploads go through the Drive picker**, a same-origin iframe
   (`docs.google.com/picker`) whose file input the accessibility tree never shows. Click
   "Add file" by screen coordinates right after a screenshot (a JS or ref click does
@@ -341,3 +407,36 @@ These held on real runs and apply beyond any one firm.
   into the new empty line, set it to Normal text (cmd+alt+0), then paste. Docs drops empty
   `<p>` blocks, so add blank lines afterwards (click the line, Home, Return), working
   bottom-up so earlier positions do not shift.
+- **Put a focus check between a click and typing.** With the browser behind other windows,
+  a click followed at once by `type` can drop every keystroke. A one-line script read of
+  `document.activeElement` between them confirms the right field has focus and gives the
+  page the moment it needs.
+- **Another agent's tab steals keystrokes.** When two agents drive the same browser, typing
+  into a tab that is not in front is lost without an error. Take a screenshot of the form
+  tab to bring it forward before each typing batch, and check the values by script before
+  Submit.
+- **Smooth scrolling moves the target.** Coordinates read right after `scrollIntoView` are
+  mid-animation. Scroll with `behavior: 'instant'`, wait a second, then read
+  `getBoundingClientRect()`, or click by ref.
+- **Autofill extensions get in the way.** Simplify's extension, if installed, opens an "Add
+  Custom Application" modal after a résumé upload, after Submit and on the next page load,
+  and its side panel shrinks the page so ref clicks land off target and keystrokes go
+  nowhere. Close the modal, take a screenshot before typing, focus fields with
+  `element.focus()`, and read every value back. Turning the extension off for a run is
+  simpler.
+- **A portal that remembers a past application prefills stale answers,** such as last
+  year's track and class year. Correct both to the role being applied for, upload the
+  current résumé and transcript as new files, and read every field back. An intake form that
+  asks about other interview processes gets peers with concrete stages, and its deadline
+  field stays blank unless there is a real offer deadline.
+- **Stage uploads inside the workspace.** When the upload tool refuses a file outside the
+  folders the session can read, copy it into the workspace and confirm with `cmp` that the
+  copy matches the original.
+- **To replace a Google Doc's whole body,** click in the body, press cmd+Up, cmd+shift+Down
+  and Delete, and take a screenshot to confirm the page is blank before pasting. Cmd+A and
+  Edit > Select all can select nothing in a background tab, and the paste then doubles the
+  document.
+- **Find and replace in Google Docs:** set the Find and Replace fields with `form_input` by
+  ref, check the match count on screen, then Replace all. A triple-click plus typing can send
+  the text into the document instead. Undo one step at a time with an export check after
+  each, since Docs splits typing into word-sized undo steps.

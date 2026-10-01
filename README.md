@@ -1,116 +1,138 @@
 # dexter
 
-A personal agent OS you can run yourself. **Discord is the interface, this folder is the
-filesystem, OpenClaw is the kernel, and the agent is called Dexter.** Under the hood,
-Dexter is Claude Code, run by [OpenClaw](https://openclaw.ai) behind a Discord bot you
-own, so you can reach it from anywhere, your phone included.
+A personal agent workspace for [Claude Code](https://claude.com/claude-code). Open the folder
+in Claude Code and the agent works from the skills, rules and memory inside it.
 
-The point is not the skills it ships with. It's that adding the next one is cheap: a
-skill is a markdown file, a lens is a markdown file, and the agent edits both, so a
-correction made in one run is a file the next run reads.
+A correction you make once becomes a file that every later run reads. Claude Code starts each
+session from what is on disk, and dexter keeps more there, in plain files the agent edits as
+it works. Each skill keeps a `LEARNED.md` of the corrections it has earned, read before every
+run. A rule you care about becomes a lens you attach to any message with `+name`. Work that
+cannot happen yet goes into a queue with its dependencies instead of being forgotten.
 
-```
- phone ─► Discord ─► OpenClaw gateway ─► Claude Code, as Dexter
-                     (the kernel)             │ reads and edits
-                                              ▼
-                     this folder   skills/      what it can do: /commands
-                                   kernel/      how it works: +lenses, the queue, jobs
-                                   AGENTS.md    its operating manual
-                                   home/        your private half, its own repository
-```
+The same folder can also run as an always-on bot in your own Discord server, through
+[OpenClaw](https://openclaw.ai), so you can reach it from your phone. Nothing else in it
+depends on Discord.
 
-## Set it up
+## What it adds to Claude Code
 
-You need a Mac, Linux or WSL machine that stays on, with git, python3,
-[Claude Code](https://claude.com/claude-code) logged in, and OpenClaw:
+| | what you get | Claude Code on its own |
+|---|---|---|
+| **Skills that learn** | When you correct a run, the lesson goes into that skill's `LEARNED.md` during the same run. Later runs read it before anything else, and a lesson that holds moves into the skill itself. | Skills are files you edit by hand. Auto memory keeps project notes, not corrections tied to a skill. |
+| **Lenses** | Short rule files you attach to any message: `+deslop`, `+core`, `+ordering`. Two are always on: act without asking except for four kinds of decision, and run independent work in parallel. | Skills and output styles. Nothing attaches a rule to a single message. |
+| **A queue of deferred work** | Work that is blocked waits on what it depends on and survives every session. Ask for a feature and the agent files the item. | A session's task list ends with the session. `/loop` and scheduled tasks repeat a prompt, but nothing keeps a backlog. |
+| **An operating manual** | `AGENTS.md` makes the agent choose its lenses before the first step, save the prompts that show how you think, commit and push its own changes, and keep memory in dated files. | `CLAUDE.md` holds whatever you write in it. |
+| **A private half** | `home/` is a separate git repository with no remote, for raw prompts, your writing, other people's writing and contacts. Privacy is a directory boundary, so a slip in habit cannot leak it. | One repository, kept private by `.gitignore` discipline. |
+| **Approval before anything is sent** | It reads mail, pages and files freely and sends nothing without your yes for that specific act. | Permission modes govern tool calls, not what leaves in an email. |
+| **Starter skills** | Research reading paths, field maps, the job search from sourcing to tracker, food orders, slides, self-emails and anonymization. | None. |
+| **Discord, if you want it** | An OpenClaw gateway: one channel per kind of work, each with its own approval mode, daily queue and skills posts, and your phone. | Remote Control and the mobile app reach a session. There is no Discord gateway. |
 
-```
-curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
-```
+Everything else (`CLAUDE.md`, skills, subagents, hooks, MCP connectors, auto memory, scheduled
+tasks) is Claude Code's own, and dexter uses it as it is.
 
-Then:
+## What leaves your machine
+
+- **Nothing is sent without your yes.** No email, message, post or form submission goes out
+  until you approve that specific act, and no mode overrides this. Job applications stop at
+  Submit unless you authorize a run to submit for you, and even then an agreement that waives
+  a right, such as arbitration, comes back to you.
+- **Your private half stays local.** `home/` has no remote and is ignored by the workspace.
+  So are `USER.md`, `memory/`, every skill's `state/` and `config/` (apart from the
+  `*.example.*` files), and every `*.csv`.
+- **The workspace becomes your own private repository.** On the first run the agent renames
+  this repository's remote to `upstream` and, with your yes, creates a private GitHub
+  repository as `origin`. Your lessons, skills and lenses are pushed there. GitHub makes
+  every fork of a public repository public, so this is a new repository instead of a fork.
+- **The model sees what the agent reads,** as in any Claude Code session.
+
+## How a run goes
+
+You type `/role-apply Example Robotics`. Dexter reads `skills/role-apply/SKILL.md`, then the
+skill's `LEARNED.md`, whose entries override it. It lists the company's open roles as a
+multi-select, and you pick one. It fills the form in your browser from `config/profile.yaml`
+and stops at Submit with a review sheet.
+
+You notice the start-date box says "flexible" and reply that forms want a month and a year.
+It fixes the field and, in the same run, writes one line to
+`skills/role-apply/LEARNED.md`. Every later run of the skill, in any session, reads that line
+before it starts. Once a lesson has held twice, or you state it as a rule, it moves into the
+skill's own text.
+
+## Start
+
+Both ways in begin with a clone:
 
 ```
 git clone --recurse-submodules https://github.com/jaisharmz/dexter
 cd dexter
+```
+
+**In Claude Code.** You need git, python3, node and Claude Code. Run `claude` in the folder.
+`.claude/skills` links to `skills/` and `CLAUDE.md` loads the operating manual, so nothing
+else needs setting up. On your first message the agent reads `BOOTSTRAP.md`: it picks its own
+name, asks you a few questions, creates `home/`, and offers to make the folder your own
+private repository. Type `??` to list every skill and lens.
+
+**Over Discord, optionally.** To reach it from your phone, run it as a bot on a machine that
+stays on. Install OpenClaw, then run `./setup`:
+
+```
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 ./setup
 ```
 
 `./setup` walks you through making a Discord bot and an empty server, which takes a few
-minutes in Discord's developer portal, and does the rest itself:
+minutes in Discord's developer portal. Then it points OpenClaw at this folder with your Claude
+Code login, so the model runs on your subscription rather than API billing. It creates the
+channels, lets only your account drive the bot, installs the gateway as a service, and
+schedules the daily posts. Run it again any time, and `./setup doctor` checks every piece.
+[`docs/discord.md`](docs/discord.md) covers the channels, their approval modes, and what to do
+when the bot goes quiet.
 
-- points OpenClaw at this folder, signed in with your Claude Code login, so the model runs
-  on your subscription rather than API billing
-- creates the channels in your server, and keeps their ids in `etc/channels.local.json`,
-  which git ignores
-- lets only you drive Dexter: the bot answers your Discord account and nobody else's
-- installs the gateway as a service, so Dexter survives reboots
-- schedules the daily `#queue` digest and `#skills` registry
-- creates `home/`, your private half, as its own repository
+## Starter skills
 
-Run it again any time; it only does what is missing. `./setup doctor` checks every piece
-and says what to fix. Then say hello in `#dexter`: on its first message Dexter reads
-`BOOTSTRAP.md`, picks its own name, vibe and emoji, and asks you a few questions.
+A skill is a folder with a `SKILL.md`, run as `/name`. Skills that need your details read them
+from their own `config/` folder, which ships `*.example.*` files: copy one without `.example`,
+fill it in, and git ignores the result.
 
-## From the folder
-
-Discord and this folder are two front doors to the same agent. Open Claude Code in the
-clone (`cd dexter && claude`) and you get the same skills, lenses, queue, memory,
-personality and operating manual, before or without `./setup`: `.claude/skills` links to
-`skills/`, and `CLAUDE.md` loads the same files OpenClaw loads for Dexter. Discord adds
-the channels, the daily posts, the heartbeat and your phone.
-
-## In one minute
-
-- You type in one channel, `#dexter`. Dexter decides which channel the work belongs in,
-  does it there, and leaves a one-line pointer where you asked.
-- `/papers world models` runs a skill. `+deslop` applies a lens to one message. Those two
-  sigils are the whole calling convention, and `??` lists everything.
-- A skill is a folder with a `SKILL.md`. Drop one into `skills/` and it is a `/command` in
-  every new session, in Discord and in Claude Code, with nothing to register.
-- When you correct a run, the lesson goes into that skill's `LEARNED.md` during the same
-  run, and every later run reads it first.
-- It reads anything and sends only what you approve. No email, message or post leaves the
-  machine without a yes for that specific act.
-
-## What's inside
-
-| path | what it is |
-|---|---|
-| `AGENTS.md` | the operating manual Dexter reads every session |
-| `skills/` | the starter skills below, each a folder with a `SKILL.md` |
-| `kernel/guidelines/` | the lenses: short rules pulled into any message with `+` |
-| `kernel/queue.mjs` | deferred work with dependencies, so blocked work waits instead of vanishing |
-| `kernel/skill-learn.sh` | records a correction into a skill's `LEARNED.md` |
-| `kernel/jobs/` | the daily posts, and two scripts for watching a long run |
-| `etc/channels.json` | the channel map: purpose, default mode and id of every channel |
-| `kernel/routing-table.json` | how `dispatch` decides where a message goes, in a file you can correct |
-| `home/` | your private half: raw prompts, your writing, other people's writing, contacts |
-
-## The starter skills
+**Research and learning**
 
 | skill | what it does |
 |---|---|
-| `/papers <topic>` | Builds one ordered reading path, where the first M entries are about the best M you could have read, each saying which lab it came from and what that lab believes. |
-| `/industry-research <field>` | Maps a field end to end with ten agents, from scouts to a page builder. The fact-checker runs before the style edit, so a fabricated finding can't hide behind good prose. |
-| `/guided-learning <topic>` | Teaches by asking one guiding question at a time, so you derive the idea instead of being handed it. `n` answers the current step for you; `q` steps back to first principles. |
-| `/proof-project <field>` | Finds the one project that would prove you can work in a field you haven't worked in yet, ending in a sentence with a number that did not exist before. |
-| `/role-sourcing` | Finds and qualifies companies worth applying to, and decides per company whether a decade there is well spent and what you would lead with. |
-| `/role-outreach <company>` | Chooses the channel, finds the right person, and leaves the email as a Gmail draft. It never sends. |
-| `/role-apply <company>` | Fills a company's application forms in your browser and stops at the Submit button. |
+| `/papers <topic>` | Builds one ordered reading path in which the first M entries are about the best M you could have read, each saying which lab it came from and what that lab believes. |
+| `/industry-research <field>` | Maps a field end to end with ten agents, from scouts to a page builder. The fact-checker runs before the style edit, so a fabricated finding cannot hide behind good prose. |
+| `/guided-learning <topic>` | Teaches by asking one guiding question at a time, so you derive the idea instead of being handed it. `n` answers the current step for you, and `q` steps back to first principles. |
+| `/proof-project <field>` | Finds the one project that would prove you can work in a field you have not worked in yet, ending in a sentence with a number that did not exist before. |
+
+**The job search, from sourcing to tracker**
+
+| skill | what it does |
+|---|---|
+| `/role-sourcing` | Finds companies worth applying to, from curated new-grad lists, VC portfolio boards and a daily watch of companies that post new-grad roles all year, and decides per company whether a decade there is well spent. |
+| `/role-outreach <company>` | Chooses the channel (a fund's talent team, a referral, the role's owner, the form), finds the person, and leaves the email as a Gmail draft. It never sends. |
+| `/role-apply <company>` | Fills the application in your browser and stops at Submit. In a run you authorize, it works down a queue, with a double-application check before every Submit. |
+| `/role-tracker` | Keeps a Google Sheet of every application and live process, with a "Whose move" column that shows at a glance what is yours to do and what waits on someone else. |
+
+**Everyday**
+
+| skill | what it does |
+|---|---|
 | `/grubhub` | Orders food through a few multiple-choice questions, reads back the real total with every fee, and stops at Place Order. |
 | `/slides <topic>` | Makes slides that look like yours: it measures your style from your own decks, builds a .pptx from that profile, and checks every slide in Google Slides before handing it over. |
-| `/loops` | Runs adversarial and judge subagents over work that looks finished, before anyone else sees it. |
-| `/dispatch` `/guidelines` `/skill-test` | The plumbing: routing a message to its channel, listing the lenses, and testing a new skill in a fresh session. |
+| `/self-email` | Sends you a report you can read in a minute on your phone, with the detail in tables ordered by what to do first. |
 
-Skills that need your details, such as the job-search ones, `/grubhub` or `/slides`, read them from
-their `config/` folder. Each ships `*.example.*` files: copy one without `.example`, fill
-it in, and git ignores the result.
+**Quality and plumbing**
+
+| skill | what it does |
+|---|---|
+| `/loops` | Runs adversarial and judge subagents over work that looks finished, before anyone else sees it. |
+| `/anonymize <path>` | Removes the personal data from a file, folder or document and keeps the principles and the way of thinking, then scans the result for leaks. This repository is built with it. |
+| `/dispatch` `/guidelines` `/skill-test` | Routing a message to the right channel, listing the lenses, and testing a new skill in a fresh session. |
 
 ## The lenses
 
-A lens is a prompt fragment in `kernel/guidelines/`. They began as rules one person wrote
-down for his own agent; edit them, delete them, or write your own.
+A lens is a short markdown rule in `kernel/guidelines/`, attached to a message with `+name`.
+They are plain text, so they also work pasted into any other chat. They began as one person's
+rules for their own agent: edit them, delete them, or write your own.
 
 | lens | the rule |
 |---|---|
@@ -121,97 +143,78 @@ down for his own agent; edit them, delete them, or write your own.
 | `+small` | Make it work at the smallest scale that can show it, check it by eye, then grow in steps. |
 | `+system-design` | Complexity, not correctness, is what kills long-lived systems. |
 | `+abstraction` | Add an abstraction only if it shrinks what a reader has to hold in their head. |
-| `+autonomy` `+throughput` | Always on. Act without asking unless it's a design decision, a captcha, a credential or a legal agreement, and run everything in the background and in parallel. |
+| `+autonomy` `+throughput` | Always on. Act without asking unless it is a design decision, a captcha, a credential or a legal agreement, and run independent work in the background and in parallel. |
 
 ## Make it yours
 
-**A skill.** Make `skills/<name>/SKILL.md` with `name` and `description` frontmatter and
-the instructions below it. Then `/skill-test <name> "<a prompt that should use it>"`
-runs it in a fresh session, and the verdict lands in `#building`. `bash kernel/skill-learn.sh sync` adds the learning
-footer every skill carries.
+**A skill** needs two fields of frontmatter and the instructions below them:
 
-**A lens.** Drop a markdown file with `name`, `summary` and `triggers` frontmatter into
-`kernel/guidelines/`, and give it a short form in `kernel/guidelines/aliases.json`.
+```markdown
+---
+name: standup
+description: Write today's standup from yesterday's commits. Use when I say "standup".
+---
 
-**The channels.** Edit `etc/channels.json` (and `kernel/routing-table.json` to match),
-then run `./setup` again. Channels that already exist are matched by name, never doubled,
-and a channel whose mode is `read-only` is one Dexter can read but never answers in.
+# Standup
 
-**Your own repository.** On its first run Dexter renames this clone's remote to
-`upstream`, makes a private repository under your GitHub account the new `origin`, and
-from then on pushes every lesson, skill and lens it adds. That is how your Dexter drifts
-from this one into yours. It is a private repository rather than a GitHub fork because a
-fork of a public repository is always public, and yours will hold lessons about you.
-`git pull upstream main` takes new versions of dexter, and `./setup doctor` says if the
-step was skipped.
+1. Run `git log --since=yesterday` in each repository under `~/code`.
+2. Group the commits by project and write three lines: done, doing, blocked.
+3. Keep it under 80 words, and ask before posting it anywhere.
+```
 
-**Your private half.** `home/` is a separate git repository with no remote, ignored by
-this one, along with `USER.md`, `memory/` and your server's ids. None of it leaves the
-machine, even when the rest is pushed.
+Save it as `skills/standup/SKILL.md` and it is `/standup` in every new session.
+`/skill-test standup "write my standup"` runs it in a fresh session, and
+`bash kernel/skill-learn.sh sync` adds the learning footer every skill carries.
 
-## Day to day
+**A lesson** is one dated line in the skill's `LEARNED.md`. The agent writes it with
+`bash kernel/skill-learn.sh record <skill> "<what to do differently>"` during the run that
+taught it, and says so in one line:
 
-| Section | Channels | Who writes |
-|---|---|---|
-| **Yours** | `#dexter` `#inbox` `#general` · `#projects` `#recruiting` `#experiments` `#ideas` `#learning` | you; Dexter replies |
-| **Builder** | `#skills` `#queue` `#log` `#thinking` `#building` | the system building itself |
-| **Notes** | `#notes` | you alone: Dexter reads it for context and never posts there |
+```markdown
+- **2026-10-01** — "When can you start?" takes a month and a year, not a sentence.
+```
 
-Every channel has a default posture, set by blast radius and overridable in any message:
+**A lens** is a markdown file with `name`, `summary` and `triggers` frontmatter in
+`kernel/guidelines/`, with a short form in `kernel/guidelines/aliases.json`.
 
-- `auto` acts without asking (`#experiments`, `#ideas`)
-- `plan` proposes first (most channels)
-- `approve` does nothing without an explicit yes. Put it on any channel where a mistake
-  costs something.
-
-Long runs leave their reasoning in `#thinking`, as muted embeds so it never reads as an
-answer, and every routing decision lands in `#log`.
-
-## Deferred work
+**Deferred work** goes in the queue:
 
 ```
-node kernel/queue.mjs list          what's ready, what's blocked and on what
-node kernel/queue.mjs next          highest-priority eligible item
+node kernel/queue.mjs list          what is ready, what is blocked and on what
+node kernel/queue.mjs next          the highest-priority eligible item
 node kernel/queue.mjs add "<title>" --priority 7 --depends 4
 node kernel/queue.mjs done 4
 ```
 
-Items carry dependencies and are topologically sorted, so nothing is dropped, only
-blocked. Ask Dexter for a feature in any channel and it files the item itself; `#queue`
-gets the list every morning.
+`git pull upstream main` takes new versions of dexter into your own repository.
 
-## When it goes quiet
+## What the agent reads
 
-Start with `./setup doctor`. Then, in the order these failures actually stack:
+| file | when | what it holds |
+|---|---|---|
+| `CLAUDE.md` | every Claude Code session | imports the files below |
+| `AGENTS.md` | every session | the operating manual |
+| `SOUL.md`, `IDENTITY.md` | every session | its character, and the name it picked on the first run |
+| `USER.md` | every session | your preferences, as dated directives it rewrites when they change |
+| `BOOTSTRAP.md` | the first run, then deleted | the first-run steps |
+| `skills/<name>/SKILL.md`, then `LEARNED.md` | when the skill runs | the skill, then its corrections, which win |
+| `kernel/guidelines/<lens>.md` | on `+lens`; `autonomy` and `throughput` always | the lens |
+| `memory/YYYY-MM-DD.md` | written as it works | the day's notes |
 
-1. **Plugin not trusted.** Discord is an external plugin: configured is not enough, it
-   must also be trusted, or the inbound listener never starts while outbound still works.
-   `openclaw config set plugins.entries.discord.enabled true`, then
-   `openclaw gateway restart`. Healthy looks like `openclaw channels status` →
-   `enabled, configured, running, connected`.
-2. **The machine slept.** Sleep kills the websocket. On a Mac, battery sleep ignores
-   `caffeinate`, and closing the lid ignores power: keep it plugged in and open, or run
-   Dexter on something that stays on.
-3. **Gateway wedged.** `admission closed: suspend phase` repeating every 30 seconds means
-   a session hung mid-run. `openclaw gateway restart`.
-4. **Poisoned session.** Dexter reacts 👀 but never replies, and the log says
-   `cause=skipped:duplicate`.
-   `openclaw sessions archive --agent dexter "agent:dexter:discord:channel:<id>"`.
+## Related projects
 
-Don't restart the gateway while a run is in flight: long skill runs take 30 minutes or
-more, and a restart redoes the work. `openclaw sessions --agent dexter --active 20` shows
-what's live.
-
-Three signals that look like failure and aren't: the typing indicator vanishing during a
-long tool call, `stalled session` in the log after 15 minutes, and a long stretch with no
-disk writes. `sh kernel/jobs/dexter-turns.sh` lists today's runs, and
-`sh kernel/jobs/watch-dexter.sh` follows the log for the lines that matter.
+[LifeOS](https://github.com/danielmiessler/LifeOS) is the closest relative: a personal AI
+harness on Claude Code built around your goals and context.
+[Superpowers](https://github.com/obra/superpowers) is a skills framework and development
+methodology for coding agents. [anthropics/skills](https://github.com/anthropics/skills) is
+Anthropic's public collection of agent skills. [OpenClaw](https://openclaw.ai) is the gateway
+dexter uses for Discord.
 
 ## Where it came from
 
-dexter is the public bootstrap of intel, the private workspace my own Dexter runs from.
-When something significant changes there, such as a new mechanism or a better skill, an
-agent carries it across through a leak gate, and I approve every push. So this repository
-moves with a setup that is used every day.
+dexter is the public build of intel, the private workspace its author runs every day. When
+something significant changes there, an agent carries it across: `/anonymize` takes out the
+personal data and keeps the thinking, a leak gate scans the result, and the author approves
+every push. So this repository moves with a setup in daily use.
 
-Built by Jai Sharma on OpenClaw and Claude Code. MIT licensed.
+Built by Jai Sharma on Claude Code. MIT licensed.

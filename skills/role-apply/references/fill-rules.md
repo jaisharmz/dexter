@@ -73,6 +73,28 @@ role and the season and a stale one on record is worse than a blank.
 **Start date.** A specific date, not "flexible", when the field demands one. Ask if the
 profile says `ASK`.
 
+**How answers read.** These held up under the operator's review:
+
+- Prose answers use full sentences. Fragments are fine only inside a list.
+- A list inside a plain-text box is written as lines starting with `> `, nested items as
+  `> > `, with no bullet glyphs or numbering.
+- Short factual fields take the bare answer: "When can you start?" is a month and a year,
+  not a sentence about graduating. Save sentences for boxes that ask why or how.
+- A joint result opens with "We", and authorship detail (co-first author and the like) goes
+  in the project list rather than naming collaborators mid-sentence.
+- Describe the operator's own systems at the level of intuition: what it does, why it is
+  built that way, and what it has produced. Leave out internal file and folder names.
+- An "additional information" box gets the operator's accomplishments list as `> ` lines,
+  one line per industry role with a concrete result, never a note explaining a start-date
+  conflict.
+- A cover-letter slot does not need a letter. A one-page links sheet or a writing sample can
+  go there. On the links sheet every line must earn its place, because weaker items make the
+  strong ones look less impressive: open with a two-line block of counts (papers, patents,
+  awards) and leave the rest to a personal site.
+- When an events question fits only through the firm's own events, do not claim one. Answer
+  "Other" with a true fact from the operator's record and flag it in the handoff.
+- Numeric fields take plain digits with no thousands separators.
+
 ---
 
 ## Things never to do
@@ -89,6 +111,9 @@ profile says `ASK`.
   sees both.
 - **Never fill an optional free-text box with filler.** An empty optional box costs
   nothing; a paragraph of nothing costs credibility.
+
+These hold unless the operator has authorized a run to submit for them. Then `runs.md`
+says which boxes the agent ticks and which still go to the operator.
 
 ---
 

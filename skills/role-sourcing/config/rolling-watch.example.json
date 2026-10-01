@@ -1,0 +1,59 @@
+{
+ "about": "An example. Copy it to config/rolling-watch.json and make it yours: set class_year to the class you are in, write your own areas pattern, and add a company whenever a sweep or the Simplify list shows it posting new-grad reqs more than once a year. Each company is read from its own feed by scripts/rolling_watch.py; references/rolling-watch.md explains every field. Workday facet ids are copied from the careers URL's query string.",
+ "defaults": {
+  "class_year": 2027,
+  "newgrad": "new (college )?grad|university (grad|hire)|recent grad|graduate(?! intern)|early[- ]career|entry[- ]level|\\b2027\\b|campus|rotation(al)? (program|engineer)|residen(t|cy)|\\bjunior\\b|\\b(engineer|scientist|developer|researcher|sde|swe)\\s*(i|1)\\b|\\bl3\\b",
+  "exclude": "\\bintern(ship)?s?\\b|co-?op|senior|\\bsr\\.?\\b|\\bstaff\\b|principal|\\blead\\b|manager|director|head of|\\bvp\\b|vice president|ph\\.?d|postdoc|\\bmba\\b|\\b(ii|iii|iv)\\b|\\b(engineer|scientist|developer) (2|3|4)\\b|architect|fellow\\b|2026|immediate start|start immediately|technician|labeler|physical design|\\bdft\\b|design verification|\\bcad\\b|analog|mixed-signal|firmware|wireless|cellular|\\brf\\b|electrical|mechanical|manufacturing|\\bcleared\\b|\\bpoly\\b|polygraph|ts/sci|veteran",
+  "areas": "machine learning|\\bml\\b|\\bai\\b|artificial intelligence|deep learning|inference|compiler|gpu|research|robot|autonom|perception|simulation|reinforcement|computer vision|data scien|applied scien|infrastructure|distributed|software",
+  "years_floor": 2,
+  "location_exclude": "\\b(UK|United Kingdom|London|Cambridge, UK|Dublin|Ireland|Toronto|Vancouver|Montreal|Canada|Singapore|Bucharest|Romania|Barcelona|Madrid|Spain|Doha|Qatar|India|Bangalore|Bengaluru|Hyderabad|Pune|Tel Aviv|Israel|Zurich|Switzerland|Munich|Berlin|Germany|Paris|France|Amsterdam|Netherlands|Tokyo|Japan|Sydney|Australia|Seoul|Korea|Taipei|Taiwan|Shanghai|Beijing|China|Mexico|Brazil|Poland|Warsaw|Krakow|Abu Dhabi|Dubai|UAE)\\b"
+ },
+ "companies": [
+  {
+   "name": "NVIDIA",
+   "slug": "nvidia",
+   "source": "workday",
+   "tenant": "nvidia",
+   "pod": "wd5",
+   "site": "NVIDIAExternalCareerSite",
+   "facets": {
+    "workerSubType": [
+     "ab40a98049581037a3ada55b087049b7"
+    ],
+    "locationHierarchy1": [
+     "2fcb99c455831013ea52fb338f2932d8"
+    ]
+   },
+   "prefiltered": true,
+   "why": "Each team posts its own New College Grad req when it has headcount, February to September; the US new-college-grad facet holds them all."
+  },
+  {
+   "name": "Google",
+   "slug": "google",
+   "source": "simplify",
+   "match": "^Google$",
+   "why": "Custom career site, so it is read through the Simplify new-grad list."
+  },
+  {
+   "name": "Anthropic",
+   "slug": "anthropic",
+   "source": "greenhouse",
+   "board": "anthropic",
+   "why": "Posts continuously; new-grad routes appear as fellowship or residency reqs."
+  },
+  {
+   "name": "OpenAI",
+   "slug": "openai",
+   "source": "ashby",
+   "org": "openai",
+   "why": "Posts continuously across research and applied teams."
+  },
+  {
+   "name": "Toyota Research Institute",
+   "slug": "tri",
+   "source": "lever",
+   "account": "tri",
+   "why": "Opens resident reqs team by team, alongside occasional early-career research roles."
+  }
+ ]
+}

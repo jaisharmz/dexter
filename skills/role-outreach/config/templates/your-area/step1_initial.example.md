@@ -17,35 +17,47 @@ notes: |
   come from the target record. `requires` lists every one of them, and if any is missing
   for this target, this template does not fit it.
 
-  Each part does a job. The bolded question up front can be answered in one line.
-  thesis.claim and thesis.bridge are the reason this person, at this company, is getting
-  this email, and thesis.url is where the reader can check the claim. Without them there
-  is no email, and `requires` makes that a stop rather than a judgment call. The closing
-  bolded line turns a wrong-person reply into a pointer instead of silence.
+  Each part does a job. The bolded question up front can be answered in one line. The
+  greeting line says where the contact came from when someone shared it, because that is
+  the first thing the reader wonders. thesis.claim and thesis.bridge are the reason this
+  person, at this company, is getting this email, and thesis.url is where the reader can
+  check the claim. Without them there is no email, and `requires` makes that a stop rather
+  than a judgment call.
+
+  The work list is four to six bullets, each a bolded title and a few words. Very brief:
+  the attachments carry the detail. The closing bolded line is the second question, and the
+  line after it turns a wrong-person reply into a pointer instead of silence.
+
+  Attach the résumé first, then work samples ordered by relevance to this company, then a
+  one-page links sheet last. Links go at the end of the email, one per line.
 ---
 <p>Hello {{ contact.first_name }}!</p>
 
-<p><strong>Are you the right person to talk to about the {{ hiring.title }} role at {{ company }}?</strong></p>
+<p><strong>Would it be possible to [the ask in one line, such as a short chat about the {{ hiring.title }} role]?</strong></p>
 
-<p>My name is [first name], and I am [one line: where you study or work, and when you can
-start]. I work on [your area, in your own words], [where that work happens: a lab, a team,
-a project].</p>
+<p>I hope this email finds you well. [Where the contact came from, if someone shared it:
+"<Name> at <organization> shared your contact with me."] My name is [first name], and I am
+[one line: where you study or work, and when you can start]. The reason I am writing to you
+specifically: {{ thesis.claim }} (<a href="{{ thesis.url }}">{{ thesis.url_label }}</a>).
+{{ thesis.bridge }}</p>
 
-<p>The reason I am writing to you specifically: {{ thesis.claim }}
-(<a href="{{ thesis.url }}">{{ thesis.url_label }}</a>). {{ thesis.bridge }}</p>
-
-<p>A bit of what else I have worked on:</p>
+<p>I have had the chance to work on:</p>
 
 <p>
-<strong>- [Organisation]:</strong> [one line on what you built there, with a number]<br>
-<strong>- [Organisation]:</strong> [one line on what you built there, with a number]<br>
+<strong>- [Title]:</strong> [a few words, with a number if there is one]<br>
+<strong>- [Title]:</strong> [a few words]<br>
+<strong>- [Title]:</strong> [a few words]<br>
+<strong>- [Title]:</strong> [a few words]<br>
 </p>
 
-<p>I applied through your careers page as well. <strong>If you are not the right person,
-would you mind pointing me to whoever owns this role?</strong></p>
+<p>I was wondering if it would be possible to [the ask, specific to them]. I have attached my
+résumé and some of my recent work, and I applied through your careers page as well.
+<strong>Are you free for a 15 minute chat to discuss [the topic]?</strong> If you are not the
+right person, would you mind pointing me to whoever owns this role?</p>
 
 <p>Sincerely,<br>
 - [full name]<br>
-<a href="[your Google Scholar, GitHub or portfolio URL]">[Google Scholar, GitHub or portfolio]</a><br>
-<a href="[your LinkedIn URL]">LinkedIn</a><br>
+<a href="[your Google Scholar or portfolio URL]">Google Scholar profile</a><br>
+<a href="[your LinkedIn URL]">LinkedIn profile</a><br>
+<a href="[your GitHub URL]">GitHub profile</a><br>
 </p>
