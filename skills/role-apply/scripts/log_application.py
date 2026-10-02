@@ -31,7 +31,8 @@ def main():
     folder = ROOT / "temp" / "applications" / "confirmations" / today
     folder.mkdir(parents=True, exist_ok=True)
     name = re.sub(r"[^a-z0-9]+", "-", f"{arguments.company} {arguments.role}".lower()).strip("-")[:90] + pathlib.Path(arguments.screenshot).suffix
-    shutil.copy(arguments.screenshot, folder / name)
+    if pathlib.Path(arguments.screenshot).resolve() != (folder / name).resolve():
+        shutil.copy(arguments.screenshot, folder / name)
     evidence = f"temp/applications/confirmations/{today}/{name}"
 
     entry = {"date": today, "company": arguments.company, "role": arguments.role, "url": arguments.url, "ats": arguments.ats,

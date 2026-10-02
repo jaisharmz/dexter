@@ -1,7 +1,8 @@
 """Print the next applications to make from a run's queues, skipping what is done, skipped or blocked.
 
 A run directory (e.g. skills/role-apply/state/run-2026-10-01/) holds:
-    queue_<name>.json   lists of entries: company, role, apply_url, ats, notes, essay_required, needs_account, ...
+    queue_<name>.json   lists of entries: company, role, apply_url, ats, notes, essay_required, needs_account,
+                        policy (a policy starting "HOLD" holds the entry for the operator), ...
     order.json          {"order": ["<queue name>", ...], "internship_queues": [...], "internship_companies": [...]}
     skips.json          {"<normalized company>": "<why>"}, written by --skip
     log.jsonl           what this run has submitted (log_application.py --run appends to it)
@@ -55,11 +56,12 @@ def main():
             if name in config.get("internship_queues", []) and key not in config.get("internship_companies", []):
                 continue
             seen.add(key)
-            (held if entry.get("essay_required") or entry.get("needs_account") else ready).append((name, entry))
+            on_hold = str(entry.get("policy") or "").upper().startswith("HOLD")
+            (held if entry.get("essay_required") or entry.get("needs_account") or on_hold else ready).append((name, entry))
 
     if "--held" in sys.argv:
         for name, entry in held:
-            why = "essay" if entry.get("essay_required") else "account"
+            why = "essay" if entry.get("essay_required") else "account" if entry.get("needs_account") else "hold"
             print(f"[{name}] {why:8} {entry.get('company')} | {entry.get('role')} | {entry.get('apply_url')}")
         return
 

@@ -85,17 +85,19 @@ one, because a page-wide `[role=option]` query also returns the phone widget's h
 of about 240 countries. In a tab that is not in front, JS `focus()` plus typing sends
 nothing. What works every time: `find` the combobox by its label to get a ref, `scroll_to`
 that ref, `left_click` it (which opens the menu and fronts the tab), type the option text,
-confirm which option in the listbox has the focused class, press Return, and read
-`.select__single-value` back. The Location (City) field can sit on "Loading..." for 5 to
-10 seconds before it offers suggestions, so give it that long.
+confirm which option in the listbox has the focused class, press Tab, and read
+`.select__single-value` back. Tab selects the focused option and never submits the form.
+Typing filters by substring, so "Male" also matches "Female": check the focused option
+first. The Location (City) field can sit on "Loading..." for 5 to 10 seconds before it
+offers suggestions, so give it that long.
 
 More from real runs on `job-boards.greenhouse.io`:
 
 - **Never press Return inside a dropdown.** With no option highlighted it submits the form,
   and the failed attempt leaves "is required" errors that stay after valid picks. Open each
-  dropdown with a click and choose the option by clicking it, scoped to the open listbox,
-  because closed lists such as the phone-country list stay in the page. After a stray
-  submit, reload and refill.
+  dropdown with a click and choose the option by typing its text and pressing Tab, or by
+  clicking it, scoped to the open listbox, because closed lists such as the phone-country
+  list stay in the page. After a stray submit, reload and refill.
 - **Never set a react-select's value by script** (native setter plus an input event). The
   async School and Discipline lists then sit on "Loading" until the page is reloaded. Pick
   each option by dispatching mousedown, mouseup and click on the option element.
