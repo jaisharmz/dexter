@@ -138,6 +138,7 @@ Memory is limited. "Mental notes" don't survive session restarts; files do. Befo
 - Before changing config or schedulers (crontab, systemd units, nginx configs, shell rc files), inspect existing state first and preserve/merge by default.
 - Prefer `trash` over `rm` - recoverable beats gone forever.
 - When in doubt, ask.
+- Every tool call is logged and checked (`kernel/audit/`). When a call comes back `[audit: <rule>]`, it was blocked on purpose: don't try another way to do the same act. Tell the operator what was held.
 
 ## Existing Solutions Preflight
 

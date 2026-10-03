@@ -31,8 +31,9 @@
   "bold": ["Your move", "Scheduled", "You", "In progress", "Offer", "Interviewing", "Assessment", "Waiting on you", "Draft ready"],
 
   "tabs": [
-    {"name": "Next actions", "color": "red", "align": "TOP",
+    {"name": "Next actions", "color": "red", "align": "TOP", "freeze_columns": 1,
      "columns": [
+       {"name": "Order", "width": 60, "number": "0", "center": true, "muted": true},
        {"name": "When", "width": 170, "bold": true, "wrap": true},
        {"name": "Who", "width": 70, "chips": "Who"},
        {"name": "What to do", "width": 520, "wrap": true},
@@ -42,8 +43,9 @@
      ],
      "urgent": {"column": "When", "starts": ["Today", "Overdue", "Ask now", "This week"]},
      "done": {"column": "Status", "value": "Done"}},
-    {"name": "Applications", "color": "blue", "freeze_columns": 1, "filter": true, "bands": true,
+    {"name": "Applications", "color": "blue", "freeze_columns": 2, "filter": true, "bands": true,
      "columns": [
+       {"name": "Order", "width": 60, "number": "0", "center": true, "muted": true},
        {"name": "Company", "width": 210, "bold": true},
        {"name": "Role", "width": 290, "wrap": true},
        {"name": "Track", "width": 90, "chips": "Track"},
@@ -56,8 +58,9 @@
        {"name": "Link", "width": 80},
        {"name": "Email", "width": 80}
      ]},
-    {"name": "Pipeline", "color": "green", "bands": true,
+    {"name": "Pipeline", "color": "green", "bands": true, "freeze_columns": 1,
      "columns": [
+       {"name": "Order", "width": 60, "number": "0", "center": true, "muted": true},
        {"name": "Company", "width": 200, "bold": true},
        {"name": "Role", "width": 250, "wrap": true},
        {"name": "Stage", "width": 130, "chips": "Stage"},
@@ -78,6 +81,14 @@
      ]},
     {"name": "Summary", "color": "grey", "summary": true, "widths": [330, 105]}
   ],
+
+  "order": {
+    "Next actions": {"who": ["You", "Them", "Agent"],
+                     "days": {"Overdue": -1, "Today": 0, "Tonight": 0, "Now": 0, "Ask now": 0, "ASAP": 0, "Since": 0, "Tomorrow": 1}},
+    "Applications": {"groups": ["Your move", "Scheduled", "Agent's move", "Waiting on them", "On hold", "Closed"],
+                     "newest_first": ["Waiting on them"]},
+    "Pipeline": {"groups": ["Offer", "Interviewing", "Assessment"]}
+  },
 
   "records": {
     "submitted": "Applied",

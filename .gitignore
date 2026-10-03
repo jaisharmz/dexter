@@ -10,6 +10,9 @@ memory/
 # This install's Discord ids, written by ./setup.
 etc/channels.local.json
 
+# The audit's local settings: your own addresses and anyone you email by standing approval.
+etc/audit.local.json
+
 # Runtime state: the queue store, logs, scratch.
 var/
 temp/

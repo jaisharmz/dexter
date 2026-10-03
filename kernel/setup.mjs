@@ -37,6 +37,7 @@ const MESSAGE_CONTENT = (1 << 18) | (1 << 19); // application flags: full or lim
 const JOBS = [
   { name: "queue-digest", display: "Queue digest", cron: "0 9 * * *", script: "kernel/jobs/post-queue.sh" },
   { name: "skills-registry", display: "Skill registry", cron: "5 9 * * *", script: "kernel/jobs/post-skills.sh" },
+  { name: "audit-report", display: "Audit report", cron: "15 9 * * *", script: "kernel/jobs/post-audit.sh" },
 ];
 
 const say = (line) => console.log(line);
@@ -414,6 +415,18 @@ const ensureProjectSkills = () => {
   warn(".claude/skills is not a link to skills/, so Claude Code here may not see these skills");
 };
 
+// Every agent action is logged and checked by one hook in ~/.claude/settings.json, the
+// settings file both Claude Code and Dexter read (kernel/audit/README.md). The install
+// merges into whatever hooks are already there.
+const AUDIT = join(ROOT, "kernel/audit/audit.mjs");
+const auditInstalled = () => spawnSync(process.execPath, [AUDIT, "installed"]).status === 0;
+
+const ensureAudit = () => {
+  if (!auditInstalled()) spawnSync(process.execPath, [AUDIT, "install"], { stdio: "inherit" });
+  if (auditInstalled()) return done("every agent action is logged to var/log/audit/ and checked before it runs");
+  warn("the audit hook is not installed: node kernel/audit/audit.mjs install");
+};
+
 const HOME_README = `# home
 
 Your private half, and its own git repository with no remote. The workspace around it
@@ -498,6 +511,7 @@ const doctor = () => {
   }
 
   check(projectSkillsSeen(), "Claude Code opened in this folder sees skills/", "./setup");
+  check(auditInstalled(), "every agent action is logged and checked (kernel/audit)", "node kernel/audit/audit.mjs install");
 
   const origin = remote("origin");
   const ownRepository = "gh repo create dexter --private --source . --remote origin && git push -u origin main";
@@ -531,6 +545,7 @@ const setup = async () => {
   await ensureGateway(changed || tokenStored || installed === true);
   ensureJobs();
   ensureProjectSkills();
+  ensureAudit();
   ensureHome();
   if (created) {
     const index = spawnSync("sh", [join(ROOT, "kernel/jobs/post-index.sh")], { encoding: "utf8" });

@@ -22,7 +22,8 @@ depends on Discord.
 | **A queue of deferred work** | Work that is blocked waits on what it depends on and survives every session. Ask for a feature and the agent files the item. | A session's task list ends with the session. `/loop` and scheduled tasks repeat a prompt, but nothing keeps a backlog. |
 | **An operating manual** | `AGENTS.md` makes the agent choose its lenses before the first step, save the prompts that show how you think, commit and push its own changes, and keep memory in dated files. | `CLAUDE.md` holds whatever you write in it. |
 | **A private half** | `home/` is a separate git repository with no remote, for raw prompts, your writing, other people's writing and contacts. Privacy is a directory boundary, so a slip in habit cannot leak it. | One repository, kept private by `.gitignore` discipline. |
-| **Approval before anything is sent** | It reads mail, pages and files freely and sends nothing without your yes for that specific act. | Permission modes govern tool calls, not what leaves in an email. |
+| **Approval before anything is sent** | It reads mail, pages and files freely and sends nothing without your yes for that specific act. A hook enforces this, so it holds even when the agent forgets. | Permission modes govern tool calls, not what leaves in an email. |
+| **Every action logged and audited** | One hook writes each prompt and tool call, from every surface including Discord, to a local ledger. It flags sends, pushes, deletes and submits; holds third-party email, force pushes and edits to itself for your yes; blocks a few acts that are never right, such as `rm -rf ~` and a call looping eight times; and posts a daily audit to `#log`. `node kernel/audit/audit.mjs report` reads it back. | Hooks are there to write and wire yourself. Transcripts are per session, with no audit across them. |
 | **Starter skills** | Research reading paths, field maps, the job search from sourcing to tracker, food orders, slides, self-emails and anonymization. | None. |
 | **Discord, if you want it** | An OpenClaw gateway: one channel per kind of work, each with its own approval mode, daily queue and skills posts, and your phone. | Remote Control and the mobile app reach a session. There is no Discord gateway. |
 
@@ -42,6 +43,7 @@ tasks) is Claude Code's own, and dexter uses it as it is.
   this repository's remote to `upstream` and, with your yes, creates a private GitHub
   repository as `origin`. Your lessons, skills and lenses are pushed there. GitHub makes
   every fork of a public repository public, so this is a new repository instead of a fork.
+- **The audit ledger stays local.** `var/log/audit/` is ignored by git, cut short, and has anything shaped like a secret removed before it is written.
 - **The model sees what the agent reads,** as in any Claude Code session.
 
 ## How a run goes
@@ -83,8 +85,8 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 `./setup` walks you through making a Discord bot and an empty server, which takes a few
 minutes in Discord's developer portal. Then it points OpenClaw at this folder with your Claude
 Code login, so the model runs on your subscription rather than API billing. It creates the
-channels, lets only your account drive the bot, installs the gateway as a service, and
-schedules the daily posts. Run it again any time, and `./setup doctor` checks every piece.
+channels, lets only your account drive the bot, installs the gateway as a service and the
+audit hook (`kernel/audit/README.md`), and schedules the daily posts. Run it again any time, and `./setup doctor` checks every piece.
 [`docs/discord.md`](docs/discord.md) covers the channels, their approval modes, and what to do
 when the bot goes quiet.
 

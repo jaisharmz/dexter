@@ -2,13 +2,19 @@
 and the sheet is a view of them: this prints what to write, and the Sheets connector writes it.
 
     python3 skills/role-tracker/scripts/tracker.py rows [--tab Applications|Pipeline] [--requests] [--explain]
+    python3 skills/role-tracker/scripts/tracker.py rows --tab "Next actions" --current <values.json> [--requests] [--explain]
     python3 skills/role-tracker/scripts/tracker.py summary [--json | --values | --stamp]
     python3 skills/role-tracker/scripts/tracker.py layout (--current <metadata.json> | --fresh) [--tab <name>] [--sheets "Name=id,..."]
 
 rows     {"Applications": [[header], ...], "Pipeline": [...]} for a values update with USER_ENTERED.
+         Each row starts with its Order, 1..N in the order the tab is meant to be read (the
+         "order" rules in defaults.json), so sorting by Order restores it after any other sort.
          --requests prints batchUpdate requests instead: typed cells (dates as dates, links as
          HYPERLINK formulas) that also clear the values and pasted links in the rows below.
-         --explain prints a table saying where each row's Area came from.
+         --explain prints a table saying why each row sits where it does and where its Area came from.
+         Next actions is kept by hand, so it needs --current: the tab as it stands, saved from
+         get_values or from get_spreadsheet with rowData (which keeps the HYPERLINK formulas).
+         Its rows come back in order with the queue's ranking for the undated ones.
 summary  counts by status, track, area and whose move. --values prints the Summary tab, formulas
          over Applications; --stamp prints its last-updated line from the system clock.
 layout   batchUpdate requests: tab names, order and colors, header row, column widths, frozen
@@ -31,19 +37,28 @@ import datetime
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 SKILL = pathlib.Path(__file__).resolve().parents[1]
+ROOT = SKILL.parent.parent
 RECORDS = SKILL.parent / "role-apply" / "state"
 COMPANY_SUFFIXES = {"inc", "llc", "ltd", "corp", "corporation", "co", "company", "group", "technologies", "labs", "ai", "trading", "capital"}
 ROLE_FILLER = {"a", "an", "and", "at", "for", "in", "of", "on", "the", "to", "with"}
 ACRONYMS = {"ai", "ml"}
-FIELDS = {"Company": "company", "Role": "role", "Track": "track", "Area": "area", "Applied": "applied", "Status": "status",
-          "Stage": "stage", "Whose move": "whose_move", "Latest update": "update", "Next date": "next_date", "When": "when",
-          "What to do": "todo"}
+FIELDS = {"Order": "order", "Company": "company", "Role": "role", "Track": "track", "Area": "area", "Applied": "applied",
+          "Status": "status", "Stage": "stage", "Whose move": "whose_move", "Latest update": "update", "Next date": "next_date",
+          "When": "when", "What to do": "todo"}
 SETTABLE = {"role", "track", "area", "applied", "status", "whose_move", "update", "next", "next_date", "url", "email",
             "pipeline", "when", "todo"}
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+MONTH_DAY = re.compile(r"\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|"
+                       r"nov(?:ember)?|dec(?:ember)?)\.?\s+(\d{1,2})\b", re.I)
+CLOCK = re.compile(r"\b(\d{1,2})(?::(\d{2}))?\s*(?:-\s*\d{1,2}(?::\d{2})?\s*)?(am|pm)\b(?:\s*(pt|pdt|pst|mt|mdt|mst|ct|cdt|cst|et|edt|est)\b)?", re.I)
+HOURS_AHEAD_OF_PACIFIC = {"p": 0, "m": 1, "c": 2, "e": 3}
+QUEUE_ITEM = re.compile(r"queue #(\d+)")
+LAST = datetime.date.max.toordinal()
 WARNED = set()
 
 
@@ -132,10 +147,51 @@ def rank(order, value):
     return order.index(value) if value in order else len(order)
 
 
+def day_number(value):
+    return datetime.date.fromisoformat(value).toordinal() if ISO_DATE.fullmatch(value or "") else None
+
+
+def month_days(text, today):
+    """Every month and day the text names, each in the year that puts it within half a year of today."""
+    days = []
+    for month, day in MONTH_DAY.findall(text or ""):
+        for year in (today.year, today.year - 1, today.year + 1):
+            try:
+                candidate = datetime.date(year, MONTHS.index(month[:3].lower()) + 1, int(day))
+            except ValueError:
+                break
+            if abs((candidate - today).days) <= 183:
+                days.append(candidate)
+                break
+    return days
+
+
+def last_update(row, today):
+    """The newest day among the row's records, its replies and the days its Latest update names, never one still to come."""
+    named = [record.get(key) for record in row["records"] for key in ("date", "submitted_date")] + [reply.get("date") for reply in row["replies"]]
+    days = [datetime.date.fromisoformat(day) for day in named if ISO_DATE.fullmatch(day or "")]
+    days += [day for day in month_days(row["update"], today) if day <= today]
+    return max(days).isoformat() if days else ""
+
+
+def application_key(row, order, statuses):
+    """Whose move in the order's groups; inside a group the soonest next date, then status, then the newest update,
+    except that the groups in newest_first put the newest update first."""
+    soonest, newest, status = day_number(row["next_date"]) or LAST, -(day_number(row["updated"]) or 0), rank(statuses, row["status"])
+    within = (newest, status, soonest) if row["whose_move"] in order.get("newest_first", []) else (soonest, status, newest)
+    return (rank(order["groups"], row["whose_move"]),) + within + (row["company"].lower(), row["role"].lower())
+
+
+def pipeline_key(row, order, moves):
+    """Stage in the order's groups, every other stage (the warm paths) after them; then the soonest next date."""
+    return (rank(order["groups"], row["stage"]), day_number(row["next_date"]) or LAST, rank(moves, row["whose_move"]),
+            -(day_number(row["updated"]) or 0), row["company"].lower(), row["role"].lower())
+
+
 def new_row(**fields):
     row = {"company": "", "names": set(), "source": "", "role": "", "track": "", "area": "", "area_from": "", "applied": "",
            "status": "", "whose_move": "", "update": "", "next": "", "next_date": "", "url": "", "email": "", "pipeline": "",
-           "when": "", "todo": "", "first_date": "", "replies": [], "records": [], "fixed": set()}
+           "when": "", "todo": "", "first_date": "", "updated": "", "order": "", "replies": [], "records": [], "fixed": set()}
     row.update(fields)
     return row
 
@@ -280,7 +336,8 @@ def set_fields(row, entry):
         row["fixed"].add(field)
 
 
-def build(defaults, overrides, applications, responses):
+def build(defaults, overrides, applications, responses, today=None):
+    today = today or datetime.date.today()
     aliases = overrides.get("aliases", {})
     exclude = overrides.get("exclude", [])
 
@@ -324,19 +381,23 @@ def build(defaults, overrides, applications, responses):
             row["area"], row["area_from"] = area_of(row, defaults, overrides.get("areas", {}))
         if "whose_move" not in row["fixed"]:
             row["whose_move"] = whose_move(row, defaults)
+        row["updated"] = last_update(row, today)
 
-    statuses, moves = list(defaults["chips"]["Status"]), list(defaults["chips"]["Whose move"])
-    rows.sort(key=lambda row: (row["company"].lower(), row["role"].lower()))
-    rows.sort(key=lambda row: row["applied"], reverse=True)
-    rows.sort(key=lambda row: (rank(statuses, row["status"]), rank(moves, row["whose_move"]), row["next_date"] or "9999-12-31"))
+    order, statuses = defaults["order"], list(defaults["chips"]["Status"])
+    rows.sort(key=lambda row: application_key(row, order["Applications"], statuses))
+    for position, row in enumerate(rows, 1):
+        row["order"] = position
 
     pipeline = [dict(row, stage=row["pipeline"] or row["status"], todo=row["todo"] or row["next"]) for row in rows
                 if row["pipeline"] or row["status"] in defaults["live"]]
     for entry in overrides.get("pipeline_add", []):
         row = new_row(company=entry["company"], names={entry["company"]}, source=entry["company"])
         set_fields(row, entry)
+        row["updated"] = last_update(row, today)
         pipeline.append(dict(row, stage=row["pipeline"], todo=row["todo"] or row["next"]))
-    pipeline.sort(key=lambda row: (row["next_date"] or "9999-12-31", rank(moves, row["whose_move"]), row["company"].lower()))
+    pipeline.sort(key=lambda row: pipeline_key(row, order["Pipeline"], order["Applications"]["groups"]))
+    for position, row in enumerate(pipeline, 1):
+        row["order"] = position
     return rows, pipeline
 
 
@@ -363,9 +424,107 @@ def tab_values(defaults, name, rows):
     return [columns] + [[cell(column, row) for column in columns] for row in rows]
 
 
-def typed(value, is_date):
-    if value == "":
+def due(text, today, days):
+    """The day a When cell names, and the minute of that day in Pacific time when it gives a clock time. A leading word
+    in days counts from today ("Now", "Today", "Since Sep 15"); "Before Mon Oct 5" is the day before; "Within 2 weeks",
+    "This week" (its Sunday) and "Next week" (its Monday) count from today. Anything else ("Soon", "Decide") is undated."""
+    words, named = flat(text), month_days(text, today)
+    lead = next((offset for word, offset in days.items() if re.match(flat(word) + "(?: |$)", words)), None)
+    within = re.match(r"within (\d+) (day|week)s?\b", words)
+    if lead is not None:
+        day = today + datetime.timedelta(days=lead)
+    elif named:
+        day = named[0] - datetime.timedelta(days=1 if words.startswith("before ") else 0)
+    elif within:
+        day = today + datetime.timedelta(days=int(within[1]) * (7 if within[2] == "week" else 1))
+    elif words.startswith("this weekend"):
+        day = today + datetime.timedelta(days=max(0, 5 - today.weekday()))
+    elif words.startswith("this week"):
+        day = today + datetime.timedelta(days=6 - today.weekday())
+    elif words.startswith("next week"):
+        day = today + datetime.timedelta(days=7 - today.weekday())
+    else:
+        return None, None
+    clock = CLOCK.search(text or "")
+    if not clock:
+        return day, None
+    hour = int(clock[1]) % 12 + (12 if clock[3].lower() == "pm" else 0) - HOURS_AHEAD_OF_PACIFIC[(clock[4] or "p")[0].lower()]
+    return day, hour * 60 + int(clock[2] or 0)
+
+
+def queue_ranks():
+    """Each open queue item's place: the layered queue's own order (frame, tier, then its place in the tier), or
+    priority in the flat queue, which lists by id."""
+    script = next((ROOT / "kernel" / name for name in ("pqueue.mjs", "queue.mjs") if (ROOT / "kernel" / name).exists()), None)
+    if script is None:
         return {}
+    try:
+        listing = subprocess.run(["node", str(script), "list"], capture_output=True, text=True, timeout=60, check=True).stdout
+    except (OSError, subprocess.SubprocessError) as error:
+        warn(f"could not read the queue ({error}); undated Next actions keep their current order")
+        return {}
+    items = [(int(item), int(priority)) for item, priority in re.findall(r"^\s*(?:READY|blocked)\s+#(\d+) \[p(\d+)\]", listing, re.M)]
+    if script.name == "queue.mjs":
+        items.sort(key=lambda item: (-item[1], item[0]))
+    return {item: position for position, (item, _) in enumerate(items)}
+
+
+def stored(cell):
+    value = (cell or {}).get("userEnteredValue", {})
+    for kind in ("formulaValue", "stringValue", "boolValue"):
+        if kind in value:
+            return value[kind]
+    number = value.get("numberValue", "")
+    return int(number) if isinstance(number, float) and number.is_integer() else number
+
+
+def read_tab(path):
+    """A tab's rows from a get_values response, a get_spreadsheet response with rowData, or a plain list of rows."""
+    data = json.loads(pathlib.Path(path).read_text())
+    if isinstance(data, dict) and "sheets" in data:
+        return [[stored(cell) for cell in row.get("values", [])] for row in data["sheets"][0]["data"][0].get("rowData", [])]
+    return data["values"] if isinstance(data, dict) else data
+
+
+def next_actions(values, defaults, today, ranks):
+    """The hand-kept Next actions rows in reading order: the dated ones soonest first (a clock time ahead of the rest of
+    its day), then the undated ones; within either, Who in the order's who list, then the place of the queue item the
+    row cites as "queue #N". Rows marked done go last, and ties keep the order they came in."""
+    tab, order = tab_named(defaults, "Next actions"), defaults["order"]["Next actions"]
+    columns = [column["name"] for column in tab["columns"]]
+    header = [str(name).strip() for name in values[0]]
+    missing = [name for name in columns if name != "Order" and name not in header]
+    if missing:
+        sys.exit(f"tracker: the Next actions values have no {', '.join(missing)} column")
+    done, ranked = tab.get("done"), []
+    for position, line in enumerate(values[1:]):
+        cells = dict(zip(header, list(line) + [""] * (len(header) - len(line))))
+        if not any(str(value).strip() for name, value in cells.items() if name != "Order"):
+            continue
+        day, minute = due(str(cells["When"]), today, order["days"])
+        item = QUEUE_ITEM.search(str(cells["What to do"]))
+        place = ranks.get(int(item[1]), len(ranks)) if item else len(ranks)
+        finished = bool(done) and cells.get(done["column"]) == done["value"]
+        key = (finished, day is None, day.toordinal() if day else 0, minute is None, minute or 0, rank(order["who"], cells["Who"]), place, position)
+        ranked.append((key, {"cells": cells, "day": day, "minute": minute, "item": item[1] if item else "", "place": place}))
+    ranked.sort(key=lambda entry: entry[0])
+    for number, (_, action) in enumerate(ranked, 1):
+        action["cells"]["Order"] = number
+    return [action for _, action in ranked]
+
+
+def action_values(defaults, actions):
+    columns = [column["name"] for column in tab_named(defaults, "Next actions")["columns"]]
+    return [columns] + [[action["cells"].get(column, "") for column in columns] for action in actions]
+
+
+def typed(value, is_date):
+    if value == "" or value is None:
+        return {}
+    if isinstance(value, bool):
+        return {"userEnteredValue": {"boolValue": value}}
+    if isinstance(value, (int, float)):
+        return {"userEnteredValue": {"numberValue": value}}
     if value.startswith("="):
         return {"userEnteredValue": {"formulaValue": value}}
     if is_date and ISO_DATE.fullmatch(value):
@@ -558,6 +717,13 @@ def grid_tab_requests(defaults, tab, sheet_id, row_count):
             requests.append(repeat(cells, {"textFormat": {"bold": True}}, "userEnteredFormat.textFormat.bold"))
         if column.get("date"):
             requests.append(repeat(cells, {"numberFormat": {"type": "DATE", "pattern": column["date"]}}, "userEnteredFormat.numberFormat"))
+        if column.get("number"):
+            requests.append(repeat(cells, {"numberFormat": {"type": "NUMBER", "pattern": column["number"]}}, "userEnteredFormat.numberFormat"))
+        if column.get("center"):
+            requests.append(repeat(cells, {"horizontalAlignment": "CENTER"}, "userEnteredFormat.horizontalAlignment"))
+        if column.get("muted"):
+            requests.append(repeat(cells, {"textFormat": {"foregroundColorStyle": rgb(defaults["palette"]["muted"]["text"])}},
+                                   "userEnteredFormat.textFormat.foregroundColorStyle"))
         if not column.get("chips"):
             continue
         if column.get("match", "equals") == "equals":
@@ -673,10 +839,21 @@ def dump_rows(values):
     return "[\n" + ",\n".join(json.dumps(row, ensure_ascii=False) for row in values) + "\n]"
 
 
-def explain(rows):
-    print(f"{'status':17} {'whose move':16} {'track':11} {'area (from)':24} company / role")
+def explain(rows, tab):
+    status = "stage" if tab == "Pipeline" else "status"
+    print(f"{'order':>5} {status:17} {'whose move':16} {'next date':10} {'updated':10} {'track':11} {'area (from)':24} company / role")
     for row in rows:
-        print(f"{row['status']:17} {row['whose_move']:16} {row['track']:11} {row['area'] + ' (' + row['area_from'] + ')':24} {row['company']} / {row['role']}")
+        area = f"{row['area']} ({row['area_from']})" if row["area"] else ""
+        print(f"{row['order']:>5} {row[status]:17} {row['whose_move']:16} {row['next_date'] or '-':10} {row['updated'] or '-':10} "
+              f"{row['track']:11} {area:24} {row['company']} / {row['role']}")
+
+
+def explain_actions(actions):
+    print(f"{'order':>5} {'reads as':16} {'who':6} {'queue':>5} {'place':>5}  when / what to do")
+    for action in actions:
+        cells, day, minute = action["cells"], action["day"], action["minute"]
+        reads = "undated" if day is None else f"{day:%a %b} {day.day}" + ("" if minute is None else f" {minute // 60:02d}:{minute % 60:02d}")
+        print(f"{cells['Order']:>5} {reads:16} {cells['Who']:6} {action['item'] or '-':>5} {action['place']:>5}  {cells['When']} / {str(cells['What to do'])[:70]}")
 
 
 def main():
@@ -687,7 +864,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
     rows_command = commands.add_parser("rows", parents=[common])
-    rows_command.add_argument("--tab", choices=["Applications", "Pipeline"])
+    rows_command.add_argument("--tab", choices=["Applications", "Pipeline", "Next actions"])
+    rows_command.add_argument("--current", help="Next actions only: the tab's values, from get_values or get_spreadsheet, saved to a file")
     rows_command.add_argument("--requests", action="store_true")
     rows_command.add_argument("--explain", action="store_true")
     summary_command = commands.add_parser("summary", parents=[common])
@@ -716,24 +894,33 @@ def main():
         print(dump_rows(summary_plan(defaults, title)[0]))
         return
 
-    applications, pipeline = build(defaults, overrides, read_lines(pathlib.Path(arguments.applications)), read_lines(pathlib.Path(arguments.responses)))
-    if arguments.command == "summary":
-        result = counts(applications, defaults)
-        if arguments.json:
-            print(json.dumps(result, ensure_ascii=False, indent=1))
+    if arguments.command == "rows" and (arguments.tab == "Next actions") != bool(arguments.current):
+        sys.exit("tracker: Next actions is kept by hand, so it takes --current with the tab's values, and only it does")
+    if arguments.command == "rows" and arguments.tab == "Next actions":
+        actions = next_actions(read_tab(arguments.current), defaults, datetime.date.today(), queue_ranks())
+        if arguments.explain:
+            explain_actions(actions)
             return
-        print(f"{result.pop('total')} applications")
-        for label, tally in result.items():
-            print(f"\n{label}")
-            for value, number in tally.items():
-                print(f"  {value:18} {number:4}")
-        return
-    if arguments.explain:
-        explain(applications)
-        return
-    tabs = {"Applications": tab_values(defaults, "Applications", applications), "Pipeline": tab_values(defaults, "Pipeline", pipeline)}
-    if arguments.tab:
-        tabs = {arguments.tab: tabs[arguments.tab]}
+        tabs = {"Next actions": action_values(defaults, actions)}
+    else:
+        applications, pipeline = build(defaults, overrides, read_lines(pathlib.Path(arguments.applications)), read_lines(pathlib.Path(arguments.responses)))
+        if arguments.command == "summary":
+            result = counts(applications, defaults)
+            if arguments.json:
+                print(json.dumps(result, ensure_ascii=False, indent=1))
+                return
+            print(f"{result.pop('total')} applications")
+            for label, tally in result.items():
+                print(f"\n{label}")
+                for value, number in tally.items():
+                    print(f"  {value:18} {number:4}")
+            return
+        if arguments.explain:
+            explain(pipeline if arguments.tab == "Pipeline" else applications, arguments.tab)
+            return
+        tabs = {"Applications": tab_values(defaults, "Applications", applications), "Pipeline": tab_values(defaults, "Pipeline", pipeline)}
+        if arguments.tab:
+            tabs = {arguments.tab: tabs[arguments.tab]}
     if arguments.requests:
         ids = dict(sheet_settings.get("tabs", {}), **parse_sheets(arguments.sheets))
         missing = [name for name in tabs if name not in ids]

@@ -84,6 +84,15 @@ node kernel/queue.mjs list
 eligible item; `add "<title>" --priority 7 --depends 4` files one; `done 4` closes it. The
 operator never files a queue item by hand: if they ask for a feature, write the item.
 
+## The audit
+
+Every action an agent takes is logged and checked by one hook in `~/.claude/settings.json`
+(`kernel/audit/README.md`): each prompt and tool call goes to `var/log/audit/`, and a
+short policy can flag, hold for approval or block a call before it runs. A block comes
+back as `[audit: <rule>]`. Don't route around it; say what was blocked and leave the act
+for the operator. `node kernel/audit/audit.mjs report` is the day's audit, and it is
+posted to `#log` each morning.
+
 ## Conventions
 
 - Commit messages state the finding, not the file touched: one claim, present tense.

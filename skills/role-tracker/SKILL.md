@@ -31,9 +31,9 @@ reaches only the sheet is lost at the next rebuild.
 
 | tab | columns | one row is |
 | --- | --- | --- |
-| Next actions (first) | When, Who, What to do, Company, Link, Status | one thing someone has to do, the operator's first |
-| Applications | Company, Role, Track, Area, Applied, Status, Whose move, Latest update, Next step / date, Link, Email | one application |
-| Pipeline | Company, Role, Stage, Whose move, Next date, When, What to do, Email | one live process: Offer, Interviewing or Assessment, plus referrals and warm paths |
+| Next actions (first) | Order, When, Who, What to do, Company, Link, Status | one thing someone has to do, the operator's first |
+| Applications | Order, Company, Role, Track, Area, Applied, Status, Whose move, Latest update, Next step / date, Link, Email | one application |
+| Pipeline | Order, Company, Role, Stage, Whose move, Next date, When, What to do, Email | one live process: Offer, Interviewing or Assessment, plus referrals and warm paths |
 | Outreach | Company, Person, Channel, Status, Next step, Updated | one warm path, referral or recruiter thread, kept by hand |
 | Summary | counts by whose move, status, area and track, and a response rate | formulas over Applications |
 
@@ -50,6 +50,31 @@ Closed. For Offer, Interviewing and Assessment the newest reply decides: its `wh
 has one, Waiting on them when its `action` says to wait, Scheduled when it says to attend, and
 Your move otherwise. That default is deliberate. A wrong "Your move" costs a glance, while a
 wrong "Waiting on them" hides a task. On hold and Agent's move come only from overrides.
+
+## Order
+
+Column A of Next actions, Applications and Pipeline is Order: 1 to N in the order the tab is
+meant to be read, so the operator can filter or sort by something else and still come back to
+the order the agent chose. Order holds plain numbers, never formulas, so each one moves with
+its row through any sort or filter, and sorting by Order puts the tab back.
+
+- **Next actions**: by When, soonest first. A When that names a day sorts by it, and so does a
+  leading word in `order` ("Today", "Now", "Since Sep 15" all mean today). "Before Mon Oct 5"
+  means the day before, "This week" its Sunday, "Next week" its Monday and "Within 2 weeks"
+  counts from today. A clock time goes ahead of the rest of its day. Undated rows ("Decide",
+  "Soon", "Waiting") come after, You before Them before Agent, each run in the queue's own order
+  of the item the row cites as "queue #N". Done rows go last.
+- **Applications**: Your move first, soonest next date first; then Scheduled, by date; Agent's
+  move; Waiting on them, most recent update first; On hold; Closed last. Ties go to status in
+  its chip order, then the most recent update.
+- **Pipeline**: Offer, Interviewing, Assessment, then the warm paths (Referral and Warm path
+  together), each by next date, then by whose move in the Applications order.
+
+A row's most recent update is the newest day among its records, its replies and the days its
+Latest update names, leaving out days still to come. The group orders sit under `order` in
+`references/defaults.json`. The script owns Order on Applications and Pipeline. Next actions is
+kept by hand, so save the tab to a file and run `rows --tab "Next actions" --current <file>`
+whenever its rows change.
 
 ## How a row is derived
 
@@ -71,7 +96,8 @@ top-level key privately under `layout` in `state/overrides.json`.
 - The company shows as `names` in the overrides give it, else as a record writes it when that
   looks like a name, else as the slug title-cased.
 
-`rows --explain` prints every row with where its area came from, which shows what to override.
+`rows --explain` prints every row with its Order, next date and update day, and where its area came
+from, which shows what to override.
 
 ## One palette
 
@@ -84,6 +110,7 @@ Next actions) get dropdowns from the same vocabularies, so the Summary formulas 
 ## Commands
 
     python3 skills/role-tracker/scripts/tracker.py rows [--tab Applications|Pipeline] [--requests] [--explain]
+    python3 skills/role-tracker/scripts/tracker.py rows --tab "Next actions" --current <file> [--requests] [--explain]
     python3 skills/role-tracker/scripts/tracker.py summary [--json | --values | --stamp]
     python3 skills/role-tracker/scripts/tracker.py layout (--current <file> | --fresh) [--tab <name>]
 
@@ -94,7 +121,11 @@ spreadsheet, put its id and title in `state/sheet.json`, then pass each output t
    writes the header rows and prints the new tab ids, which go under `tabs` in `state/sheet.json`.
 2. `rows --requests` to `update_spreadsheet`: dates go in as dates, links as HYPERLINK
    formulas, and the rows below the data are cleared.
-3. `summary --values` to `update_values` at `Summary!A1`. Fill Next actions from the queue.
+3. `summary --values` to `update_values` at `Summary!A1`. Fill Next actions from the queue, then
+   put it in order with `rows --tab "Next actions" --current <file>`.
+
+`--current` for Next actions takes the tab saved from `get_values`, or from `get_spreadsheet`
+with grid data, which keeps the Link formulas.
 
 To re-apply the layout, save the `get_spreadsheet` response for `sheets.properties`,
 `sheets.conditionalFormats` and `sheets.bandedRanges` to a file, or write that shape by hand
@@ -108,8 +139,12 @@ changed, and too low leaves old rules below the new ones, which win. `--fresh` i
 After any application, reply or change in a live process, in the same turn:
 
 1. Write the record first: the application through role-apply, the reply in `responses.jsonl`.
-2. Rewrite that company's rows on Applications, and on Pipeline when live, from `rows`.
+2. Rewrite that company's rows on Applications, and on Pipeline when live, from `rows`. When a
+   row's place changes, move it with `moveDimension` and rewrite the Order column, one small
+   write, only after the moves have returned.
 3. Update Next actions. Every queue item tagged for the operator belongs there, dated or not.
+   Then move its rows into the order `rows --tab "Next actions" --current` prints and rewrite
+   its Order column.
 4. Replace `Summary!A2` with what `summary --stamp` prints: the clock's time, never a guess.
 5. Run `summary` and compare it with the Summary tab. A difference means a missed row.
 
