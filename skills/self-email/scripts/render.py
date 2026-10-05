@@ -138,10 +138,26 @@ def render(spec: dict) -> str:
     return "".join(parts)
 
 
+def cell_text(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, dict):
+        return value.get("text", "")
+    if isinstance(value, list):
+        return ", ".join(cell_text(item) for item in value)
+    return str(value)
+
+
 def render_text(spec: dict) -> str:
     lines = [spec.get("title", ""), ""] + list(spec["summary"])
     for section in spec["sections"]:
         lines += ["", section["heading"], section.get("intro", "")]
+        # Table rows go in too, so the plain-text part and the deslop gate see every cell.
+        for index, row in enumerate(section.get("rows", []), start=1):
+            cells = [cell for cell in (cell_text(row.get(column["key"])) for column in section["columns"]) if cell]
+            prefix = f"{index}. " if section.get("numbered") else "- "
+            detail = f" ({'; '.join(cells[1:])})" if len(cells) > 1 else ""
+            lines.append(prefix + (cells[0] if cells else "") + detail)
         lines += section.get("paragraphs", [])
         for block in section.get("blocks", []):
             lines += ["", block["label"], block.get("note", "")]
