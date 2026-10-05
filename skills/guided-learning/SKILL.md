@@ -70,10 +70,14 @@ itself (`kernel/guidelines/core-idea.md`). Before building anything, write that 
 one sentence. It is the top rung of the ladder, above the full solution to the problem
 in front of you. If the sentence won't fit on a line, you haven't found it yet.
 
-**Build the ladder privately.** Write down, for yourself, the chain from the floor to the
-target: each rung one new idea, each one reachable from the rungs below it. Don't show the
-ladder. Showing the plan turns discovery into following along. The ladder is usually
-five to ten rungs for one homework problem. If a rung needs two new ideas, split it.
+**Build the ladder, then show its outline.** Write down the chain from the floor to the
+target: each rung one new idea, each one reachable from the rungs below it. The ladder is
+usually five to ten rungs for one homework problem. If a rung needs two new ideas, split it.
+Before starting a concept, list its rungs, one line each, and the problem it ends on. Before
+each rung, say in one line what it builds, then set the scenario and ask. The learner can
+skip any rung they already own; accept "skip" as an answer and move to the next rung. The
+outline names what each rung builds, never the answer it reaches, so the derivation stays
+theirs.
 
 ## Writing a question
 
@@ -123,7 +127,15 @@ what they found in the last few rungs, and its answer is the next idea.
   wording, such as "say the idea in one line". **The question text must carry the whole
   scenario.** The dialog is read on its own, so setup written in the chat above it
   doesn't count. Never write "the club" or "each pan" there unless the question itself
-  has just defined it ("Suppose you keep a club of…").
+  has just defined it ("Suppose you keep a club of…"). In the desktop app, chat text
+  written before the dialog shows only as a one-line summary while the dialog is open,
+  and the dialog can't render math. So a question that involves a formula, or that needs
+  a plan, figure or setup read first, goes in a plain chat message that ends with the
+  question, and the learner types the answer.
+- **Write math the chat can render.** `$…$` inline and `$$…$$` display both render, but
+  a backslash before punctuation is eaten as a Markdown escape, so `$(1,\,2)$` shows up
+  raw. Write `\cr` for matrix rows, `\lVert…\rVert` for norms and `\quad` for space, and
+  never `\,` `\;` `\{` `\}` `\|` or `\\` inside chat math.
 - **Write sparsely, but never drop context.** Sparse means few words, not missing
   setup. A turn is a line or two of reaction, the scenario if it changed, then the
   question. Leave out jargon until the learner has built the thing it names. Cut filler
