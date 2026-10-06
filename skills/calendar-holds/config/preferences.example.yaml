@@ -1,0 +1,51 @@
+# Copy to preferences.yaml and fill in. That file is gitignored, because it maps the
+# operator's week. If the skill ever asks the same scheduling question twice, the answer
+# belongs here.
+
+timezone: America/Los_Angeles
+
+# When calls may go. Earlier windows go to higher-ranked processes.
+call_windows:
+  - days: [Mon, Tue, Wed, Thu, Fri]
+    from: "10:00"
+    to: "12:00"
+  - days: [Mon, Tue, Wed, Thu, Fri]
+    from: "14:00"
+    to: "16:00"
+
+# Minutes kept free around calls, counting classes and every other busy event.
+gaps:
+  before_any_interview: 30
+  between_non_technical: 15
+  around_technical: 60        # on each side; a call of unknown kind counts as technical
+
+# Busy events a call may displace, matched on title. Another interview never gives way.
+may_give_way: []
+  # - "Lecture"
+
+# Events that block nothing, matched on title, such as a standing call the operator
+# is happy to move.
+ignore: []
+
+# Calendars to read before proposing, besides the primary. Empty means every calendar
+# the operator shows.
+read_calendars: []
+
+# Stretches to keep free of calls, with the reason. Windows the operator opens inside
+# one go under `opened`.
+keep_clear: []
+  # - from: 2026-01-12
+  #   to: 2026-01-18
+  #   why: "exam week"
+  #   opened: ["2026-01-14 09:00-10:30"]
+
+# Hours for [SUGGESTED] work blocks such as take-homes.
+work_blocks:
+  days: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+  from: "18:00"
+  to: "23:00"
+
+# The name and address to book with. Booking pages prefill whichever account the browser
+# has, so these win over the prefill unless an application's records say otherwise.
+booking_name: Your Name
+booking_email: you@example.com

@@ -1,0 +1,20 @@
+{
+  "_comment": "Copy to calendars.json, which is gitignored, and fill in. list_calendars prints each id; a made calendar's id ends in @group.calendar.google.com. The operator makes both calendars by hand in the Calendar web UI (Settings, Add calendar, Create new calendar), because the connector cannot create one.",
+  "suggested": {
+    "name": "[CLAUDE] Suggested",
+    "id": "PASTE-THE-SUGGESTED-CALENDAR-ID",
+    "holds": "[PROPOSED], [OFFERED] and [SUGGESTED] entries"
+  },
+  "confirmed": {
+    "name": "[CLAUDE] Confirmed",
+    "id": "PASTE-THE-CONFIRMED-CALENDAR-ID",
+    "holds": "booked calls and anything confirmed only by email"
+  },
+  "event_color_ids": {
+    "_comment": "null means the calendar's own color. The event API takes colorId 1 to 11 only.",
+    "PROPOSED": null,
+    "OFFERED": null,
+    "SUGGESTED": "2"
+  },
+  "confirmed_reminders_minutes": [30, 10]
+}
