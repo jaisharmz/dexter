@@ -1,9 +1,12 @@
 """Decide whether the operator may apply to a company today. Run it immediately before every Submit.
 
-The rule: a company is blocked while the operator has a live process there, meaning any
-application in the last six months that did not end in a rejection, or any recruiter,
-interview, assessment or offer mail. One role per company. A hold the operator set by hand
-(a warm path they are working themselves) blocks too.
+The rule: a company is blocked while a recruiter, interview, assessment or offer mail from it is
+less than six months old, or while a hold the operator set by hand (a warm path they are working
+themselves) stands. A pending application (one in the last six months that has not ended in a
+rejection) blocks only at a company that publishes a cap or cooldown, listed in
+references/caps.json. Anywhere else a second role is allowed, and the verdict is
+"applied-before": look the company's policy up (careers FAQ, posting text, Ashby's
+application-limit notice), add it to caps.json if one exists, and apply if none does.
 
 It reads the two records every application conversation keeps current:
     state/applications.jsonl   every application, with its status
@@ -28,6 +31,7 @@ import re
 import sys
 
 STATE = pathlib.Path(__file__).resolve().parents[1] / "state"
+CAPS = pathlib.Path(__file__).resolve().parents[1] / "references" / "caps.json"
 LIVE_REPLIES = {"interview_invite", "assessment", "recruiter_outreach", "offer"}
 SUBMITTED = {"submitted", "security-code-sent"}
 
@@ -92,7 +96,11 @@ def verdict(company):
     if applied and rejected and max(rejected) >= max(applied):
         return "clear-after-rejection", recent
     if applied:
-        return "blocked", recent
+        capped = json.loads(CAPS.read_text()) if CAPS.exists() else {}
+        policy = next((capped[key] for key in keys(company) if key in capped), None)
+        if policy:
+            return "blocked", [("", "cap", policy)] + recent
+        return "applied-before", recent
     return "clear", recent
 
 

@@ -44,11 +44,12 @@ is committed. `--all` reprints every current hit, `--only <slug>` narrows to one
 ## What to do with a hit
 
 1. **Gate it.** `python3 skills/role-apply/scripts/gate.py "<company>"`. A blocked company has a
-   live process (an application in the last six months that has not ended in a rejection, or
-   a recruiter, interview, assessment or offer mail) or a hold the operator set. The rule is one
-   role per company, so a blocked hit goes to the operator as a line in the report, not into a
-   second application.
-2. **Apply to one role per company**, the best fit, through `role-apply`: the résumé variant
+   recruiter, interview, assessment or offer mail, a hold the operator set, or a pending
+   application at a company that publishes a cap or cooldown (`role-apply/references/caps.json`).
+   A blocked hit goes to the operator as a line in the report. `applied-before` means a pending
+   application at a company with no limit on file: look its policy up, and if none is
+   published, the new role may go in.
+2. **Apply to the best-fit role at each company**, through `role-apply`: the résumé variant
    for the role, every value from `config/profile.yaml`, and consent and certification boxes
    handled as `role-apply/references/runs.md` says.
 3. **Hand over instead of working around** a sign-in or account creation, a captcha or a
@@ -61,5 +62,5 @@ is committed. `--all` reprints every current hit, `--only <slug>` narrows to one
 
 The Claude desktop app runs this daily as the scheduled task `rolling-roles-watch` and emails
 the operator only when there is a hit. Scheduled tasks run while the app is open, and a missed run
-fires at the next launch. NVIDIA's 2027 New College Grad wave should open around February 2027
-(`state/watch/nvidia.md`), so expect the watch to be quiet for NVIDIA until then.
+fires at the next launch.
+

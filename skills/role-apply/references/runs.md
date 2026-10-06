@@ -11,17 +11,19 @@ By default this skill stops at Submit. An operator can authorize a run to submit
 ("apply to fifty more tonight"). Then these rules hold. Each one was learned from a run that
 broke it.
 
-1. **Gate immediately before every Submit,** not only when planning. A live process blocks the
-   whole company: any application in the last six months that has not ended in a rejection, or
-   any recruiter thread, interview, assessment or scheduling email. Check all three records:
+1. **Gate immediately before every Submit,** not only when planning. A recruiter thread,
+   interview, assessment or scheduling email blocks the whole company. Check all three records:
    `state/applications.jsonl`, the operator's inboxes (confirmation and rejection mail), and
    their confirmation screenshots. `scripts/gate.py` reads the first and `state/responses.jsonl`;
-   the inbox sweep keeps `responses.jsonl` fresh. A rejection does not block a different role
-   unless the company sets a cooldown.
-2. **One role per company,** the best fit, unless the operator says otherwise. Look up the
-   company's cap and cooldown first: the careers FAQ, the posting text, and on Ashby the
-   application-limit notice (see `ats.md`). At a company that counts applications, a third
-   role is a liability.
+   the inbox sweep keeps `responses.jsonl` fresh.
+2. **One role per company only where the company limits applications.** A pending application
+   blocks a second role only at a company that publishes a cap or a cooldown. Look it up before
+   choosing roles: the careers FAQ, the posting text, and on Ashby the application-limit notice
+   (see `ats.md`). Record what you find in `references/caps.json`, which the gate reads; with
+   no published limit, the gate says `applied-before` and a second role in a different area is
+   fine. Where a cap exists, send one role, the best fit, because a company that counts
+   applications reads several as noise. A rejection does not block a different role unless the
+   company sets a cooldown.
 3. **Tick consent boxes, not agreements.** Privacy and data-processing consent, accuracy
    certifications, AI-policy and confidentiality acknowledgments, export-control statements and
    optional "contact me about future roles" boxes are ticked, then the form is submitted. An
