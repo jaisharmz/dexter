@@ -44,6 +44,13 @@ testing included." "This comes up roughly four times a quarter rather than
 weekly." The number is invented precision that performs diligence and commits
 the writer to something they cannot control. Cut the tally; state the commitment.
 
+**Unrequested numbers, details and examples.** A count, a measurement or an example the
+reader did not ask for reads as padding: "zero real successes in 279 attempts", "and it
+passed like the other 240", "(the biggest are 200 and 168)". Keep the numbers the
+question asks for and the ones the argument stands on, give an example only when the
+answer needs one, and cut every detail that does not change the answer. Bare bones is
+the target. Short answers read best as bullets, and a fragment is fine inside a bullet.
+
 **The narrated argument.** Prose that describes its own moves reads as generated: "I
 follow the chain from X to Y", "The first link is why...", "The second link is what...".
 So does a writer grading their own case in passing: "the argument is a chain, and I find

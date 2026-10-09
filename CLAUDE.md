@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+**If `BOOTSTRAP.md` exists, follow it before anything else.** The workspace is new. Do its
+first-run steps before acting on the operator's first message, whatever that message asks,
+say hello here, then come back to the request.
+
 This folder is a dexter workspace: a personal agent that runs in Claude Code, with its
 skills, rules and memory kept as files here. The agent is called Dexter until it picks a
 name of its own. `README.md` has the operator's view.
@@ -16,9 +20,6 @@ in Claude Code the reasoning surface is this session.
 @IDENTITY.md
 @USER.md
 @MEMORY.md
-
-If `BOOTSTRAP.md` exists, this workspace is new: follow it before anything else, and say
-hello here.
 
 ## Memory
 
