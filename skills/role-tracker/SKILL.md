@@ -32,8 +32,8 @@ reaches only the sheet is lost at the next rebuild.
 | tab | columns | one row is |
 | --- | --- | --- |
 | Next actions (first) | Order, When, Who, What to do, Company, Link, Status | one thing someone has to do, the operator's first |
-| Applications | Order, Company, Role, Track, Area, Applied, Status, Whose move, Latest update, Next step / date, Link, Email | one application |
-| Pipeline | Order, Company, Role, Stage, Whose move, Next date, When, What to do, Email | one live process: Offer, Interviewing or Assessment, plus referrals and warm paths |
+| Applications | Order, Company, Tier, Role, Track, Area, Applied, Status, Whose move, Latest update, Next step / date, Link, Email | one application |
+| Pipeline | Order, Company, Tier, Role, Stage, Whose move, Next date, When, What to do, Email | one live process: Offer, Interviewing or Assessment, plus referrals and warm paths |
 | Outreach | Company, Person, Channel, Status, Next step, Updated | one warm path, referral or recruiter thread, kept by hand |
 | Summary | counts by whose move, status, area and track, and a response rate | formulas over Applications |
 
@@ -95,9 +95,14 @@ top-level key privately under `layout` in `state/overrides.json`.
   a word like Robotics or Therapeutics in it says what the employer does.
 - The company shows as `names` in the overrides give it, else as a record writes it when that
   looks like a name, else as the slug title-cased.
+- Tier (S+, S, A, B, C, D, F) says how much the operator wants the seat, judged by
+  `references/tiers.md`: three tests (the work, the people, the path) scored 0 to 2 and summed,
+  with S+ only from the operator's own list. It comes from `state/tiers.json` (a role entry, then
+  the company), then the newest record's `tier`, and stays blank otherwise. Order does not use it;
+  sorting the tab by Tier shows where prep and warm paths should go.
 
-`rows --explain` prints every row with its Order, next date and update day, and where its area came
-from, which shows what to override.
+`rows --explain` prints every row with its Order, next date and update day, and where its area and
+tier came from, which shows what to override.
 
 ## One palette
 
@@ -152,7 +157,7 @@ After any application, reply or change in a live process, in the same turn:
 
 The sheet is private: never share it, change its sharing or post its link. Its id and tab ids
 live in `state/sheet.json`, and everything about real people (names, threads, notes) in
-`state/overrides.json`. `state/` is gitignored, so neither reaches a commit or a queue title.
+`state/overrides.json` and `state/tiers.json`. `state/` is gitignored, so neither reaches a commit or a queue title.
 
 ## state/overrides.json
 

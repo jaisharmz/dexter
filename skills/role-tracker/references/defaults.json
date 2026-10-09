@@ -19,6 +19,7 @@
 
   "chips": {
     "Status": {"Offer": "green", "Interviewing": "blue", "Assessment": "amber", "Applied": "grey", "Held": "purple", "Rejected": "red", "Withdrawn/Closed": "muted"},
+    "Tier": {"S+": "purple", "S": "pink", "A": "orange", "B": "yellow", "C": "teal", "D": "grey", "F": "muted"},
     "Whose move": {"Your move": "red", "Waiting on them": "blue", "Scheduled": "green", "Agent's move": "purple", "On hold": "grey", "Closed": "muted"},
     "Track": {"Full-time": "blue", "Internship": "amber", "Fellowship": "purple", "Unknown": "grey"},
     "Area": {"bio": "green", "robotics": "orange", "world models": "teal", "RL": "pink", "inference": "indigo", "quant": "yellow", "other": "grey"},
@@ -28,7 +29,7 @@
     "Channel": {"Referral": "green", "Recruiter": "blue", "Talent partner": "teal", "Directory": "purple", "Warm": "orange"},
     "Outreach status": {"Waiting on you": "red", "Draft ready": "green", "Not contacted": "yellow", "Applied": "blue", "Sent": "blue"}
   },
-  "bold": ["Your move", "Scheduled", "You", "In progress", "Offer", "Interviewing", "Assessment", "Waiting on you", "Draft ready"],
+  "bold": ["S+", "S", "Your move", "Scheduled", "You", "In progress", "Offer", "Interviewing", "Assessment", "Waiting on you", "Draft ready"],
 
   "tabs": [
     {"name": "Next actions", "color": "red", "align": "TOP", "freeze_columns": 1,
@@ -43,10 +44,11 @@
      ],
      "urgent": {"column": "When", "starts": ["Today", "Overdue", "Ask now", "This week"]},
      "done": {"column": "Status", "value": "Done"}},
-    {"name": "Applications", "color": "blue", "freeze_columns": 2, "filter": true, "bands": true,
+    {"name": "Applications", "color": "blue", "freeze_columns": 3, "filter": true, "bands": true,
      "columns": [
        {"name": "Order", "width": 60, "number": "0", "center": true, "muted": true},
        {"name": "Company", "width": 210, "bold": true},
+       {"name": "Tier", "width": 55, "chips": "Tier"},
        {"name": "Role", "width": 290, "wrap": true},
        {"name": "Track", "width": 90, "chips": "Track"},
        {"name": "Area", "width": 105, "chips": "Area"},
@@ -62,6 +64,7 @@
      "columns": [
        {"name": "Order", "width": 60, "number": "0", "center": true, "muted": true},
        {"name": "Company", "width": 200, "bold": true},
+       {"name": "Tier", "width": 55, "chips": "Tier"},
        {"name": "Role", "width": 250, "wrap": true},
        {"name": "Stage", "width": 130, "chips": "Stage"},
        {"name": "Whose move", "width": 130, "chips": "Whose move"},

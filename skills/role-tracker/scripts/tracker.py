@@ -11,7 +11,7 @@ rows     {"Applications": [[header], ...], "Pipeline": [...]} for a values updat
          "order" rules in defaults.json), so sorting by Order restores it after any other sort.
          --requests prints batchUpdate requests instead: typed cells (dates as dates, links as
          HYPERLINK formulas) that also clear the values and pasted links in the rows below.
-         --explain prints a table saying why each row sits where it does and where its Area came from.
+         --explain prints a table saying why each row sits where it does and where its Area and Tier came from.
          Next actions is kept by hand, so it needs --current: the tab as it stands, saved from
          get_values or from get_spreadsheet with rowData (which keeps the HYPERLINK formulas).
          Its rows come back in order with the queue's ranking for the undated ones.
@@ -28,8 +28,9 @@ layout   batchUpdate requests: tab names, order and colors, header row, column w
          that already have banding its addBanding fails, and the whole batch with it.
 
 Records: skills/role-apply/state/applications.jsonl and responses.jsonl (--applications,
---responses). Rules and colors: references/defaults.json. Private and optional: state/sheet.json
-(spreadsheet id, title, tab ids) and state/overrides.json (what the records cannot say).
+--responses). Rules and colors: references/defaults.json; how to judge a Tier: references/tiers.md.
+Private and optional: state/sheet.json (spreadsheet id, title, tab ids), state/overrides.json (what the
+records cannot say) and state/tiers.json (each company's tier and why).
 """
 import argparse
 import collections
@@ -46,10 +47,10 @@ RECORDS = SKILL.parent / "role-apply" / "state"
 COMPANY_SUFFIXES = {"inc", "llc", "ltd", "corp", "corporation", "co", "company", "group", "technologies", "labs", "ai", "trading", "capital"}
 ROLE_FILLER = {"a", "an", "and", "at", "for", "in", "of", "on", "the", "to", "with"}
 ACRONYMS = {"ai", "ml"}
-FIELDS = {"Order": "order", "Company": "company", "Role": "role", "Track": "track", "Area": "area", "Applied": "applied",
+FIELDS = {"Order": "order", "Company": "company", "Tier": "tier", "Role": "role", "Track": "track", "Area": "area", "Applied": "applied",
           "Status": "status", "Stage": "stage", "Whose move": "whose_move", "Latest update": "update", "Next date": "next_date",
           "When": "when", "What to do": "todo"}
-SETTABLE = {"role", "track", "area", "applied", "status", "whose_move", "update", "next", "next_date", "url", "email",
+SETTABLE = {"role", "tier", "track", "area", "applied", "status", "whose_move", "update", "next", "next_date", "url", "email",
             "pipeline", "when", "todo"}
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -189,7 +190,7 @@ def pipeline_key(row, order, moves):
 
 
 def new_row(**fields):
-    row = {"company": "", "names": set(), "source": "", "role": "", "track": "", "area": "", "area_from": "", "applied": "",
+    row = {"company": "", "names": set(), "source": "", "role": "", "tier": "", "tier_from": "", "track": "", "area": "", "area_from": "", "applied": "",
            "status": "", "whose_move": "", "update": "", "next": "", "next_date": "", "url": "", "email": "", "pipeline": "",
            "when": "", "todo": "", "first_date": "", "updated": "", "order": "", "replies": [], "records": [], "fixed": set()}
     row.update(fields)
@@ -312,6 +313,25 @@ def area_of(row, defaults, areas_override):
     return defaults["areas"]["default"], "default"
 
 
+def tier_of(row, defaults, tiers):
+    names = row["names"] | {row["company"]}
+    tier, source = "", ""
+    entry = next((entry for entry in tiers.get("roles", []) if selects(entry, names, row["role"])), None)
+    if entry:
+        tier, source = entry.get("tier", ""), "role"
+    else:
+        entry = next((entry for company, entry in tiers.get("companies", {}).items() if any(same_company(company, name) for name in names)), None)
+        if entry:
+            tier, source = entry.get("tier", ""), "company"
+        else:
+            tier = next((record["tier"] for record in reversed(row["records"]) if record.get("tier")), "")
+            source = "record" if tier else ""
+    if tier and tier not in defaults["chips"]["Tier"]:
+        warn(f"tier {tier!r} for {row['company']} is not one of {', '.join(defaults['chips']['Tier'])}; left blank")
+        return "", ""
+    return tier, source
+
+
 def whose_move(row, defaults):
     rules = defaults["whose_move"]
     if row["status"] in defaults["live"] and row["replies"]:
@@ -379,6 +399,10 @@ def build(defaults, overrides, applications, responses, today=None):
             row["area_from"] = "override"
         else:
             row["area"], row["area_from"] = area_of(row, defaults, overrides.get("areas", {}))
+        if "tier" in row["fixed"]:
+            row["tier_from"] = "override"
+        else:
+            row["tier"], row["tier_from"] = tier_of(row, defaults, overrides.get("tiers", {}))
         if "whose_move" not in row["fixed"]:
             row["whose_move"] = whose_move(row, defaults)
         row["updated"] = last_update(row, today)
@@ -393,6 +417,8 @@ def build(defaults, overrides, applications, responses, today=None):
     for entry in overrides.get("pipeline_add", []):
         row = new_row(company=entry["company"], names={entry["company"]}, source=entry["company"])
         set_fields(row, entry)
+        if "tier" not in row["fixed"]:
+            row["tier"], row["tier_from"] = tier_of(row, defaults, overrides.get("tiers", {}))
         row["updated"] = last_update(row, today)
         pipeline.append(dict(row, stage=row["pipeline"], todo=row["todo"] or row["next"]))
     pipeline.sort(key=lambda row: pipeline_key(row, order["Pipeline"], order["Applications"]["groups"]))
@@ -625,7 +651,8 @@ def summary_plan(defaults, title):
 
 def counts(rows, defaults):
     result = {"total": len(rows)}
-    for label, field, vocabulary in (("status", "status", "Status"), ("track", "track", "Track"), ("area", "area", "Area"), ("whose move", "whose_move", "Whose move")):
+    for label, field, vocabulary in (("status", "status", "Status"), ("tier", "tier", "Tier"), ("track", "track", "Track"), ("area", "area", "Area"),
+                                     ("whose move", "whose_move", "Whose move")):
         tally = collections.Counter(row[field] for row in rows)
         ordered = collections.OrderedDict((value, tally.pop(value, 0)) for value in defaults["chips"][vocabulary])
         ordered.update(tally)
@@ -831,6 +858,7 @@ def resolve_sheets(defaults, arguments, sheet_settings):
 def load_settings():
     defaults = json.loads((SKILL / "references" / "defaults.json").read_text())
     overrides = read_json(SKILL / "state" / "overrides.json", {})
+    overrides.setdefault("tiers", read_json(SKILL / "state" / "tiers.json", {}))
     defaults.update(overrides.get("layout", {}))
     return defaults, overrides, read_json(SKILL / "state" / "sheet.json", {})
 
@@ -841,11 +869,12 @@ def dump_rows(values):
 
 def explain(rows, tab):
     status = "stage" if tab == "Pipeline" else "status"
-    print(f"{'order':>5} {status:17} {'whose move':16} {'next date':10} {'updated':10} {'track':11} {'area (from)':24} company / role")
+    print(f"{'order':>5} {status:17} {'whose move':16} {'next date':10} {'updated':10} {'track':11} {'area (from)':24} {'tier (from)':16} company / role")
     for row in rows:
         area = f"{row['area']} ({row['area_from']})" if row["area"] else ""
+        tier = f"{row['tier']} ({row['tier_from']})" if row["tier"] else "-"
         print(f"{row['order']:>5} {row[status]:17} {row['whose_move']:16} {row['next_date'] or '-':10} {row['updated'] or '-':10} "
-              f"{row['track']:11} {area:24} {row['company']} / {row['role']}")
+              f"{row['track']:11} {area:24} {tier:16} {row['company']} / {row['role']}")
 
 
 def explain_actions(actions):

@@ -266,7 +266,12 @@ The last message is not "done". It is a short review sheet:
 Then log it — one line appended to `state/applications.jsonl`:
 
     {"date":"2026-09-11","company":"acme-trading","role":"Quantitative Trader Intern",
-     "url":"...","resume":"quant","status":"awaiting-submit"}
+     "url":"...","resume":"quant","status":"awaiting-submit",
+     "tier":"B","tier_why":"credibility track: a top firm, not the long-term path"}
+
+`tier` and `tier_why` judge the seat by `skills/role-tracker/references/tiers.md` (S+ to F: the work,
+the people and the path, 0 to 2 each), and the tracker shows them in its Tier column. Set them when
+the application is logged, since that is when the posting, the team and the people bar are fresh.
 
 The log exists because the failure it prevents is embarrassing and invisible: applying
 twice to the same role at a firm that counts applications, or re-applying to something
