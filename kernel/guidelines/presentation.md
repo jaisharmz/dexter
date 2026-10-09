@@ -156,6 +156,9 @@ readable for humans. It looks like notes an AI would take for AI's usage... I ca
 intuitions, overall ideas and methods." The rewrite Jai called "so much better" did this:
 
 - **Open with "In one minute":** four or five bullets that are the whole answer on their own.
+  This is for a page written to the operator. A document that goes out as theirs, such as a doc
+  shared with a partner, leaves the label off and puts the bullets straight under the title. They
+  would never write that heading themselves (2026-10-07).
 - **Very direct headings** that say what the section holds: "What the papers found", "What to
   read, in order", "What to build next". Never a clever title.
 - **Short bullets, each a full sentence that explains itself.** Short is not terse. "~1 pt" or
