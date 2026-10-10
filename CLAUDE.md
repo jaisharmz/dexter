@@ -85,6 +85,12 @@ node kernel/queue.mjs list
 eligible item; `add "<title>" --priority 7 --depends 4` files one; `done 4` closes it. The
 operator never files a queue item by hand: if they ask for a feature, write the item.
 
+## Sessions
+
+Claude Code sessions in this folder find and reach each other by name. `/name` registers a
+session, `docs/sessions.md` says when to message live and when to leave mail, and `/spawn`
+starts a headful subagent in the desktop app (`docs/agent-processes.md`).
+
 ## The audit
 
 Every action an agent takes is logged and checked by one hook in `~/.claude/settings.json`

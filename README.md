@@ -129,6 +129,8 @@ fill it in, and git ignores the result.
 |---|---|
 | `/loops` | Runs adversarial and judge subagents over work that looks finished, before anyone else sees it. |
 | `/anonymize <path>` | Removes the personal data from a file, folder or document and keeps the principles and the way of thinking, then scans the result for leaks. This repository is built with it. |
+| `/spawn <brief>` | Starts a headful subagent: a Claude Code session with its own row in the desktop app's sidebar, which you can open, watch and type into, and which outlives the session that started it. It messages the child, waits for it and archives it, and a process table says what is running and for whom ([`docs/agent-processes.md`](docs/agent-processes.md)). |
+| `/name` | Registers a session under its messaging name, so other sessions can find it, ask it something live, or leave it mail that outlives both ([`docs/sessions.md`](docs/sessions.md)). |
 | `/dispatch` `/guidelines` `/skill-test` | Routing a message to the right channel, listing the lenses, and testing a new skill in a fresh session. |
 
 ## The lenses
