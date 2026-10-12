@@ -516,3 +516,67 @@ summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* On a phone the archetype label sits under the title, which otherwise wraps into a
    column a third of the card wide. */
 @media (max-width: 34rem) { .ptop { flex-direction: column; align-items: flex-start; gap: 0; } .ptop .gen { margin-bottom: .45rem; } }
+
+/* ---------- first principles: the field's core idea, built up figure by figure ---------- */
+/* Every figure computes the real object for a toy target, so the reader can move a slider
+   and watch the claim in the text hold. Figures draw only in the page's tokens: ink for
+   data, ink-3 for noise, eng for what the model does, contested for a reward. */
+.fpsec .lede { font-size: 1.02rem; color: var(--ink); }
+.fp { display: flex; flex-direction: column; gap: .55rem; margin-top: 2rem; padding-top: 1.6rem;
+  border-top: 1px solid var(--rule); min-width: 0; }
+.fp:first-of-type { margin-top: .4rem; }
+.fpk { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+.fp h3 { font-size: 1.2rem; line-height: 1.25; font-weight: 600; margin: 0; text-wrap: balance; }
+.fpidea { margin: 0; max-width: 44rem; font-size: 1.04rem; color: var(--ink); }
+.fpbody { max-width: 44rem; }
+.fpbody p { margin: 0 0 .6rem; font-size: .96rem; color: var(--ink-2); }
+.fpbody p:last-child { margin-bottom: 0; }
+.fpbody a, .fpun a, .fpcap a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.fpbody a:hover, .fpun a:hover, .fpcap a:hover { border-bottom-color: var(--ink); }
+.fpbody code, .fpcap code { font-size: .88em; }
+.fpfig { margin: .5rem 0 0; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 4px;
+  padding: .75rem; min-width: 0; }
+.fpstage { width: 100%; min-height: 12rem; }
+.fpstage canvas { display: block; touch-action: pan-y; }
+.fpstage canvas.drag { cursor: grab; }
+.fpstage canvas.drag:active { cursor: grabbing; }
+.fpctl { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem 1.3rem; margin-top: .65rem;
+  font-size: .78rem; color: var(--ink-2); }
+.fpc { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.fpc .fpl { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.fpc input[type="range"] { width: min(13rem, 46vw); accent-color: var(--eng); margin: 0; }
+.fpc output { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .74rem; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 3.2em; }
+.fpb, .fpseg button { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .68rem; letter-spacing: .04em; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 3px; padding: .32rem .62rem; cursor: pointer; }
+.fpb:hover, .fpseg button:hover { border-color: var(--ink-3); }
+.fpseg { display: inline-flex; flex-wrap: wrap; }
+.fpseg button { border-radius: 0; margin-left: -1px; }
+.fpseg button:first-child { border-radius: 3px 0 0 3px; margin-left: 0; }
+.fpseg button:last-child { border-radius: 0 3px 3px 0; }
+.fpseg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.fpb:focus-visible, .fpseg button:focus-visible, .fpc input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.fpread { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; margin-top: .5rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .7rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.fpread b { color: var(--ink); font-weight: 500; }
+.fpkey { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin-top: .5rem; font-size: .74rem; color: var(--ink-2); }
+.fpkey span { display: inline-flex; align-items: center; gap: .4rem; }
+.fpkey i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.fpkey i.dot { width: 8px; height: 8px; border-radius: 50%; }
+.fpcap { margin: .55rem 0 0; font-size: .82rem; color: var(--ink-2); max-width: 44rem; }
+.fpcap b { color: var(--ink); font-weight: 600; }
+.fpun { margin: .1rem 0 0; font-size: .8rem; color: var(--ink-3); max-width: 44rem; }
+.fpun b { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .62rem;
+  letter-spacing: .1em; text-transform: uppercase; font-weight: 500; color: var(--ink-3); margin-right: .4rem; }
+.fpseq { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+.fperr .fpstage::after { content: "This figure could not run in this browser."; display: block;
+  font-size: .8rem; color: var(--ink-3); padding: 1rem 0; }
+@media (max-width: 34rem) {
+  .fpfig { padding: .55rem; }
+  .fpc input[type="range"] { width: 100%; }
+  .fpc { flex: 1 1 100%; }
+}

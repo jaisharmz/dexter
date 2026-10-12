@@ -163,6 +163,71 @@ def openness_map(d):
     return sec("Where the open research is", lede + legend + bands + table)
 
 
+# ---------------------------------------------------------------- first principles
+def first_principles(d, run):
+    """The field's core idea, built up in figures that compute the real thing.
+
+    `first_principles` carries a lede (the one idea everything else hangs on), then figures,
+    each with a title, the idea in one sentence, a short body, its controls, readouts, a key,
+    a caption saying what to try, and the avenues and papers it unlocks. The drawing code is
+    the run's own, in `scripts` under the run folder, and registers with FP.fig(id, setup);
+    the chrome around it is the same on every page."""
+    fp = d.get("first_principles") or {}
+    figs = fp.get("figures") or []
+    if not figs:
+        return ""
+
+    def control(c):
+        kind, name = c.get("type", "range"), c["name"]
+        if kind == "range":
+            return (f'<label class="fpc"><span class="fpl">{e(c.get("label", name))}</span>'
+                    f'<input type="range" data-c="{e(name)}" min="{c.get("min", 0)}" max="{c.get("max", 1)}" '
+                    f'step="{c.get("step", 0.01)}" value="{c.get("value", c.get("min", 0))}">'
+                    f'<output data-o="{e(name)}"></output></label>')
+        if kind == "button":
+            return f'<button type="button" class="fpb" data-act="{e(name)}">{e(c.get("label", name))}</button>'
+        if kind == "seg":
+            on = c.get("value") or c["options"][0][0]
+            btns = "".join(f'<button type="button" data-v="{e(v)}" aria-pressed="{"true" if v == on else "false"}">'
+                           f'{e(lbl)}</button>' for v, lbl in c["options"])
+            lbl = f'<span class="fpl">{e(c["label"])}</span>' if c.get("label") else ""
+            return f'<div class="fpc">{lbl}<div class="fpseg" data-seg="{e(name)}" role="group">{btns}</div></div>'
+        return ""
+
+    out = ""
+    for i, f in enumerate(figs, 1):
+        body = "".join(f"<p>{md_inline(p)}</p>" for p in (f.get("body") or []))
+        ctl = "".join(control(c) for c in (f.get("controls") or []))
+        ctl = f'<div class="fpctl">{ctl}</div>' if ctl else ""
+        reads = "".join(f'<span>{e(r.get("label", ""))} <b data-o="{e(r["name"])}"></b></span>'
+                        for r in (f.get("readouts") or []))
+        reads = f'<div class="fpread">{reads}</div>' if reads else ""
+        key = "".join(f'<span><i class="{"dot" if k.get("dot") else ""}" style="background:var(--{e(k["color"])})"></i>'
+                      f'{e(k["label"])}</span>' for k in (f.get("key") or []))
+        key = f'<div class="fpkey">{key}</div>' if key else ""
+        cap = f'<p class="fpcap">{md_inline(f["caption"])}</p>' if f.get("caption") else ""
+        unl = f'<p class="fpun"><b>Unlocks</b>{md_inline(f["unlocks"])}</p>' if f.get("unlocks") else ""
+        out += (f'<article class="fp" id="fp-{e(f["id"])}"><p class="fpk">{e(f.get("kicker") or f"Figure {i}")}</p>'
+                f'<h3>{e(f["title"])}</h3><p class="fpidea">{md_inline(f.get("idea", ""))}</p>'
+                f'<div class="fpbody">{body}</div>'
+                f'<figure class="fpfig" data-fig="{e(f["id"])}"><div class="fpstage" data-label="{e(f.get("label", f["title"]))}"></div>'
+                f'{ctl}{reads}{key}</figure>{cap}{unl}</article>')
+    lede = f'<p class="lede">{md_inline(fp["lede"])}</p>' if fp.get("lede") else ""
+    return sec(fp.get("title") or "First principles", lede + out, "fpsec")
+
+
+def figure_scripts(d, run):
+    """The run's figure code, inlined in order after the page script, then FP.boot()."""
+    names = (d.get("first_principles") or {}).get("scripts") or []
+    code = ""
+    for name in names:
+        path = (run / name).resolve()
+        if run not in path.parents:
+            sys.exit(f"figure script outside the run folder: {name}")
+        code += f"\n/* {name} */\n" + path.read_text()
+    return code + "\nFP.boot();\n" if code else ""
+
+
 # ---------------------------------------------------------------- avenue strip
 def plural(n, one, many):
     return f"no {many}" if n == 0 else f"{n} {one if n == 1 else many}"
@@ -581,10 +646,10 @@ def main():
             f'<title>{e(m.get("title", "Industry research"))}</title>\n'
             f'<style>\n{css}\n</style>\n\n'
             f'<div class="viz-root"><div class="wrap">\n'
-            f'{head}\n{narrative(d, run)}\n{avenues(d)}\n{openness_map(d)}\n{reading(d)}\n{projects(d)}\n'
-            f'{landscape(d)}\n{confidence(d)}\n'
+            f'{head}\n{first_principles(d, run)}\n{narrative(d, run)}\n{avenues(d)}\n{openness_map(d)}\n'
+            f'{reading(d)}\n{projects(d)}\n{landscape(d)}\n{confidence(d)}\n'
             f'<div id="tip" role="tooltip"></div>\n</div></div>\n'
-            f'<script>\n{js}\n</script>\n')
+            f'<script>\n{js}\n{figure_scripts(d, run)}</script>\n')
     (run / "report.html").write_text(page)
     print(f"wrote {run / 'report.html'} ({len(page):,} bytes)")
     for tag in ("div", "section", "article", "p", "span", "ul", "ol", "li", "dl", "details", "a"):

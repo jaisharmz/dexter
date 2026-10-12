@@ -76,6 +76,8 @@ Respect `prefers-reduced-motion`. Give keyboard focus a visible state.
 
 ## What else the page carries
 
+**First principles, at the top.** The operator's request on 2026-10-12: one section explains the field from first principles, and that is where the visualizations go, interactive where possible and 3D where a third axis carries meaning. The section opens with the field's core idea and builds it up figure by figure, each computing the real object for a toy problem so that a slider shows the claim in the text holding. It sits under the verdict and above everything else, because every later section (the map, the reading, the projects) is easier to read once the reader can see what the field's one move is. Rules for building it are in `agents/designer.md`.
+
 **The narrative, first.** The four to eight beats from `README.md`, telling how the field got to its current shape through named people and their disagreements. Render it as prose, not a timeline widget, because it is an argument rather than a list of dates. Keep the links on the anchoring artifacts live.
 
 This sits above everything, including the verdict, because it is what makes the map underneath legible. A reader who knows why a branch exists reads the openness map differently from one meeting it cold. Rules for writing it are in `narrative.md`.
