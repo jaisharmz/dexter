@@ -7,12 +7,13 @@
 // it is this machine's runtime state.
 //
 // The session tools act on a process (start it, message it, stop, archive or delete it). This
-// file only records what they did and refuses a spawn the limits forbid, so `ps` can answer what
-// is running, for whom, and what it holds. Design: docs/agent-processes.md. Use: skills/spawn.
+// file records what they did and refuses a spawn the limits forbid, so `ps` can answer what is
+// running, for whom, and what it holds. The one thing it sends is the check-in question, by mail.
+// Design: docs/agent-processes.md. Use: skills/spawn.
 //
 // Writes go through kernel/store.mjs (a mkdir mutex and a rename), as the queue's do.
 
-import { existsSync, realpathSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -22,6 +23,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repo = [join(here, ".."), join(here, "..", "..")].find((dir) => existsSync(join(dir, "kernel", "store.mjs")));
 if (!repo) throw new Error(`proc.mjs: no kernel/store.mjs above ${here}`);
 const { appendLine, readJson, sharedRoot, transact } = await import(pathToFileURL(join(repo, "kernel", "store.mjs")).href);
+const mailbox = await import(pathToFileURL(join(repo, "kernel", "sessions.mjs")).href);
 
 export const ROOT = sharedRoot(repo);
 const EMPTY = { processes: [], leases: {} };
@@ -220,6 +222,20 @@ export const acquire = (resource, { holder, purpose, ttl = "10m" }, root = ROOT)
   return lease;
 };
 
+// acquire --wait: a busy lease is retried every few seconds, with jitter so two waiters do not
+// retry in step, until it frees or the wait runs out; then it fails as acquire does, with exit 3.
+export const acquireWaiting = async (resource, options, wait, root = ROOT, everyMs = 5000) => {
+  const until = Date.now() + (wait ? parseTtl(wait) : 0);
+  for (;;) {
+    try {
+      return acquire(resource, options, root);
+    } catch (err) {
+      if (err.exitCode !== 3 || Date.now() >= until) throw err;
+      await new Promise((done) => setTimeout(done, Math.min(until - Date.now(), everyMs * (0.5 + Math.random()))));
+    }
+  }
+};
+
 // Only the holder releases, so a holder whose lease expired and was taken cannot free the next one's.
 export const release = (resource, { holder }, root = ROOT) => {
   const freed = transact(tablePath(root), EMPTY, (table) => {
@@ -231,6 +247,150 @@ export const release = (resource, { holder }, root = ROOT) => {
   });
   if (freed) log(root, "release", { resource, holder });
   return freed;
+};
+
+// ---- check-ins ----
+
+// On an unattended night the parent asks each child, about every 45 minutes, what it has finished,
+// what it is on and what blocks it (skills/spawn/LEARNED.md). The question goes by mail, which the
+// audit hook hands a busy child at its next tool call. Each answer goes into that night's log,
+// which kernel/night-report.mjs reads for the morning report. The table keeps each question and who
+// has answered it, so an answer is logged once however often collect runs. A starting child has
+// no session yet, and a stopped or finished one is not working, so only these two are asked.
+const ASKED = new Set(["running", "idle"]);
+
+// A night runs from noon to noon and is named for its morning: 8 PM on Oct 10 and 9 AM on Oct 11
+// both log to checkins-2026-10-11.md.
+const morningOf = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + (date.getHours() >= 12 ? 1 : 0));
+const nightStart = (date) => {
+  const morning = morningOf(date);
+  return new Date(morning.getFullYear(), morning.getMonth(), morning.getDate() - 1, 12);
+};
+export const night = (date = new Date()) => {
+  const morning = morningOf(date);
+  return [morning.getFullYear(), morning.getMonth() + 1, morning.getDate()].map((n) => String(n).padStart(2, "0")).join("-");
+};
+export const checkinLog = (root = ROOT, date = new Date()) => join(root, "var", "run", "proc", `checkins-${night(date)}.md`);
+
+const clock = (date) => date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+const day = (date) => date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const names = (list) => (list.length < 3 ? list.join(" and ") : `${list.slice(0, -1).join(", ")}, and ${list.at(-1)}`);
+
+// The log is night-report's format: "## <time>, <who>", then bullets. Each line of an answer
+// becomes one bullet with its own list and heading marks taken off, so a "## " inside an answer
+// cannot start a false entry.
+const bullets = (text) => String(text).split("\n").map((line) => line.replace(/^\s*(?:(?:#+|>|[-*•]|\d+[.)])\s+)*/, "").trim()).filter(Boolean);
+
+const write = (root, date, heading, lines = []) => {
+  const path = checkinLog(root, date);
+  if (!existsSync(path)) {
+    mkdirSync(dirname(path), { recursive: true });
+    const start = nightStart(date);
+    const morning = morningOf(date);
+    const span = start.getMonth() === morning.getMonth() ? `${day(start)} to ${morning.getDate()}` : `${day(start)} to ${day(morning)}`;
+    try {
+      writeFileSync(path, `# Overnight check-ins, ${span}\n\nWritten by node kernel/proc.mjs checkin: each question asked, then each answer as it came, by mail or pasted from SendMessage.\n`, { flag: "wx" });
+    } catch (err) {
+      if (err.code !== "EEXIST") throw err;
+    }
+  }
+  appendFileSync(path, `\n## ${heading}\n${lines.map((line) => `- ${line}\n`).join("")}`);
+  return path;
+};
+
+const question = ({ parent, child, id, at }) =>
+  [
+    `Check-in from ${parent} at ${clock(at)}. Answer by mail at your next pause, in at most six lines:`,
+    "",
+    "1. What you finished since your last report, each item by its queue name, with its commits.",
+    "2. What you are on now, and your plan for the next hour.",
+    "3. What is blocked, and on whom.",
+    "4. How much of your context is used.",
+    "",
+    "Send it with this subject, so it lands in tonight's check-in log:",
+    `node kernel/sessions.mjs send --from "${child}" --to "${parent}" --subject "check-in ${id}" --body-file <path>`,
+  ].join("\n");
+
+// Mail the question to every running or idle child of `parent`. A child in the middle of a turn
+// also gets a copy at its next tool call, as `sessions.mjs send` does it.
+export const askCheckin = ({ parent, at = new Date() }, root = ROOT, agents = running()) => {
+  if (!parent) throw new Error("a check-in needs the parent's name");
+  const children = load(root).processes.filter((p) => p.parent === parent && ASKED.has(p.state)).map((p) => p.name);
+  if (!children.length) throw new Error(`${parent} has no running or idle children to ask`);
+  const id = mailbox.messageId(at);
+  const mail = {};
+  for (const child of children) {
+    const subject = `check-in ${id}: what you finished, what you are on, what blocks you`;
+    const envelope = mailbox.send({ from: parent, to: child, subject, body: question({ parent, child, id, at }) }, root);
+    for (const target of mailbox.liveSessions(child, agents ?? [])) mailbox.dropLive(target.id, envelope, root);
+    mail[child] = envelope.id;
+  }
+  transact(tablePath(root), EMPTY, (table) => {
+    const week = at.getTime() - 7 * 86400000;
+    table.checkins = [...(table.checkins ?? []).filter((c) => Date.parse(c.at) >= week), { id, parent, at: at.toISOString(), asked: children, mail, answers: [] }];
+  });
+  log(root, "checkin", { parent, id, asked: children });
+  write(root, at, `${clock(at)}, check-in asked of: ${names(children)}`);
+  return { id, asked: children, mail };
+};
+
+// Each answer goes to the newest question asked before it that asked its sender.
+const askedBefore = (rounds, child, at) => rounds.filter((r) => r.asked.includes(child) && Date.parse(r.at) <= at).at(-1);
+
+// Log the check-in answers in the parent's mailbox that are not logged yet: mail from a child it
+// asked tonight, with "check-in" in the subject. Read mail counts, because the audit hook marks
+// mail read when it hands it to a running parent. Collect marks each answer read, since its text
+// is now in the log. Returns the new answers and who has not answered the latest question.
+export const collectCheckins = ({ parent, now = new Date() }, root = ROOT) => {
+  if (!parent) throw new Error("collect needs the parent's name");
+  const since = nightStart(now).getTime();
+  const found = transact(tablePath(root), EMPTY, (table) => {
+    const rounds = (table.checkins ?? []).filter((c) => c.parent === parent && Date.parse(c.at) >= since);
+    const logged = new Set(rounds.flatMap((r) => r.answers.map((a) => a.mail)));
+    const fresh = [];
+    for (const envelope of mailbox.inbox(parent, { all: true }, root)) {
+      if (logged.has(envelope.id) || !/check-?in/i.test(envelope.subject ?? "")) continue;
+      const round = askedBefore(rounds, envelope.from, Date.parse(envelope.sent_at));
+      if (!round) continue;
+      let lines;
+      try {
+        lines = bullets(mailbox.read(parent, envelope.id, root).body);
+      } catch (err) {
+        lines = [`The body could not be read (${err.message}). Its excerpt: ${envelope.excerpt ?? ""}`];
+      }
+      round.answers.push({ child: envelope.from, at: envelope.sent_at, mail: envelope.id });
+      fresh.push({ child: envelope.from, at: envelope.sent_at, mail: envelope.id, lines });
+    }
+    const latest = rounds.at(-1) ?? null;
+    return { fresh, latest, waiting: latest ? latest.asked.filter((child) => !latest.answers.some((a) => a.child === child)) : [] };
+  });
+  for (const answer of found.fresh) write(root, new Date(answer.at), `${clock(new Date(answer.at))}, ${answer.child} (check-in, mail ${answer.mail})`, answer.lines);
+  if (found.fresh.length) log(root, "checkin-answers", { parent, mail: found.fresh.map((a) => a.mail) });
+  return { answers: found.fresh, latest: found.latest, waiting: found.waiting };
+};
+
+// collect --wait: look again every 15 seconds, logging each answer as it comes, until everyone the
+// latest question asked has answered or the wait runs out.
+export const collectWaiting = async ({ parent }, wait, root = ROOT, onAnswer = () => {}, everyMs = 15000) => {
+  const until = Date.now() + (wait ? parseTtl(wait) : 0);
+  for (;;) {
+    const result = collectCheckins({ parent }, root);
+    result.answers.forEach(onAnswer);
+    if (!result.waiting.length || Date.now() >= until) return result;
+    await new Promise((done) => setTimeout(done, Math.min(everyMs, until - Date.now())));
+  }
+};
+
+// An answer that came by SendMessage reaches only the parent's conversation, so the parent pastes it.
+export const recordCheckin = ({ parent, child, body, at = new Date() }, root = ROOT) => {
+  if (!parent || !child || !String(body ?? "").trim()) throw new Error("record needs the parent, the child and the answer's text");
+  const since = nightStart(at).getTime();
+  transact(tablePath(root), EMPTY, (table) => {
+    const rounds = (table.checkins ?? []).filter((c) => c.parent === parent && Date.parse(c.at) >= since);
+    askedBefore(rounds, child, at.getTime())?.answers.push({ child, at: at.toISOString(), via: "SendMessage" });
+  });
+  log(root, "checkin-answers", { parent, child, via: "SendMessage" });
+  return write(root, at, `${clock(at)}, ${child} (check-in, by SendMessage)`, bullets(body));
 };
 
 // ---- ps ----
@@ -268,8 +428,12 @@ const USAGE = `usage: node kernel/proc.mjs <command>
   set <name|id> [--pid <id>] [--cli <id>] [--state <${STATES.join("|")}>] [--parent <name>] [--task <id>] [--item <id>]
   exit <name|id> [--status ok|failed] [--result "<one line>"] [--mail <message id>]
   wait <name|id> [--timeout 30m]             returns when the child is idle; exit 2 on timeout
-  lease acquire <resource> --holder <name> [--purpose <text>] [--ttl 10m]
+  lease acquire <resource> --holder <name> [--purpose <text>] [--ttl 10m] [--wait 5m]
   lease release <resource> --holder <name>     lease status
+  checkin ask --parent <name>                mail the check-in question to each running or idle child of <name>
+  checkin collect --parent <name> [--wait 20m]   log new answers in <name>'s mailbox to tonight's check-in log;
+                                             --wait keeps logging until all have answered, exit 2 if some never do
+  checkin record <child> --parent <name> (--body <text> | --body-file <path>)   log an answer that came by SendMessage
 Any command takes --root <dir> to use <dir>/var/run instead of this repo's.`;
 
 const flag = (args, name) => {
@@ -344,10 +508,10 @@ const commands = {
     console.log(done.outcome === "idle" ? `${done.name} is idle (pid ${done.pid}): read its result` : `${done.name} has no process: it finished and the app evicted it, or it was archived`);
   },
 
-  lease(args, root) {
+  async lease(args, root) {
     const [verb, resource] = positional(args);
     if (verb === "acquire") {
-      const lease = acquire(needed(resource), { holder: flag(args, "holder"), purpose: flag(args, "purpose"), ttl: flag(args, "ttl") ?? "10m" }, root);
+      const lease = await acquireWaiting(needed(resource), { holder: flag(args, "holder"), purpose: flag(args, "purpose"), ttl: flag(args, "ttl") ?? "10m" }, flag(args, "wait"), root);
       return console.log(`${resource} is held by ${lease.holder} until ${lease.expires}`);
     }
     if (verb === "release") return console.log(release(needed(resource), { holder: flag(args, "holder") }, root) ? `${resource} released` : `${resource} was not held`);
@@ -356,6 +520,34 @@ const commands = {
       if (!leases.length) return console.log("no leases held");
       for (const [name, l] of leases) console.log(`${name}: ${l.holder} until ${l.expires}${l.purpose ? ` (${l.purpose})` : ""}`);
       return;
+    }
+    throw new Error(USAGE);
+  },
+
+  async checkin(args, root) {
+    const [verb, ...rest] = positional(args);
+    const parent = needed(flag(args, "parent"));
+    if (verb === "ask") {
+      const { id, asked } = askCheckin({ parent }, root);
+      return console.log(`asked ${names(asked)} (check-in ${id}); log their answers as they come: node kernel/proc.mjs checkin collect --parent "${parent}" --wait 20m`);
+    }
+    if (verb === "collect") {
+      const wait = flag(args, "wait");
+      const done = await collectWaiting({ parent }, wait, root, (a) => console.log(`logged ${clock(new Date(a.at))}, ${a.child}: ${a.lines[0] ?? "(empty)"}`));
+      if (!done.latest) return console.log(`${parent} has asked no check-in since noon: node kernel/proc.mjs checkin ask --parent "${parent}"`);
+      const asked = `the ${clock(new Date(done.latest.at))} check-in`;
+      if (!done.waiting.length) return console.log(`all ${done.latest.asked.length} have answered ${asked}; the log is ${checkinLog(root)}`);
+      console.log(`waiting on ${names(done.waiting)} for ${asked}`);
+      if (wait) process.exitCode = 2;
+      return;
+    }
+    if (verb === "record") {
+      const text = flag(args, "body");
+      const file = flag(args, "body-file");
+      if ((text === undefined) === (file === undefined)) throw new Error(`give --body or --body-file, one of them\n${USAGE}`);
+      const child = needed(rest.join(" "));
+      const path = recordCheckin({ parent, child, body: text ?? readFileSync(file, "utf8") }, root);
+      return console.log(`logged ${child}'s answer in ${path}`);
     }
     throw new Error(USAGE);
   },

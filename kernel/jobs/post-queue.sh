@@ -20,10 +20,20 @@ INTEL_ROOT=${_job_dir%/kernel/jobs}
 
 cd "$INTEL_ROOT"
 TARGET=$(channel_id queue) || { echo "post-queue: no id for #queue in etc/channels.json; run ./setup" >&2; exit 1; }
-# The layered queue (kernel/pqueue.mjs) is in beta in intel; an install without it posts the
-# flat list.
-if [ -f kernel/pqueue.mjs ]; then BODY=$(node kernel/pqueue.mjs list); else BODY=$(node kernel/queue.mjs list); fi
-openclaw message send --channel discord --target "$TARGET" \
+# One Discord message holds 2,000 characters. The full list outgrew that on Oct 3, and
+# `openclaw message send` hung on the 70 KB post every morning after (exit 13), so the post is a
+# digest that fits one message. kernel/pqueue.mjs, where a checkout has it, gives the board's
+# three sections; an install without it posts queue.mjs's list, cut at a line to the same size.
+if [ -f kernel/pqueue.mjs ]; then
+  BODY=$(node kernel/pqueue.mjs digest --max 1850)
+else
+  BODY=$(node kernel/queue.mjs list | LC_ALL=C awk -v max=1780 '
+    cut || used + length($0) + 1 > max { cut = 1; left++; next }
+    { print; used += length($0) + 1 }
+    END { if (left) printf "... and %d more lines: node kernel/queue.mjs list\n", left }')
+fi
+# A test points OPENCLAW at a stand-in, so nothing it runs can post.
+"${OPENCLAW:-openclaw}" message send --channel discord --target "$TARGET" \
   -m "**Queue** — $(date '+%Y-%m-%d')
 \`\`\`
 $BODY

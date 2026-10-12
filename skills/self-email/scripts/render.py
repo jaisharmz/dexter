@@ -46,17 +46,32 @@ import sys
 
 # One deep blue carries the accent: headings and links only. Everything else is a
 # blue-leaning neutral, so the one colour on the page marks what is clickable.
+# Fills are written as background-color: the Gmail connector's send drops the background
+# shorthand and keeps the longhand, so chips and shaded rows came out bare before Oct 11.
 INK = "#1d2733"
 MUTED = "#5b6775"
 RULE = "#dfe4ea"
 ACCENT = "#003262"
 CHIP_BACKGROUND = "#eef2f6"
 CHIP_INK = "#243447"
+ZEBRA = "#f3f6f9"
 FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 
 
 def escape(text) -> str:
     return html.escape(str(text), quote=True)
+
+
+def escape_wrapping(text) -> str:
+    # A path has no break opportunity, so one cell holding it pushes its table past a phone's width.
+    # word-break on a span lets just that word wrap; on the whole table or cell it also split short
+    # words in narrow columns, and the connector strips <wbr> and overflow-wrap.
+    return " ".join(
+        f'<span style="word-break:break-word;">{escape(word)}</span>'
+        if len(word) > 24 or ("/" in word and len(word) > 12)
+        else escape(word)
+        for word in str(text).split(" ")
+    )
 
 
 def render_cell(value, chips: bool = False) -> str:
@@ -72,35 +87,37 @@ def render_cell(value, chips: bool = False) -> str:
         if chips:
             return " ".join(
                 f'<span style="display:inline-block;margin:0 4px 4px 0;padding:2px 8px;border-radius:10px;'
-                f'background:{CHIP_BACKGROUND};color:{CHIP_INK};font-size:12px;line-height:18px;white-space:nowrap;">{escape(item)}</span>'
+                f'background-color:{CHIP_BACKGROUND};color:{CHIP_INK};font-size:12px;line-height:18px;white-space:nowrap;">{escape(item)}</span>'
                 for item in value
             )
-        return "<br>".join(render_cell(item) if isinstance(item, dict) else escape(item) for item in value)
+        return "<br>".join(render_cell(item) if isinstance(item, dict) else escape_wrapping(item) for item in value)
     if chips:
         return render_cell([value], chips=True)
-    return escape(value)
+    return escape_wrapping(value)
 
 
 def render_table(section: dict) -> str:
     columns = section["columns"]
-    head = "".join(
-        f'<th align="left" style="padding:8px 10px;border-bottom:2px solid {RULE};font-size:11px;letter-spacing:0.06em;'
-        f'text-transform:uppercase;color:{MUTED};font-weight:600;">{escape(column["label"])}</th>'
-        for column in columns
-    )
+    numbered = section.get("numbered", False)
+    head = "".join(f'<th align="left">{escape(column["label"])}</th>' for column in columns)
     rows = []
+    # Nothing is repeated on every cell: padding comes from cellpadding, type and colour from the
+    # wrapper, alignment from the row, and every second row is shaded instead of ruled. Gmail clips
+    # a message over about 102 KB, and a long report has to fit one send call; per-cell rules made
+    # the Oct 11 report 95 KB, and this markup made it 61 KB.
     for index, row in enumerate(section["rows"], start=1):
         cells = "".join(
-            f'<td valign="top" style="padding:9px 10px;border-bottom:1px solid {RULE};font-size:14px;line-height:1.45;color:{INK};">'
-            f'{render_cell(row.get(column["key"]), chips=column.get("chips", False))}</td>'
-            for column in columns
+            f'<td>{render_cell(row.get(column["key"]), chips=column.get("chips", False))}</td>' for column in columns
         )
-        number = f'<td valign="top" style="padding:9px 6px 9px 0;border-bottom:1px solid {RULE};font-size:12px;color:{MUTED};font-variant-numeric:tabular-nums;">{index}</td>'
-        rows.append(f"<tr>{number if section.get('numbered') else ''}{cells}</tr>")
-    number_head = f'<th style="border-bottom:2px solid {RULE};"></th>' if section.get("numbered") else ""
+        number = f'<td style="font-size:12px;color:{MUTED};font-variant-numeric:tabular-nums;">{index}</td>' if numbered else ""
+        shade = f' style="background-color:{ZEBRA};"' if index % 2 == 0 else ""
+        rows.append(f'<tr valign="top"{shade}>{number}{cells}</tr>')
+    number_head = "<th></th>" if numbered else ""
     return (
-        f'<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:760px;font-family:{FONT};">'
-        f"<thead><tr>{number_head}{head}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
+        '<table cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:14px;line-height:1.45;">'
+        f'<thead><tr style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:{MUTED};border-bottom:2px solid {RULE};">'
+        f"{number_head}{head}</tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
     )
 
 

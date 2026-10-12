@@ -26,10 +26,11 @@ URL:
     https://docs.google.com/document/u/2/d/<id>/edit
 
 `/u/N` is an index into the signed-in list, **not a stable account id** — it shifts if an
-account is added or removed. Confirm which account a page is actually showing before
-writing anything to it, by reading the avatar or the account line on the page. Writing a
-client document into the wrong Drive is not recoverable by deleting it; it was already
-visible, and it may have already synced.
+account is added or removed. To open a page in a given account, add `?authuser=<its address>`
+to the URL instead, which Google resolves to that account's current index. Confirm which
+account a page is actually showing before writing anything to it, by reading the avatar or
+the account line on the page. Writing a client document into the wrong Drive is not
+recoverable by deleting it; it was already visible, and it may have already synced.
 
 ## So the capability is: everything except the sign-in
 

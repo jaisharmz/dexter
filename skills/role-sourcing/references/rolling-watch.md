@@ -51,10 +51,15 @@ is committed. `--all` reprints every current hit, `--only <slug>` narrows to one
    published, the new role may go in.
 2. **Apply to the best-fit role at each company**, through `role-apply`: the résumé variant
    for the role, every value from `config/profile.yaml`, and consent and certification boxes
-   handled as `role-apply/references/runs.md` says.
+   handled as `role-apply/references/runs.md` says. Each form is filled inside one Chrome
+   lease, as `role-apply` says, so a form another session has open is never typed over.
 3. **Hand over instead of working around** a sign-in or account creation, a captcha or a
    "verification code to confirm you're a human", an arbitration or non-compete term, or a
-   required essay (draft it and put it in the report).
+   required essay (draft it and put it in the report). File each hand-over in the same run
+   as its own queue item tagged for the operator: company, role, req id, link, the one step
+   needed, and the closing date when the posting gives one. The report email is not enough.
+   In the watch's first week every report went unopened, and the hand-overs that lived only
+   there reached neither the queue nor the tracker.
 4. **Log it** in `role-apply/state/applications.jsonl` and add its row to the tracker
    (`role-tracker`).
 

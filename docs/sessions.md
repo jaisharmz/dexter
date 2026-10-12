@@ -7,6 +7,7 @@ is how a session registers.
 | You need to | Use |
 | --- | --- |
 | ask a running session something | `SendMessage` to its name |
+| reach a session in the middle of its turn | the mailbox, `sessions.mjs send`, which the audit hook hands over at its next tool call |
 | hear when it has finished | `SendMessage` with `notify_when_idle: true` |
 | hand over a request or result that must outlive a session | the mailbox, `sessions.mjs send` |
 | find a session | `sessions.mjs find`, then `list_sessions` |
@@ -14,8 +15,10 @@ is how a session registers.
 
 ## Live questions
 
-`SendMessage` with `to` set to the other session's messaging name delivers at that session's
-next tool round. To reply to a `<cross-session-message>`, copy its `from` into your `to`. To hear
+`SendMessage` with `to` set to the other session's messaging name starts a turn in an idle
+session at once. A desktop session in the middle of a turn holds it until that turn ends, which
+took over 40 minutes on 2026-10-10, so to reach a busy session use the mailbox below. To reply
+to a `<cross-session-message>`, copy its `from` into your `to`. To hear
 when a session finishes, send with `notify_when_idle: true` (from a main session, not a
 subagent). One notice arrives, so never poll `ListAgents` or ask "are you done?". A successful
 send means the message arrived, not that anyone read it. A session in a different permission
@@ -37,8 +40,20 @@ that is not running.
 `var/sessions/<recipient>/inbox/<id>.json` with the sender, the subject, the first 240
 characters and the body's path. `read` prints the envelope and the body and moves the envelope
 to `inbox/read/`. Mail waits for a session that has not registered yet, and `/name` shows it
-when that session registers. When the recipient is running, follow the mail with a one-line
-SendMessage that names the message id, so it knows to look.
+when that session registers.
+
+`send` also looks the recipient up in `claude agents --json`, which lists every running session
+on this machine under its title, desktop ones included, and leaves a copy of the envelope in
+`var/sessions/live/<CLI session id>/` for each one by that name (`--session <id>` names one
+directly, `--no-live` skips it). The audit hook (`kernel/audit/hook.mjs`) runs after every tool
+call and with every prompt in every session. When it finds a copy for its own session, it claims
+it with a rename, so it is handed over once, and passes the message to the agent as context
+framed as a teammate's request. A body of up to 4,000 characters comes whole and is marked
+read; a longer one comes cut, with the `read` command for the rest. Subagents never take mail
+meant for their parent. An idle recipient gets it with its next prompt, so follow mail to an
+idle session with a one-line SendMessage that starts its turn.
+
+It is an inbox, delivered by the one hook every surface already runs.
 
 ## Finding a session
 

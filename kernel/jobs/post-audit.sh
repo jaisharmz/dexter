@@ -16,9 +16,13 @@ cd "$INTEL_ROOT"
 TARGET=$(channel_id log) || { echo "post-audit: no id for #log in etc/channels.json; run ./setup" >&2; exit 1; }
 # A Discord message holds 2000 characters; the full report is one command away.
 BODY=$(node kernel/audit/audit.mjs report --since 24h | cut -c1-180 | head -c 1700)
-openclaw message send --channel discord --target "$TARGET" \
+# The effort router's day in one line, when it routed anything (docs/DESIGN.md §5).
+ROUTES=$( [ -f kernel/router.mjs ] && node kernel/router.mjs digest --hours 24 2>/dev/null || true)
+# A test points OPENCLAW at a stand-in, so nothing it runs can post.
+"${OPENCLAW:-openclaw}" message send --channel discord --target "$TARGET" \
   -m "**Audit** — $(hostname -s), $(date '+%Y-%m-%d')
 \`\`\`
 $BODY
-\`\`\`
+\`\`\`${ROUTES:+
+$ROUTES}
 Full: \`node kernel/audit/audit.mjs report\`"

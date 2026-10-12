@@ -38,6 +38,8 @@ def main():
     entry = {"date": today, "company": arguments.company, "role": arguments.role, "url": arguments.url, "ats": arguments.ats,
              "resume": arguments.resume, "status": "submitted", "submitted_date": today, "submitted_by": arguments.by,
              "notes": f"{arguments.notes} Evidence: {evidence}"}
+    if arguments.area:
+        entry["area"] = arguments.area
     with open(APPLICATIONS, "a") as log:
         log.write(json.dumps(entry) + "\n")
 

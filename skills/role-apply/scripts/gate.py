@@ -4,7 +4,9 @@ The rule: a company is blocked while a recruiter, interview, assessment or offer
 less than six months old, or while a hold the operator set by hand (a warm path they are working
 themselves) stands. A pending application (one in the last six months that has not ended in a
 rejection) blocks only at a company that publishes a cap or cooldown, listed in
-references/caps.json. Anywhere else a second role is allowed, and the verdict is
+references/caps.json. A cap that names the day it lifts ("until 2026-12-29") blocks until then even
+after a rejection, since a cooldown like ElevenLabs' counts every application whatever its outcome.
+Anywhere else a second role is allowed, and the verdict is
 "applied-before": look the company's policy up (careers FAQ, posting text, Ashby's
 application-limit notice), add it to caps.json if one exists, and apply if none does.
 
@@ -13,6 +15,13 @@ It reads the two records every application conversation keeps current:
     state/responses.jsonl      every reply from a company, newest first
     state/holds.json           {"<normalized company>": "<why>"}; optional
     state/aliases.json         {"<normalized name>": ["<other normalized names>"]}; optional
+    state/run-*/skips.json     each run's skipped and held companies with the reason; optional
+    state/held-*.json          the Oct 1 run's held_or_skipped list, in the same role; optional
+
+A company an earlier run skipped or held (a failed LinkedIn bar, a salary or essay hold, a form
+left for the operator's captcha) reads "skipped-before" with that reason, unless it is blocked.
+It is not a block: read the reason, and leave a company-level skip standing unless the operator
+lifts it.
 
 It does not read the operator's inboxes or confirmation screenshots. responses.jsonl is only as
 fresh as the last inbox sweep, so a run that will submit should sweep the inbox first. Names
@@ -45,7 +54,8 @@ ALIASES = {
 
 
 def normalize(name):
-    return re.sub(r"[^a-z0-9]", "", re.sub(r"\(.*?\)", "", (name or "").lower()))
+    # Workable board slugs spell a dot as "-dot-": "pony-dot-ai" is Pony.ai
+    return re.sub(r"[^a-z0-9]", "", re.sub(r"\(.*?\)", "", (name or "").lower().replace("-dot-", ".")))
 
 
 def keys(company):
@@ -79,7 +89,27 @@ def records(company):
     return sorted(found, reverse=True)
 
 
+def skipped(company):
+    company_keys = keys(company)
+    found = []
+    for path in sorted(STATE.glob("run-*/skips.json"), reverse=True):
+        for name, why in json.loads(path.read_text()).items():
+            if same(company_keys, name):
+                found.append((path.parent.name[len("run-"):], "skipped", str(why)))
+    for path in sorted(STATE.glob("held-*.json"), reverse=True):
+        for entry in json.loads(path.read_text()).get("held_or_skipped", []):
+            if same(company_keys, entry.get("key")):
+                found.append((path.stem[len("held-"):], "skipped", str(entry.get("reason"))))
+    return found
+
+
 def verdict(company):
+    result, recent = standing(company)
+    earlier = skipped(company) if result != "blocked" else []
+    return ("skipped-before", earlier + recent) if earlier else (result, recent)
+
+
+def standing(company):
     holds_path = STATE / "holds.json"
     holds = json.loads(holds_path.read_text()) if holds_path.exists() else {}
     for key in keys(company):
@@ -93,11 +123,15 @@ def verdict(company):
         return "blocked", recent
     applied = [date for date, kind, _ in recent if kind == "applied"]
     rejected = [date for date, kind, _ in recent if kind == "rejection"]
+    capped = json.loads(CAPS.read_text()) if CAPS.exists() else {}
+    policy = next((capped[key] for key in keys(company) if key in capped), None)
+    # a cooldown that counts every application, rejected or not, names the day it lifts ("until 2026-12-29")
+    lifts = re.search(r"until (\d{4}-\d{2}-\d{2})", policy or "")
+    if applied and lifts and lifts.group(1) > datetime.date.today().isoformat():
+        return "blocked", [("", "cap", policy)] + recent
     if applied and rejected and max(rejected) >= max(applied):
         return "clear-after-rejection", recent
     if applied:
-        capped = json.loads(CAPS.read_text()) if CAPS.exists() else {}
-        policy = next((capped[key] for key in keys(company) if key in capped), None)
         if policy:
             return "blocked", [("", "cap", policy)] + recent
         return "applied-before", recent

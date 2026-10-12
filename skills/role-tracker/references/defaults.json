@@ -95,7 +95,7 @@
 
   "records": {
     "submitted": "Applied",
-    "awaiting-submit": "Held", "drafted": "Held", "security-code-sent": "Held",
+    "awaiting-submit": "Held", "held": "Held", "drafted": "Held", "security-code-sent": "Held",
     "skipped": "Withdrawn/Closed", "not-eligible": "Withdrawn/Closed", "not-applying": "Withdrawn/Closed",
     "blocked-account-wall": "Withdrawn/Closed", "withdrawn": "Withdrawn/Closed"
   },

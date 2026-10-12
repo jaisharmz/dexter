@@ -1,7 +1,7 @@
 ---
 name: slides
-description: Make slides that look like the operator made them, as a .pptx that imports cleanly into Google Slides, and check every slide there before handing over. Reads the operator's measured style from config/style.md first, and measures it from their own decks when there is none. Use when the user asks for slides, a deck, "put this on a slide", "make it look like my slides", "add a slide to <deck>", wants slides moved into another deck or Google account, or runs /slides. For .pptx mechanics that have nothing to do with the operator's style, such as reading or editing an existing file, a general pptx skill is enough.
-argument-hint: "[<what the slides are about>] | measure <folder of their decks> | import <file.pptx> <deck url>"
+description: Make slides that look like the operator made them, as a .pptx that imports cleanly into Google Slides, and check every slide there before handing over. Reads the operator's measured style from config/style.md first; without one it starts from a consulting, research or technical preset, and it builds on a company or client template when given one. Draws icons and flowcharts to the same rules. Use when the user asks for slides, a deck, "put this on a slide", "make it look like my slides", "add a slide to <deck>", wants slides moved into another deck or Google account, or runs /slides. For .pptx mechanics that have nothing to do with the operator's style, such as reading or editing an existing file, a general pptx skill is enough.
+argument-hint: "[<what the slides are about>] [--preset consulting|research|technical] [--template <file>] | measure <folder of their decks> | import <file.pptx> <deck url>"
 user-invocable: true
 ---
 
@@ -20,8 +20,13 @@ anything generic in this file. Read it before the first slide. It is measured fr
 decks, never guessed. Its `json` block feeds `assets/deck.js`, so the prose and the numbers
 must agree.
 
-- **No profile yet:** measure one first (next section). Generic good taste produces slides
-  that look machine-made, and that is the complaint this skill exists to prevent.
+- **No profile yet:** start from a preset (`presets/README.md`): `consulting` for a case or
+  strategy deck, `research` for results and methods, `technical` for teaching math and CS. Each
+  is a finished look with a builder whose demo slides show every pattern once. Then measure the
+  operator's own decks (next section) when there are enough of them. Generic good taste
+  produces slides that look machine-made, and that is the complaint this skill exists to prevent.
+- **A template is given** (company, client, course): its masters, fonts and colors win. Read it
+  with `scripts/template.py` and build on it as `presets/README.md` describes.
 - **The operator corrects a slide:** write the correction into `config/style.md` in the same
   run, dated and in their words. A correction about how this skill works, such as how to
   import, check or build, goes to `LEARNED.md` instead.
@@ -126,6 +131,13 @@ working deck and zoom into every slide. `references/google-slides.md` covers:
 Fix problems in the build script and re-import. A hand fix in Slides is lost at the next
 rebuild.
 
+## Icons and flowcharts
+
+Use icons only for three to five parallel ideas, all from one family (Lucide) in one color, made
+with `scripts/icon.py` (`--animate` for a Manim clip of the icon drawing itself). Flowcharts are
+equal boxes at equal gaps with thin grey arrows, each step flagged Agent, Script or Input when a
+model is involved. The rules for both are in `presets/README.md`.
+
 ## Figures
 
 Draw simple diagrams with the builder's shapes. For curves, geometry or anything
@@ -140,6 +152,10 @@ them.
     scripts/measure_decks.py    contact sheets and measurements from PDF exports of their decks
     assets/deck.js              pptxgenjs starter that reads the profile's tokens
     references/google-slides.md upload, import, replace, move between accounts, check
+    presets/                    three finished looks (consulting, research, technical) with builders;
+                                README.md covers fonts, icons, flowcharts and building on a template
+    scripts/icon.py             Lucide icons in the deck's palette, as PNG or an animated Manim clip
+    scripts/template.py         a template's size, fonts, colors, layouts and master art
 
 ## Learning
 

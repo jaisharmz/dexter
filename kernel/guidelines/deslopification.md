@@ -58,6 +58,25 @@ it convincing." State the claim and let the paragraph carry it. In analytical wr
 (a review, an essay, a report) keep the writer out of it: no "I follow", "I find", "I
 argue". The operator marked all three as AI on sight.
 
+**The "That" pickup.** A sentence explains something, and the next one opens with "That"
+pointing back at it: "That idea is why the plan failed", "That gap is where the fight
+comes from". One is harmless, but the habit reads as generated, and the operator flagged it
+on sight. Carry the link with a connective instead ("This is why", "As a result", "As
+such"), or fold the two sentences into one.
+
+**Contrast by negation.** "It checks numbers, not the sentences around them." "The model is
+needed in the tool loop, not for the prose." "It counts as an error, never as a wrong answer." Each
+defines a claim by what it is not, and a page of them reads as generated. The operator named the
+shape on sight (2026-10-11). State the positive claim and let a second sentence carry the limit if
+the reader needs it: "The check only matches numbers."
+
+**"Comes for free."** "The check is free", "this comes for free", "at no cost". Say what it actually
+costs or saves: "it adds no model call".
+
+**Em dashes and the Oxford comma.** No em dashes, in prose or in titles; use a comma, a colon or two
+sentences. Lists of three or more take the Oxford comma ("the database, the filings, and the
+index").
+
 **Stacked semicolons.** One semicolon in a sentence is a choice. A sentence that chains
 three clauses with semicolons is an outline compressed into one line: "the need was
 inelastic, so it accepted X; those conditions opened Y; and shoppers saved a little

@@ -63,7 +63,8 @@ its row through any sort or filter, and sorting by Order puts the tab back.
   means the day before, "This week" its Sunday, "Next week" its Monday and "Within 2 weeks"
   counts from today. A clock time goes ahead of the rest of its day. Undated rows ("Decide",
   "Soon", "Waiting") come after, You before Them before Agent, each run in the queue's own order
-  of the item the row cites as "queue #N". Done rows go last.
+  of the item the row cites as "queue #N, its-name" (the name wins, since a renumber changes
+  only the number). Done rows go last.
 - **Applications**: Your move first, soonest next date first; then Scheduled, by date; Agent's
   move; Waiting on them, most recent update first; On hold; Closed last. Ties go to status in
   its chip order, then the most recent update.

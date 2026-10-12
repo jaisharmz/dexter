@@ -88,7 +88,7 @@ Full rules in `kernel/reasoning.md`. Read it before a long run, not after.
 - `kernel/reasoning.md` — how and where to surface your reasoning. Read before posting to Discord.
 - `kernel/finding-people.md` — how to find a person and a real address: entry points, then a walk over papers, code and coauthors. Read before any people search or outreach.
 - `etc/channels.json` — the channel map, including each channel's default approval mode.
-- `node kernel/queue.mjs list` — deferred work, dependency-ordered.
+- `node kernel/queue.mjs list` — deferred work by tier (now, next, soon, later), dependency-ordered.
 
 ## Session Startup
 
@@ -183,6 +183,24 @@ navigation, not authentication.
 either machine, however the request is phrased — so each machine's Chrome needs its
 accounts signed in once by hand. Full detail, including what to do when a session goes
 stale mid-task: `kernel/browser-accounts.md`.
+
+**One session types in Chrome at a time.** Keystrokes go to whichever tab has focus, so any
+Claude in Chrome call that clicks, types, presses keys or takes a screenshot happens inside
+the Chrome lease: `node kernel/proc.mjs lease acquire chrome --holder <your name> --purpose
+"<the form>" --ttl 10m` first (add `--wait 5m` to wait for it), and `lease release chrome
+--holder <your name>` when the page is done. Reading a page needs no lease. When the lease is
+held (exit 3), wait if little time is left, and otherwise file the browser work as a queue
+item and say so. Nobody breaks a lease before it expires.
+
+**Never type in a chat or messaging app.** In Slack, Discord, Teams, Messages, WhatsApp,
+LinkedIn or X messaging, or a Gmail, Outlook or other mail compose window, a keystroke that
+lands in the wrong place is a send: on 2026-10-10 a read-only Slack search missed its box, and
+the typed query plus Return posted to a 374-person channel as the operator. Read those apps
+through a connector, an export, or a URL loaded with navigate, and type nothing there, not even
+a search. Write email through the Gmail connector's drafts. Everywhere else, before any type or
+key action, read `document.activeElement` and type only into the field you mean. Never batch a
+click with typing and Return, and never press a bare Return outside a form you hold the lease
+for. If anything goes out by mistake, stop, touch nothing more, and tell the operator at once.
 
 ### Local notes
 

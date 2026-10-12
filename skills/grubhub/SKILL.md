@@ -52,6 +52,11 @@ Read the page with `read_page` and act on `ref_N`. Grubhub re-renders constantly
 menu list reflows when a filter chip loads, and coordinates captured a second earlier
 land on the wrong dish. Screenshot to *show* the operator something, not to aim.
 
+Building the cart clicks and types, so it happens inside the Chrome lease (AGENTS.md):
+`node kernel/proc.mjs lease acquire chrome --holder "<your name>" --purpose "grubhub cart" --ttl 15m --wait 5m`
+before the first click, the same command again to renew it, and
+`node kernel/proc.mjs lease release chrome --holder "<your name>"` once the cart is handed over.
+
 ## Search first, ask second
 
 **Never ask a question the store page can answer.** "Italian or Thai?" at 9pm on a Monday

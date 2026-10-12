@@ -95,6 +95,10 @@ const bySession = (records) => {
   return [...sessions.values()];
 };
 
+// A session that only started and ended did nothing. The desktop app starts dozens of those
+// under the claude-vscode entrypoint (72 in the first week), which doubled the session count.
+const worked = (s) => s.prompts.length > 0 || s.calls > 0;
+
 const notable = (record) => (record.event === "PreToolUse" && record.decision !== "allow") || record.event === "PermissionDenied" || record.event === "StopFailure";
 
 const hookErrors = (since) => {
@@ -125,7 +129,7 @@ const commands = {
   },
 
   sessions() {
-    const sessions = bySession(read(sinceArg(option("--since", "24h"))));
+    const sessions = bySession(read(sinceArg(option("--since", "24h")))).filter(worked);
     if (!sessions.length) return console.log("(no sessions in that window)");
     for (const s of sessions) {
       const top = Object.entries(s.tools).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([tool, n]) => `${tool.replace(/^mcp__[^_]+(_[^_]+)*?__/, "")}×${n}`).join(" ");
@@ -152,7 +156,7 @@ const commands = {
     const window = option("--since", "24h");
     const since = sinceArg(window);
     const records = read(since);
-    const sessions = bySession(records);
+    const sessions = bySession(records).filter(worked);
     const calls = records.filter((record) => record.event === "PreToolUse");
     const fails = records.filter((record) => record.event === "PostToolUseFailure" && !record.interrupted);
     const surfaces = {};

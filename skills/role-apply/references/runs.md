@@ -15,7 +15,9 @@ broke it.
    interview, assessment or scheduling email blocks the whole company. Check all three records:
    `state/applications.jsonl`, the operator's inboxes (confirmation and rejection mail), and
    their confirmation screenshots. `scripts/gate.py` reads the first and `state/responses.jsonl`;
-   the inbox sweep keeps `responses.jsonl` fresh.
+   the inbox sweep keeps `responses.jsonl` fresh. Beside it, `scripts/eligibility.py <posting url>`
+   reads the posting itself: a years floor ("3+ years", "1-7 years"), a Senior or Staff pay tier, a
+   required graduate degree, a seat outside the Bay Area and New York, Ashby's limit notice.
 2. **One role per company only where the company limits applications.** A pending application
    blocks a second role only at a company that publishes a cap or a cooldown. Look it up before
    choosing roles: the careers FAQ, the posting text, and on Ashby the application-limit notice

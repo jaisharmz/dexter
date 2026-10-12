@@ -68,11 +68,14 @@ git clone --recurse-submodules https://github.com/jaisharmz/dexter
 cd dexter
 ```
 
-**In Claude Code.** You need git, python3, node and Claude Code. Run `claude` in the folder.
-`.claude/skills` links to `skills/` and `CLAUDE.md` loads the operating manual, so nothing
-else needs setting up. On your first message the agent reads `BOOTSTRAP.md`: it picks its own
-name, asks you a few questions, creates `home/`, and offers to make the folder your own
-private repository. Type `??` to list every skill and lens.
+**In Claude Code.** You need git, python3, node and Claude Code. Run `./setup local` once,
+then `claude` in the folder. `./setup local` checks that `.claude/skills` links to `skills/`,
+installs the audit hook (`kernel/audit/README.md`) in `~/.claude/settings.json`, where every
+Claude Code session on this machine reads it, sets this clone's git config and creates
+`home/`. It never touches Discord, and `./setup doctor` checks every piece and prints the fix
+for each. On your first message the agent reads `BOOTSTRAP.md`: it picks its own name, asks
+you a few questions, and offers to make the folder your own private repository. Type `??` to
+list every skill and lens.
 
 **Over Discord, optionally.** To reach it from your phone, run it as a bot on a machine that
 stays on. Install OpenClaw, then run `./setup`:
@@ -90,6 +93,27 @@ audit hook (`kernel/audit/README.md`), and schedules the daily posts. Run it aga
 [`docs/discord.md`](docs/discord.md) covers the channels, their approval modes, and what to do
 when the bot goes quiet.
 
+**What only you can do.** Setup does everything an agent can and `./setup doctor` checks it.
+These steps need a person:
+
+- Install git, node, python3 and Claude Code, and log in to Claude Code once.
+- Sign in to `gh` (`gh auth login`) and say yes when the first run offers to make the folder
+  your own private repository.
+- Put your own addresses in `etc/audit.local.json`, as `{"self": ["you@example.com"]}`.
+  Until then the audit asks before every email, mail to you included.
+- Grant connectors such as Gmail, Calendar and Drive in Claude's settings.
+- For the skills that drive a browser, install Claude in Chrome, sign in to it with your
+  Claude account, and sign in to your sites in that Chrome. No agent types a password.
+- Set the permission mode on each scheduled task you make in the Claude desktop app, since
+  an agent cannot set it for a task.
+- For Discord, install OpenClaw, create the bot in Discord's developer portal, paste its
+  token into `./setup`, turn on its Message Content intent, and invite it to an empty server
+  with the link `./setup` prints.
+
+## What's new
+
+[`docs/NEWS.md`](docs/NEWS.md) lists what each build changed, newest first.
+
 ## Starter skills
 
 A skill is a folder with a `SKILL.md`, run as `/name`. Skills that need your details read them
@@ -104,6 +128,7 @@ fill it in, and git ignores the result.
 | `/industry-research <field>` | Maps a field end to end with ten agents, from scouts to a page builder. The fact-checker runs before the style edit, so a fabricated finding cannot hide behind good prose. |
 | `/guided-learning <topic>` | Teaches by asking one guiding question at a time, so you derive the idea instead of being handed it. `n` answers the current step for you, and `q` steps back to first principles. |
 | `/proof-project <field>` | Finds the one project that would prove you can work in a field you have not worked in yet, ending in a sentence with a number that did not exist before. |
+| `/kindle <book>` | Reads a book you own in Kindle for Mac without taking over the screen: in-book search with print page numbers for citations, jumps to a passage, and chapters as text. |
 
 **The job search, from sourcing to tracker**
 
@@ -185,9 +210,10 @@ taught it, and says so in one line:
 **Deferred work** goes in the queue:
 
 ```
-node kernel/queue.mjs list          what is ready, what is blocked and on what
-node kernel/queue.mjs next          the highest-priority eligible item
-node kernel/queue.mjs add "<title>" --priority 7 --depends 4
+node kernel/queue.mjs list          open items by tier (now, next, soon, later), and what each waits on
+node kernel/queue.mjs next          the first ready item: lower tiers wait for the higher ones
+node kernel/queue.mjs add "<title>" --tier next --priority 7 --depends 4
+node kernel/queue.mjs tier 4 later
 node kernel/queue.mjs done 4
 ```
 

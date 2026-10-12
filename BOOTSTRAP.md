@@ -62,8 +62,12 @@ writing goes in `home/reference/`. A quietly contaminated corpus is worse than n
 4. Ask the operator three or four questions that would change how you work for them:
    what they are working on, what they want off their plate, how they like to be
    written to. Start `USER.md` from the answers, as dated directives per `AGENTS.md`.
-5. If `home/` does not exist (the operator has not run `./setup`), create the private half
-   as its own repository with no remote, which the workspace already ignores:
+5. If `home/` does not exist or `node kernel/audit/audit.mjs installed` fails, the operator
+   has not run `./setup`. Say in one line that `./setup local` installs the audit hook in
+   `~/.claude/settings.json`, which every Claude Code session on this machine reads, sets
+   this clone's git config and creates `home/`, and run it on their yes. Without a yes,
+   create the private half as its own repository with no remote, which the workspace
+   already ignores:
 
    ```
    mkdir -p home/prompts home/corpus home/reference home/people

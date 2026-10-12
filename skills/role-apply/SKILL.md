@@ -230,6 +230,17 @@ Full per-field discipline in `references/fill-rules.md`; per-portal quirks in
 `references/ats.md`. Read `ats.md` when the portal is Workday — it is the one that
 loses work.
 
+One Chrome lease covers one form, because keystrokes go to whichever tab has focus and other
+sessions may be in Chrome too (AGENTS.md). Take it before the first click on the form and
+release it after the form's last screenshot: the stop screenshot below, or the confirmation
+screenshot when a run submits (`references/runs.md`).
+
+    node kernel/proc.mjs lease acquire chrome --holder "<your name>" --purpose "<company>, <role>" --ttl 15m --wait 5m
+    node kernel/proc.mjs lease release chrome --holder "<your name>"
+
+Acquiring again renews it, which a long Workday form needs. If it is still held after the wait
+(exit 3), fill nothing: do work that needs no typing, or file the form as a queue item.
+
 1. **Read the page first** (`read_page`), do not screenshot-and-guess coordinates.
    Forms are accessibility-tree-friendly and `ref_N` targeting survives re-renders that
    coordinates do not.
@@ -310,6 +321,7 @@ design decisions, captchas, credentials and legal agreements — and for nothing
     references/ats.md      Greenhouse, Workday, Lever, SmartRecruiters, Ashby
     references/runs.md     batch runs: queues, the gate before every Submit, authorized submitting
     scripts/gate.py        whether the operator may apply to a company today
+    scripts/eligibility.py whether a posting's floors, levels and place admit the operator
     scripts/next_in_queue.py   the next clear entries in a run
     scripts/log_application.py record a submission and keep its confirmation screenshot
     state/applications.jsonl  what was applied to, when, with which resume

@@ -14,6 +14,7 @@ import { createHash } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { append, DIR, redact, ROOT, scrub, STATE } from "./ledger.mjs";
+import { chromeContext, noteHolders } from "./chrome.mjs";
 import { decide } from "./policy.mjs";
 
 const readStdin = () => {
@@ -59,7 +60,46 @@ const answer = (decision, reason) => {
   }));
 };
 
-const main = () => {
+const logError = (error) => {
+  try {
+    mkdirSync(DIR, { recursive: true });
+    appendFileSync(join(DIR, "errors.log"), `${new Date().toISOString()} ${error?.stack || error}\n`);
+  } catch {}
+};
+
+// Mail another session left for this one while it was busy ("mail for a session in the middle of
+// a turn" in kernel/sessions.mjs), handed over as context after a tool call or with a prompt. Only
+// the main thread takes it, because a subagent's tool call carries its parent's session id. With
+// nothing waiting, this costs one stat.
+const handOverMail = async (input, record) => {
+  const root = process.env.AUDIT_MAIL_ROOT || ROOT;
+  const id = String(input.session_id || "");
+  if (input.agent_id || !/^[\w-]+$/.test(id) || !existsSync(join(root, "var/sessions/live", id))) return;
+  try {
+    const { collectLive, renderLive } = await import("../sessions.mjs");
+    const mail = collectLive(id, root);
+    if (!mail.length) return;
+    record.mail = mail.map(({ envelope }) => envelope.id);
+    process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: input.hook_event_name, additionalContext: renderLive(mail) } }));
+  } catch (error) {
+    logError(error);
+  }
+};
+
+// The address of each browser tab, for the chat-typing rule (browser.mjs): what a Claude in Chrome
+// or browser-pane call navigated, and the tabs its result lists. Kept even when the call failed,
+// since a batch that stopped halfway may have navigated first.
+const noteBrowser = async (input) => {
+  if (!/^mcp__(claude-in-chrome|Claude_Browser)__/.test(input.tool_name || "") || !input.session_id) return;
+  try {
+    const { note } = await import("./browser.mjs");
+    note(STATE, input.session_id, input.tool_name, input.tool_input, input.tool_response);
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const main = async () => {
   const text = readStdin();
   if (!text.trim()) return;
   const input = JSON.parse(text);
@@ -81,15 +121,22 @@ const main = () => {
       break;
     case "UserPromptSubmit":
       record.prompt = scrub(input.prompt || "", 600);
+      await handOverMail(input, record);
       break;
     case "PreToolUse": {
       const call = { tool: input.tool_name, input: input.tool_input };
+      // A browser call carries what the session's earlier calls showed of its tabs (browser.mjs).
+      if (/^mcp__(claude-in-chrome|Claude_Browser)__/.test(call.tool)) call.browser = (await import("./browser.mjs")).load(STATE, input.session_id);
       const config = localConfig();
       const publicClone = config.publicClone ? resolve(ROOT, config.publicClone)
         : existsSync(join(ROOT, "kernel/public/sync.sh")) ? resolve(ROOT, "../dexter") : null;
       const self = new Set([env.CLAUDE_CODE_USER_EMAIL, ...(config.self || []), ...(config.standingRecipients || [])].filter(Boolean).map((address) => address.toLowerCase()));
       const repeat = repeatCount(`${input.session_id}-${input.agent_id || "main"}`, call);
-      const verdict = decide(call, { cwd: input.cwd || process.cwd(), root: ROOT, publicClone, self, surface, repeat });
+      // Who holds Claude in Chrome: noted as a session takes the lease, read when it touches Chrome.
+      const holders = join(STATE, "lease-holders.json");
+      if (call.tool === "Bash") noteHolders(call.input?.command, input.session_id, holders);
+      const chrome = /^mcp__claude-in-chrome__/.test(call.tool) ? chromeContext({ sessionId: input.session_id, root: env.AUDIT_LEASE_ROOT || ROOT, holders }) : undefined;
+      const verdict = decide(call, { cwd: input.cwd || process.cwd(), root: ROOT, publicClone, self, surface, repeat, chrome });
       let decision = verdict.decision;
       let why = verdict.rules.filter((rule) => rule.decision === decision).map((rule) => rule.why).join(" ");
       if (decision === "ask" && unattended(surface, env)) {
@@ -110,9 +157,13 @@ const main = () => {
     }
     case "PostToolUse":
       Object.assign(record, { tool: input.tool_name, id: input.tool_use_id, ok: true, bytes: JSON.stringify(input.tool_response ?? "").length });
+      await noteBrowser(input);
+      await handOverMail(input, record);
       break;
     case "PostToolUseFailure":
       Object.assign(record, { tool: input.tool_name, id: input.tool_use_id, ok: false, error: scrub(input.error || "", 300), interrupted: input.is_interrupt || undefined });
+      await noteBrowser(input);
+      await handOverMail(input, record);
       break;
     case "PermissionDenied":
       Object.assign(record, { tool: input.tool_name, id: input.tool_use_id, input: redact(input.tool_input), reason: scrub(input.reason || input.message || "", 300) });
@@ -134,11 +185,8 @@ const main = () => {
 };
 
 try {
-  main();
+  await main();
 } catch (error) {
-  try {
-    mkdirSync(DIR, { recursive: true });
-    appendFileSync(join(DIR, "errors.log"), `${new Date().toISOString()} ${error?.stack || error}\n`);
-  } catch {}
+  logError(error);
 }
 process.exit(0);

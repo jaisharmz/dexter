@@ -1,23 +1,13 @@
 #!/bin/sh
-# From a fresh clone to Dexter answering in your Discord. Safe to run again: every
-# step looks before it changes anything, so a second run finishes what the first began.
+# From a fresh clone to Dexter in Claude Code, and on to Discord when OpenClaw is installed.
+# Safe to run again: every step looks before it changes anything, so a second run finishes
+# what the first began.
 #
 #   ./setup           set up, or finish setting up
+#   ./setup local     only what Claude Code needs, never OpenClaw or Discord
 #   ./setup doctor    check every piece and say what to fix, changing nothing
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-
-if ! command -v openclaw >/dev/null 2>&1; then
-  cat <<'EOF'
-./setup puts Dexter on Discord through OpenClaw, which is not installed yet. Install it,
-then run ./setup again:
-
-    curl -fsSL https://openclaw.ai/install.sh | bash
-
-To use Dexter in Claude Code alone, skip ./setup and run claude in this folder.
-EOF
-  exit 1
-fi
 
 if ! command -v claude >/dev/null 2>&1; then
   cat <<'EOF'
@@ -32,6 +22,7 @@ if [ -e "$ROOT/.git" ] && [ ! -f "$ROOT/skills/papers/SKILL.md" ]; then
   git -C "$ROOT" submodule update --init --quiet || echo "note: could not fetch skills/papers"
 fi
 
-# openclaw needs a recent Node, and the first node on PATH is not always that one.
+# openclaw needs a recent Node, and the first node on PATH is not always that one. Without
+# openclaw, setup.mjs does the Claude Code pieces and says how to add Discord.
 . "$ROOT/kernel/jobs/nodejs-path.sh"
 exec node "$ROOT/kernel/setup.mjs" "$@"

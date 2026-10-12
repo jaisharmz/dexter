@@ -1,0 +1,25 @@
+%%% Problems, solutions and displayed math for the deck. render.py compiles each block into img/<id>.png.
+%%% Header: id=<name> w=<width on the slide, inches> s=<scale; 12 pt type x s = size on the slide>
+%%% An id ending in _q (or _q2, _q3) is a question: render.py also makes a grey copy at 80% for the top of its
+%%% solution slide. \ans{} marks an answer in the accent blue; \why{} is a grey reason at the end of a line.
+
+%%% id=inv_q w=9.0 s=1.5
+Solve $8x \equiv 9 \pmod{15}$.\\
+Then explain why $12x \equiv 9 \pmod{15}$ cannot be solved the same way.
+
+%%% id=inv_s w=9.0 s=1.4
+\vspace{-6pt}
+\begin{align*}
+8 \cdot 2 &= 16 \equiv 1 \pmod{15} && \why{so $8^{-1} \equiv 2$}\\
+x &\equiv 2 \cdot 9 = 18 && \why{multiply both sides by $8^{-1}$}\\
+x &\equiv \ans{3} \pmod{15} && \why{check: $8 \cdot 3 = 24 \equiv 9$}
+\end{align*}
+$\gcd(12, 15) = 3 \neq 1$, so 12 has no inverse mod 15: dividing by 12 is not defined.
+
+%%% id=euclid_ex w=4.3 s=1.25
+\textbf{Euclid}, $\gcd(48, 18)$:
+\begin{align*}
+48 &= 2 \cdot 18 + 12\\
+18 &= 1 \cdot 12 + 6\\
+12 &= 2 \cdot 6 + 0 \quad\Rightarrow\quad \gcd = \ans{6}
+\end{align*}

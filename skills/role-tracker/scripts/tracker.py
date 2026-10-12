@@ -58,7 +58,8 @@ MONTH_DAY = re.compile(r"\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may
                        r"nov(?:ember)?|dec(?:ember)?)\.?\s+(\d{1,2})\b", re.I)
 CLOCK = re.compile(r"\b(\d{1,2})(?::(\d{2}))?\s*(?:-\s*\d{1,2}(?::\d{2})?\s*)?(am|pm)\b(?:\s*(pt|pdt|pst|mt|mdt|mst|ct|cdt|cst|et|edt|est)\b)?", re.I)
 HOURS_AHEAD_OF_PACIFIC = {"p": 0, "m": 1, "c": 2, "e": 3}
-QUEUE_ITEM = re.compile(r"queue #(\d+)")
+# "queue #N" or "queue #N, its-name". A renumber gives an item a new number, never a new name, so the name wins.
+QUEUE_ITEM = re.compile(r"queue #(\d+)(?:, ([a-z][a-z0-9]*(?:-[a-z0-9]+){1,4}))?")
 LAST = datetime.date.max.toordinal()
 WARNED = set()
 
@@ -489,10 +490,14 @@ def queue_ranks():
     except (OSError, subprocess.SubprocessError) as error:
         warn(f"could not read the queue ({error}); undated Next actions keep their current order")
         return {}
-    items = [(int(item), int(priority)) for item, priority in re.findall(r"^\s*(?:READY|blocked)\s+#(\d+) \[p(\d+)\]", listing, re.M)]
+    # Each line reads "#33 vc-portfolio-applications [p8]"; an item filed before names existed has no name.
+    items = re.findall(r"^\s*(?:READY|blocked)\s+#(\d+)(?: ([a-z][a-z0-9-]*))? \[p(\d+)\]", listing, re.M)
+    items = [(int(item), name, int(priority)) for item, name, priority in items]
     if script.name == "queue.mjs":
-        items.sort(key=lambda item: (-item[1], item[0]))
-    return {item: position for position, (item, _) in enumerate(items)}
+        items.sort(key=lambda item: (-item[2], item[0]))
+    ranks = {item: position for position, (item, _, _) in enumerate(items)}
+    ranks.update({name: position for position, (_, name, _) in enumerate(items) if name})
+    return ranks
 
 
 def stored(cell):
@@ -515,7 +520,7 @@ def read_tab(path):
 def next_actions(values, defaults, today, ranks):
     """The hand-kept Next actions rows in reading order: the dated ones soonest first (a clock time ahead of the rest of
     its day), then the undated ones; within either, Who in the order's who list, then the place of the queue item the
-    row cites as "queue #N". Rows marked done go last, and ties keep the order they came in."""
+    row cites as "queue #N" or "queue #N, its-name". Rows marked done go last, and ties keep the order they came in."""
     tab, order = tab_named(defaults, "Next actions"), defaults["order"]["Next actions"]
     columns = [column["name"] for column in tab["columns"]]
     header = [str(name).strip() for name in values[0]]
@@ -529,7 +534,7 @@ def next_actions(values, defaults, today, ranks):
             continue
         day, minute = due(str(cells["When"]), today, order["days"])
         item = QUEUE_ITEM.search(str(cells["What to do"]))
-        place = ranks.get(int(item[1]), len(ranks)) if item else len(ranks)
+        place = ranks.get(item[2] or int(item[1]), len(ranks)) if item else len(ranks)
         finished = bool(done) and cells.get(done["column"]) == done["value"]
         key = (finished, day is None, day.toordinal() if day else 0, minute is None, minute or 0, rank(order["who"], cells["Who"]), place, position)
         ranked.append((key, {"cells": cells, "day": day, "minute": minute, "item": item[1] if item else "", "place": place}))

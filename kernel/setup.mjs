@@ -1,9 +1,12 @@
 #!/usr/bin/env node
-// The part of ./setup that needs JSON: OpenClaw, the Discord server, the daily jobs,
-// and the link into Claude Code. Every step looks before it changes anything, so a
-// second run finishes what the first began, and a finished install is a no-op.
+// The part of ./setup that needs JSON. First what Claude Code needs (the skills link, the
+// audit hook, per-clone git config, home/), which every install gets; then, when OpenClaw is
+// installed, OpenClaw, the Discord server and the daily jobs. Every step looks before it
+// changes anything, so a second run finishes what the first began, and a finished install
+// is a no-op.
 //
 //   ./setup           set up, or finish setting up
+//   ./setup local     only what Claude Code needs, never OpenClaw or Discord
 //   ./setup doctor    check every piece and say what to fix, changing nothing
 //
 // OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH point OpenClaw at other state, and
@@ -38,6 +41,8 @@ const JOBS = [
   { name: "queue-digest", display: "Queue digest", cron: "0 9 * * *", script: "kernel/jobs/post-queue.sh" },
   { name: "skills-registry", display: "Skill registry", cron: "5 9 * * *", script: "kernel/jobs/post-skills.sh" },
   { name: "audit-report", display: "Audit report", cron: "15 9 * * *", script: "kernel/jobs/post-audit.sh" },
+  // memory-core's own 3 AM consolidation writes DREAMS.md and memory/dreaming/ and commits none of it.
+  { name: "dreams-commit", display: "Dream commit", cron: "0 4 * * *", script: "kernel/jobs/commit-dreams.sh", description: "Commits what the nightly consolidation wrote" },
 ];
 
 const say = (line) => console.log(line);
@@ -382,7 +387,7 @@ const ensureJobs = () => {
     if (!jobs.some((existing) => existing.name === job.name)) {
       openclaw(["cron", "add", "--agent", AGENT, "--name", job.name, "--display-name", job.display,
         "--cron", job.cron, "--tz", zone, "--command", `sh ${JSON.stringify(join(ROOT, job.script))}`,
-        "--description", `Posts from ${job.script}`]);
+        "--description", job.description ?? `Posts from ${job.script}`]);
     }
     done(`${job.display} runs at ${job.cron} (${zone})`);
   }
@@ -468,56 +473,108 @@ const behindUpstream = () => {
   return Boolean(latest) && git(["merge-base", "--is-ancestor", latest, "HEAD"]).status !== 0;
 };
 
+// Git settings that live in .git/config, which no clone or pull copies: the post-commit hooks
+// and the queue's merge driver. Each is set only where this checkout has the file it names.
+const HOOKS = join(ROOT, "kernel/hooks");
+const QUEUE_MERGE = join(ROOT, "kernel/queue-merge.mjs");
+const hooksPathSet = () => git(["config", "--get", "core.hooksPath"]).stdout.trim() === "kernel/hooks";
+const queueMergeInstalled = () => spawnSync(process.execPath, [QUEUE_MERGE, "check"], { encoding: "utf8" }).status === 0;
+
+const ensureGitConfig = () => {
+  if (!existsSync(join(ROOT, ".git"))) return;
+  if (existsSync(HOOKS)) {
+    if (!hooksPathSet()) git(["config", "core.hooksPath", "kernel/hooks"]);
+    if (hooksPathSet()) done("git runs kernel/hooks after each commit");
+    else warn("git does not run kernel/hooks: git config core.hooksPath kernel/hooks");
+  }
+  if (existsSync(QUEUE_MERGE)) {
+    if (!queueMergeInstalled()) spawnSync(process.execPath, [QUEUE_MERGE, "install"], { encoding: "utf8" });
+    if (queueMergeInstalled()) done("var/queue/items.json merges by item id when two machines both changed it");
+    else warn("the queue's merge driver is not registered: node kernel/queue-merge.mjs install");
+  }
+};
+
+// Everything Claude Code needs from setup, none of which touches OpenClaw or needs a person.
+const local = () => {
+  ensureProjectSkills();
+  ensureAudit();
+  ensureGitConfig();
+  ensureHome();
+};
+
+const hasOpenclaw = () => spawnSync("openclaw", ["--version"], { encoding: "utf8" }).status === 0;
+const OPENCLAW_INSTALL = "curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard";
+
+// The audit asks before any email that is not to an address etc/audit.local.json names, and
+// only the operator can say which addresses are theirs.
+const auditSelfNamed = () => {
+  try {
+    return (JSON.parse(readFileSync(join(ROOT, "etc/audit.local.json"), "utf8")).self || []).length > 0;
+  } catch {
+    return false;
+  }
+};
+
 // ---- doctor ----------------------------------------------------------------------
 
 const doctor = () => {
   const checks = [];
   const check = (passed, what, fix) => checks.push({ passed, what, fix });
+  const notes = [];
 
-  const version = openclaw(["--version"], { check: false });
-  check(version.status === 0, (version.stdout || "OpenClaw").trim(), "install OpenClaw and put it on PATH");
-  check(pluginLoaded(), "the Discord plugin is installed", "./setup");
-
-  const agent = config(`agents.entries.${AGENT}`);
-  check(agent?.workspace === ROOT, `agent ${AGENT} works in this folder`, "./setup");
-  const agents = listJson(["agents", "list", "--json"]);
-  const bindings = listJson(["agents", "bindings", "--json"]);
-  check(bindings.some((binding) => binding.agentId === AGENT && binding.match?.channel === "discord") ||
-    agents.some((entry) => entry.id === AGENT && entry.isDefault === true),
-    `Discord messages reach ${AGENT}`, `openclaw agents bind --agent ${AGENT} --bind discord`);
-
-  const discordConfig = config("channels.discord") || {};
-  check(config("plugins.entries.discord.enabled") === true && discordConfig.enabled === true,
-    "the Discord plugin is enabled", "./setup");
-  check(Boolean(discordConfig.token), "a bot token is configured", "./setup");
-  check(Boolean(discordConfig.applicationId), "the bot's application id is set", "./setup");
-
-  let map;
-  try { map = readChannels(); } catch { map = undefined; }
-  const missing = map ? Object.entries(map.channels).filter(([, channel]) => !realId(channel.id)).map(([name]) => name) : ["all"];
-  check(map && realId(map.guild) && missing.length === 0, "every channel in the map has an id",
-    `./setup (missing: ${missing.join(", ")})`);
-  check(Boolean(map && discordConfig.guilds?.[map.guild]), "OpenClaw listens to that server", "./setup");
-
-  const service = gatewayState().service || {};
-  check(service.runtime?.status === "running", "the gateway is running",
-    service.loaded ? "openclaw gateway start" : "./setup");
-  check(discordConnected(), "Discord is connected",
-    "openclaw channels status --probe, and grep the gateway log for 'without explicit trust'");
-
-  const jobs = listJson(["cron", "list", "--json"]);
-  for (const job of JOBS) {
-    check(jobs.some((existing) => existing.name === job.name), `the ${job.display} job is scheduled`, "./setup");
-  }
-
+  // What every install needs, Discord or not.
+  const claude = spawnSync("claude", ["--version"], { encoding: "utf8" });
+  check(claude.status === 0, `Claude Code ${(claude.stdout || "").trim()}`.trim(), "install Claude Code (https://claude.com/claude-code) and log in once");
+  check(spawnSync("python3", ["--version"]).status === 0, "python3 is installed, which the scripts in skills/ use", "install Python 3");
   check(projectSkillsSeen(), "Claude Code opened in this folder sees skills/", "./setup");
   check(auditInstalled(), "every agent action is logged and checked (kernel/audit)", "node kernel/audit/audit.mjs install");
+  const repository = existsSync(join(ROOT, ".git"));
+  if (repository && existsSync(HOOKS)) check(hooksPathSet(), "git runs kernel/hooks after each commit", "git config core.hooksPath kernel/hooks");
+  if (repository && existsSync(QUEUE_MERGE)) check(queueMergeInstalled(), "var/queue/items.json merges by item id between machines", "node kernel/queue-merge.mjs install");
+  if (!auditSelfNamed()) notes.push(`the audit asks before every email, yours included, until etc/audit.local.json names your addresses: {"self": ["you@example.com"]}`);
+
+  if (hasOpenclaw()) {
+    const version = openclaw(["--version"], { check: false });
+    check(version.status === 0, (version.stdout || "OpenClaw").trim(), "install OpenClaw and put it on PATH");
+    check(pluginLoaded(), "the Discord plugin is installed", "./setup");
+
+    const agent = config(`agents.entries.${AGENT}`);
+    check(agent?.workspace === ROOT, `agent ${AGENT} works in this folder`, "./setup");
+    const agents = listJson(["agents", "list", "--json"]);
+    const bindings = listJson(["agents", "bindings", "--json"]);
+    check(bindings.some((binding) => binding.agentId === AGENT && binding.match?.channel === "discord") ||
+      agents.some((entry) => entry.id === AGENT && entry.isDefault === true),
+      `Discord messages reach ${AGENT}`, `openclaw agents bind --agent ${AGENT} --bind discord`);
+
+    const discordConfig = config("channels.discord") || {};
+    check(config("plugins.entries.discord.enabled") === true && discordConfig.enabled === true,
+      "the Discord plugin is enabled", "./setup");
+    check(Boolean(discordConfig.token), "a bot token is configured", "./setup");
+    check(Boolean(discordConfig.applicationId), "the bot's application id is set", "./setup");
+
+    let map;
+    try { map = readChannels(); } catch { map = undefined; }
+    const missing = map ? Object.entries(map.channels).filter(([, channel]) => !realId(channel.id)).map(([name]) => name) : ["all"];
+    check(map && realId(map.guild) && missing.length === 0, "every channel in the map has an id",
+      `./setup (missing: ${missing.join(", ")})`);
+    check(Boolean(map && discordConfig.guilds?.[map.guild]), "OpenClaw listens to that server", "./setup");
+
+    const service = gatewayState().service || {};
+    check(service.runtime?.status === "running", "the gateway is running",
+      service.loaded ? "openclaw gateway start" : "./setup");
+    check(discordConnected(), "Discord is connected",
+      "openclaw channels status --probe, and grep the gateway log for 'without explicit trust'");
+
+    const jobs = listJson(["cron", "list", "--json"]);
+    for (const job of JOBS) {
+      check(jobs.some((existing) => existing.name === job.name), `the ${job.display} job is scheduled`, "./setup");
+    }
+  } else notes.push(`Discord is not set up, which is optional: ${OPENCLAW_INSTALL}, then ./setup`);
 
   const origin = remote("origin");
   const ownRepository = "gh repo create dexter --private --source . --remote origin && git push -u origin main";
   check(Boolean(origin) && !PUBLIC_DEXTER.test(origin), "this folder pushes to your own repository",
     origin ? `git remote rename origin upstream && ${ownRepository}` : ownRepository);
-  const notes = [];
   if (remote("upstream") && behindUpstream()) notes.push("dexter has changed upstream since this folder last took it: git pull upstream main");
 
   for (const { passed, what, fix } of checks) say(`  ${passed ? "ok  " : "FIX "}  ${what}${passed ? "" : `  ->  ${fix}`}`);
@@ -531,6 +588,11 @@ const doctor = () => {
 
 const setup = async () => {
   say("Setting up Dexter in " + ROOT + "\n");
+  if (!hasOpenclaw()) {
+    local();
+    say(`\nThat is everything Claude Code needs: run claude in this folder. Discord is optional. To add it,\ninstall OpenClaw and run ./setup again:\n\n    ${OPENCLAW_INSTALL}\n\nChecking everything:\n`);
+    return doctor();
+  }
   ensureAgent();
   const installed = ensurePlugin();
   let created = 0;
@@ -544,9 +606,7 @@ const setup = async () => {
   const changed = configure();
   await ensureGateway(changed || tokenStored || installed === true);
   ensureJobs();
-  ensureProjectSkills();
-  ensureAudit();
-  ensureHome();
+  local();
   if (created) {
     const index = spawnSync("sh", [join(ROOT, "kernel/jobs/post-index.sh")], { encoding: "utf8" });
     if (index.status === 0) done("posted and pinned the ?? index in #dexter");
@@ -559,9 +619,14 @@ const setup = async () => {
 };
 
 const command = process.argv[2] || "setup";
-const run = command === "doctor" ? async () => doctor() : command === "setup" ? setup : null;
+const runLocal = async () => {
+  local();
+  say("\nChecking everything:\n");
+  return doctor();
+};
+const run = command === "doctor" ? async () => doctor() : command === "setup" ? setup : command === "local" ? runLocal : null;
 if (!run) {
-  say("usage: ./setup [doctor]");
+  say("usage: ./setup [doctor | local]");
   process.exit(2);
 }
 run().then((failed) => process.exit(failed ? 1 : 0), (error) => {
