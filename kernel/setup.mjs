@@ -573,8 +573,15 @@ const doctor = () => {
 
   const origin = remote("origin");
   const ownRepository = "gh repo create dexter --private --source . --remote origin && git push -u origin main";
-  check(Boolean(origin) && !PUBLIC_DEXTER.test(origin), "this folder pushes to your own repository",
-    origin ? `git remote rename origin upstream && ${ownRepository}` : ownRepository);
+  // A GitHub fork of dexter is public and cannot be made private, and it leaves no upstream remote,
+  // so an origin that is not the public dexter still fails here until upstream points at dexter.
+  const fixRepository = !origin ? ownRepository
+    : PUBLIC_DEXTER.test(origin) ? `git remote rename origin upstream && ${ownRepository}`
+    : `git remote rename origin public-fork && git remote add upstream https://github.com/jaisharmz/dexter.git && ${ownRepository.replace("create dexter", "create dexter-private")}  (then delete the public fork on GitHub)`;
+  // The workspace dexter is built from (it has the build's overlay) is the source, so it has no upstream.
+  const isSource = existsSync(join(ROOT, "kernel/public/overlay"));
+  check(Boolean(origin) && !PUBLIC_DEXTER.test(origin) && (isSource || Boolean(remote("upstream"))),
+    "this folder pushes to your own repository, with dexter as upstream", fixRepository);
   if (remote("upstream") && behindUpstream()) notes.push("dexter has changed upstream since this folder last took it: git pull upstream main");
 
   for (const { passed, what, fix } of checks) say(`  ${passed ? "ok  " : "FIX "}  ${what}${passed ? "" : `  ->  ${fix}`}`);

@@ -75,22 +75,35 @@ writing goes in `home/reference/`. A quietly contaminated corpus is worse than n
    ```
 
 6. Make this workspace the operator's own repository. From here on it collects their
-   lessons, skills and lenses, and it improves only if those are kept. Run `git remote -v`.
-   If `origin` is the public dexter (`github.com/jaisharmz/dexter`), say in one line what
-   you are about to do, and on their yes run:
+   lessons, skills and lenses, and it improves only if those are kept. Run `git remote -v`
+   and find which case this is, say in one line what you are about to do, and on their yes
+   run the commands for it:
 
-   ```
-   git remote rename origin upstream
-   gh repo create dexter --private --source . --remote origin
-   git push -u origin main
-   ```
+   - `origin` is the public dexter (`github.com/jaisharmz/dexter`), from a clone:
 
-   Private, because a GitHub fork of a public repository is always public, and this one
-   will soon hold lessons about the operator. Pick another name if `dexter` is taken. If
-   `gh` is missing or signed out, ask them to install it and run `gh auth login` (a
-   credential, so theirs to do), finish the other steps, and come back to this one.
-   Pushing to their own private repository sends nothing to anyone, so this yes covers
-   every later push to `origin`. Record it in `USER.md`, and ask again before any push if
-   they ever make the repository public. New versions of dexter arrive on `upstream`, and
-   `git pull upstream main` takes them.
+     ```
+     git remote rename origin upstream
+     gh repo create dexter --private --source . --remote origin
+     git push -u origin main
+     ```
+
+   - `origin` is the operator's own GitHub fork of dexter, made with GitHub's Fork button.
+     A fork of a public repository is always public and cannot be made private, so move off
+     it: `git remote rename origin public-fork`, `git remote add upstream
+     https://github.com/jaisharmz/dexter.git`, then the `gh repo create` and `git push` lines
+     above, with `dexter-private` as the name if `dexter` is the fork's. Give them the fork's
+     URL to delete themselves (Settings > Danger zone), and run `git remote remove
+     public-fork`.
+   - No git at all, from a zip download: `git init -b main`, `git remote add upstream
+     https://github.com/jaisharmz/dexter.git`, `git fetch upstream`, `git reset --soft
+     upstream/main`, commit, then the `gh repo create` and `git push` lines above.
+
+   Then check it: `gh repo view --json visibility,url` must say PRIVATE, and `git remote -v`
+   must show `origin` as theirs and `upstream` as the public dexter. Anything else, stop and
+   tell them. Pick another name if `dexter` is taken. If `gh` is missing or signed out, ask
+   them to install it and run `gh auth login` (a credential, so theirs to do), finish the
+   other steps, and come back to this one. Pushing to their own private repository sends
+   nothing to anyone, so this yes covers every later push to `origin`. Record it in
+   `USER.md`, and ask again before any push if they ever make the repository public. New
+   versions of dexter arrive on `upstream`, and `git pull upstream main` takes them.
 7. Delete this file, commit what the first run changed, and push.

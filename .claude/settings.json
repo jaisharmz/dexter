@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/kernel/first-run.sh\" session" }] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/kernel/first-run.sh\" prompt" }] }
+    ]
+  }
+}

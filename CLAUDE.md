@@ -2,7 +2,8 @@
 
 **If `BOOTSTRAP.md` exists, follow it before anything else.** The workspace is new. Do its
 first-run steps before acting on the operator's first message, whatever that message asks,
-say hello here, then come back to the request.
+say hello here, then come back to the request. A hook (`kernel/first-run.sh`, from
+`.claude/settings.json`) repeats this at the top of every turn until the file is gone.
 
 This folder is a dexter workspace: a personal agent that runs in Claude Code, with its
 skills, rules and memory kept as files here. The agent is called Dexter until it picks a

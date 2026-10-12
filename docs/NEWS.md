@@ -7,6 +7,13 @@ without an entry.
 
 ## 2026-10-11
 
+- The first run can no longer be skipped. While `BOOTSTRAP.md` exists, a project hook
+  (`.claude/settings.json` runs `kernel/first-run.sh`) opens every session and every prompt,
+  slash commands included, with a reminder to finish it first. Making the folder your own
+  private repository now covers a GitHub fork (always public, so the agent moves you to a
+  private copy) and a zip download, and checks the result is private. `./setup doctor` flags
+  a fork too. If your folder is a fork, start a session and say yes when the agent offers to
+  move it.
 - **slides** ships three finished looks for someone whose own style has not been measured yet:
   `consulting` for a case or strategy deck, `research` for results and methods, and `technical`
   for teaching math and CS with LaTeX-rendered problems and solutions. Each has a builder whose
