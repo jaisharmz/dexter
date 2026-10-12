@@ -144,7 +144,7 @@ Regenerate `INDEX.md` by reading the YAML headers across every run directory und
 
 ## Step 7: Publish the report page
 
-Spawn one agent with `agents/designer.md`, pointed at the finished run directory. It reads `references/report-design.md`, picks a chart form from what the run actually contains, and writes a self-contained HTML file. It does not publish. The page opens with a first-principles section, the field's core idea built up in figures that compute the real thing, interactive where possible; `agents/designer.md` says how.
+Spawn one agent with `agents/designer.md`, pointed at the finished run directory. It reads `references/report-design.md`, picks a chart form from what the run actually contains, and writes a self-contained HTML file. It does not publish. The page opens with a first-principles section, the field's core idea built up in figures that compute the real thing, interactive where possible; `agents/designer.md` says how. Figures per key paper and per project follow it: spawn figure agents with `agents/figure-builder.md`, one per group of papers or projects, then fold their fragments in with `scripts/merge_figures.py <run>`.
 
 Then publish it yourself with the `Artifact` tool, because you hold the URL across re-runs and a new file path mints a new link. Reuse the same path for the same topic so a later run redeploys rather than scattering.
 

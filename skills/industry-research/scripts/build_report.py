@@ -45,7 +45,9 @@ def md_inline(t):
     t = e(t)
     t = re.sub(r"\[([^\]]+)\]\((https?://[^)]+)\)", r'<a href="\2">\1</a>', t)
     t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
-    t = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", t)
+    # Italic needs a star at a word edge on both sides, so a symbol such as θ* or π*0.6 stays
+    # plain instead of italicizing everything up to the next star.
+    t = re.sub(r"(?<![\w*])\*(?![\s*])([^*]+?)(?<![\s*])\*(?![\w*])", r"<em>\1</em>", t)
     t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
     return t
 
@@ -163,6 +165,48 @@ def openness_map(d):
     return sec("Where the open research is", lede + legend + bands + table)
 
 
+# ---------------------------------------------------------------- figures
+def sym(text):
+    """A control label is set in capitals, which would turn a Greek letter into a Latin
+    look-alike (beta into B), so Greek letters sit in a span that keeps their case."""
+    return re.sub(r"([\u0370-\u03ff\u1f00-\u1fff]+)", r'<span class="sym">\1</span>', e(text))
+
+
+def fig_control(c):
+    """One control under a figure; the run's figure code finds it by its data- attribute."""
+    kind, name = c.get("type", "range"), c["name"]
+    if kind == "range":
+        return (f'<label class="fpc"><span class="fpl">{sym(c.get("label", name))}</span>'
+                f'<input type="range" data-c="{e(name)}" min="{c.get("min", 0)}" max="{c.get("max", 1)}" '
+                f'step="{c.get("step", 0.01)}" value="{c.get("value", c.get("min", 0))}">'
+                f'<output data-o="{e(name)}"></output></label>')
+    if kind == "button":
+        return f'<button type="button" class="fpb" data-act="{e(name)}">{e(c.get("label", name))}</button>'
+    if kind == "seg":
+        on = c.get("value") or c["options"][0][0]
+        btns = "".join(f'<button type="button" data-v="{e(v)}" aria-pressed="{"true" if v == on else "false"}">'
+                       f'{e(lbl)}</button>' for v, lbl in c["options"])
+        lbl = f'<span class="fpl">{sym(c["label"])}</span>' if c.get("label") else ""
+        return f'<div class="fpc">{lbl}<div class="fpseg" data-seg="{e(name)}" role="group">{btns}</div></div>'
+    return ""
+
+
+def figure_html(f):
+    """The figure frame, its controls, readouts and key, then the caption and the unlocks line."""
+    ctl = "".join(fig_control(c) for c in (f.get("controls") or []))
+    ctl = f'<div class="fpctl">{ctl}</div>' if ctl else ""
+    reads = "".join(f'<span>{e(r.get("label", ""))} <b data-o="{e(r["name"])}"></b></span>'
+                    for r in (f.get("readouts") or []))
+    reads = f'<div class="fpread">{reads}</div>' if reads else ""
+    key = "".join(f'<span><i class="{"dot" if k.get("dot") else ""}" style="background:var(--{e(k["color"])})"></i>'
+                  f'{e(k["label"])}</span>' for k in (f.get("key") or []))
+    key = f'<div class="fpkey">{key}</div>' if key else ""
+    cap = f'<p class="fpcap">{md_inline(f["caption"])}</p>' if f.get("caption") else ""
+    unl = f'<p class="fpun"><b>Unlocks</b>{md_inline(f["unlocks"])}</p>' if f.get("unlocks") else ""
+    return (f'<figure class="fpfig" data-fig="{e(f["id"])}"><div class="fpstage" data-label="{e(f.get("label", f["title"]))}"></div>'
+            f'{ctl}{reads}{key}</figure>{cap}{unl}')
+
+
 # ---------------------------------------------------------------- first principles
 def first_principles(d, run):
     """The field's core idea, built up in figures that compute the real thing.
@@ -176,49 +220,87 @@ def first_principles(d, run):
     figs = fp.get("figures") or []
     if not figs:
         return ""
-
-    def control(c):
-        kind, name = c.get("type", "range"), c["name"]
-        if kind == "range":
-            return (f'<label class="fpc"><span class="fpl">{e(c.get("label", name))}</span>'
-                    f'<input type="range" data-c="{e(name)}" min="{c.get("min", 0)}" max="{c.get("max", 1)}" '
-                    f'step="{c.get("step", 0.01)}" value="{c.get("value", c.get("min", 0))}">'
-                    f'<output data-o="{e(name)}"></output></label>')
-        if kind == "button":
-            return f'<button type="button" class="fpb" data-act="{e(name)}">{e(c.get("label", name))}</button>'
-        if kind == "seg":
-            on = c.get("value") or c["options"][0][0]
-            btns = "".join(f'<button type="button" data-v="{e(v)}" aria-pressed="{"true" if v == on else "false"}">'
-                           f'{e(lbl)}</button>' for v, lbl in c["options"])
-            lbl = f'<span class="fpl">{e(c["label"])}</span>' if c.get("label") else ""
-            return f'<div class="fpc">{lbl}<div class="fpseg" data-seg="{e(name)}" role="group">{btns}</div></div>'
-        return ""
-
     out = ""
     for i, f in enumerate(figs, 1):
         body = "".join(f"<p>{md_inline(p)}</p>" for p in (f.get("body") or []))
-        ctl = "".join(control(c) for c in (f.get("controls") or []))
-        ctl = f'<div class="fpctl">{ctl}</div>' if ctl else ""
-        reads = "".join(f'<span>{e(r.get("label", ""))} <b data-o="{e(r["name"])}"></b></span>'
-                        for r in (f.get("readouts") or []))
-        reads = f'<div class="fpread">{reads}</div>' if reads else ""
-        key = "".join(f'<span><i class="{"dot" if k.get("dot") else ""}" style="background:var(--{e(k["color"])})"></i>'
-                      f'{e(k["label"])}</span>' for k in (f.get("key") or []))
-        key = f'<div class="fpkey">{key}</div>' if key else ""
-        cap = f'<p class="fpcap">{md_inline(f["caption"])}</p>' if f.get("caption") else ""
-        unl = f'<p class="fpun"><b>Unlocks</b>{md_inline(f["unlocks"])}</p>' if f.get("unlocks") else ""
         out += (f'<article class="fp" id="fp-{e(f["id"])}"><p class="fpk">{e(f.get("kicker") or f"Figure {i}")}</p>'
                 f'<h3>{e(f["title"])}</h3><p class="fpidea">{md_inline(f.get("idea", ""))}</p>'
-                f'<div class="fpbody">{body}</div>'
-                f'<figure class="fpfig" data-fig="{e(f["id"])}"><div class="fpstage" data-label="{e(f.get("label", f["title"]))}"></div>'
-                f'{ctl}{reads}{key}</figure>{cap}{unl}</article>')
+                f'<div class="fpbody">{body}</div>{figure_html(f)}</article>')
     lede = f'<p class="lede">{md_inline(fp["lede"])}</p>' if fp.get("lede") else ""
     return sec(fp.get("title") or "First principles", lede + out, "fpsec")
 
 
+# ---------------------------------------------------------------- papers, one by one
+def papers(d, run):
+    """The run's key papers, each with as many figures as its idea needs.
+
+    `papers` carries a lede and `items`, one per paper, in the map's order of avenues: `id`,
+    `title`, `url`, `who`, `year`, `venue`, `avenue` (a key of avenue_labels), `what` (what the
+    paper does, in a sentence or two), and `figures` shaped like the first-principles ones.
+    A short index at the top links each paper's anchor, so a reader can jump to one."""
+    pp = d.get("papers") or {}
+    items = pp.get("items") or []
+    if not items:
+        return ""
+    labels = d.get("avenue_labels") or {}
+    index, out, last = "", "", None
+    for p in items:
+        av = labels.get(p.get("avenue"), p.get("avenue") or "")
+        if av != last:
+            index += (f'</ol></div>' if last is not None else "") + f'<div class="ppgrp"><p class="fpk">{e(av)}</p><ol>'
+            last = av
+        index += f'<li><a href="#paper-{e(p["id"])}">{e(p.get("short") or p["title"])}</a> <span>{len(p.get("figures") or [])}</span></li>'
+        meta = " · ".join(e(str(x)) for x in (p.get("who"), p.get("year"), p.get("venue")) if x)
+        title = f'<a href="{e(p["url"])}">{e(p["title"])}</a>' if p.get("url") else e(p["title"])
+        figs = ""
+        for j, f in enumerate(p.get("figures") or [], 1):
+            body = "".join(f"<p>{md_inline(x)}</p>" for x in (f.get("body") or []))
+            figs += (f'<div class="ppfig" id="fp-{e(f["id"])}"><h4>{e(f["title"])}</h4>'
+                     f'<p class="fpidea">{md_inline(f.get("idea", ""))}</p><div class="fpbody">{body}</div>{figure_html(f)}</div>')
+        out += (f'<article class="fp pp" id="paper-{e(p["id"])}"><p class="fpk">{e(av)}</p><h3>{title}</h3>'
+                f'<p class="ppmeta">{meta}</p><p class="fpidea">{md_inline(p.get("what", ""))}</p>{figs}</article>')
+    index = f'<nav class="ppnav" aria-label="Papers">{index}</ol></div></nav>' if index else ""
+    lede = f'<p class="lede">{md_inline(pp["lede"])}</p>' if pp.get("lede") else ""
+    return sec(pp.get("title") or "The key papers, one by one", lede + index + out, "fpsec ppsec")
+
+
+def url_key(url):
+    """A paper's address reduced to what two sections would share: its arXiv number when it
+    has one, else the URL without scheme, www or trailing slash."""
+    m = re.search(r"arxiv\.org/(?:abs|pdf|html)/(\d{4}\.\d{4,5})", url or "")
+    if m:
+        return "arxiv:" + m.group(1)
+    return re.sub(r"^https?://(www\.)?", "", (url or "").strip().lower()).rstrip("/")
+
+
+def title_key(title):
+    return re.sub(r"\W+", " ", (title or "").lower()).strip()
+
+
+def drawn(d):
+    """Papers that have figures of their own, keyed by address and by title, so the reading
+    list and the project cards can send a reader from a citation to the paper's figures."""
+    out = {}
+    for p in (d.get("papers") or {}).get("items") or []:
+        n = len(p.get("figures") or [])
+        for k in (url_key(p.get("url")), title_key(p.get("title"))):
+            if n and k:
+                out[k] = (p["id"], n)
+    return out
+
+
+def fig_link(fl, url, title):
+    hit = fl.get(url_key(url)) or fl.get(title_key(title))
+    if not hit:
+        return ""
+    pid, n = hit
+    return f'<a class="figlink" href="#paper-{e(pid)}">drawn in {plural(n, "figure", "figures")}</a>'
+
+
 def figure_scripts(d, run):
     """The run's figure code, inlined in order after the page script, then FP.boot()."""
-    names = (d.get("first_principles") or {}).get("scripts") or []
+    names = (list((d.get("first_principles") or {}).get("scripts") or []) + list((d.get("papers") or {}).get("scripts") or [])
+             + list(d.get("project_figure_scripts") or []))
     code = ""
     for name in names:
         path = (run / name).resolve()
@@ -313,6 +395,7 @@ def reading(d):
     if not items:
         return ""
     labels = d.get("avenue_labels") or {}
+    fl = drawn(d)
 
     def entry(r, num=None):
         n = f'<span class="rn">{num}</span>' if num else ""
@@ -337,6 +420,9 @@ def reading(d):
             bits.append(f'<a class="codelink" href="{e(r["code_url"])}">code{st}{note}</a>')
         elif r.get("code_checked"):
             bits.append('<span class="pcit new">no code released</span>')
+        fig = fig_link(fl, r.get("url"), r.get("title"))
+        if fig:
+            bits.append(fig)
         prov = f'<p class="prov">{"".join(bits)}</p>' if bits else ""
         summ = f'<p class="rsum">{e(r["summary"])}</p>' if r.get("summary") else ""
         skip = f'<span class="rskip">skip {e(r["skip"])}</span>' if r.get("skip") else ""
@@ -409,6 +495,7 @@ def projects(d):
     if not ps:
         return ""
     labels = d.get("avenue_labels") or {}
+    fl = drawn(d)
     notes = ""
     seen = set()
     for p in ps:
@@ -453,7 +540,7 @@ def projects(d):
                 av = ('<span class="inav">also in the reading list</span>'
                       if r.get("in_avenue_list") else "")
                 li += (f'<li><span class="rwhen w-{r.get("when", "before")}">{tag}</span>'
-                       f'<a href="{e(r["url"])}">{e(r["title"])}</a>{av}'
+                       f'<a href="{e(r["url"])}">{e(r["title"])}</a>{av}{fig_link(fl, r.get("url"), r.get("title"))}'
                        f'<span class="rfw">{e(r.get("why", ""))}</span></li>')
             rft = f'<div class="rft"><span class="rfth">Read for this</span><ul>{li}</ul></div>'
         nxt = ""
@@ -468,10 +555,16 @@ def projects(d):
         # cannot be matched to the cards they describe.
         av = labels.get(p.get("avenue"), p.get("avenue") or "")
         pav = f'<p class="pav">{e(av)}</p>' if av else ""
-        return (f'<article class="proj{" strong" if strong else ""}">{pav}'
+        # A project may carry figures shaped like the first-principles ones: what the finished
+        # project measures, computed on a toy. A card with figures spans the whole row.
+        figs = "".join(f'<div class="pfig" id="fp-{e(f["id"])}"><h4>{e(f["title"])}</h4>'
+                       f'<p class="pfidea">{md_inline(f.get("idea", ""))}</p>{figure_html(f)}</div>'
+                       for f in (p.get("figures") or []))
+        cls = "proj" + (" strong" if strong else "") + (" hasfig" if figs else "")
+        return (f'<article class="{cls}">{pav}'
                 f'<div class="ptop"><h3>{e(p["title"])}</h3>'
                 f'<span class="gen">{e(ARCH.get(p.get("archetype", ""), p.get("archetype", "")))}</span></div>'
-                f'<p class="plain">{e(p.get("plain", ""))}</p>{res}{head}'
+                f'<p class="plain">{e(p.get("plain", ""))}</p>{figs}{res}{head}'
                 f'<dl>{meta}</dl>{teach}{rft}{nxt}'
                 f'<p class="doclink">Build steps, done-when and what will break are in '
                 f'<code>projects.md</code></p>{sig}</article>')
@@ -646,7 +739,7 @@ def main():
             f'<title>{e(m.get("title", "Industry research"))}</title>\n'
             f'<style>\n{css}\n</style>\n\n'
             f'<div class="viz-root"><div class="wrap">\n'
-            f'{head}\n{first_principles(d, run)}\n{narrative(d, run)}\n{avenues(d)}\n{openness_map(d)}\n'
+            f'{head}\n{first_principles(d, run)}\n{papers(d, run)}\n{narrative(d, run)}\n{avenues(d)}\n{openness_map(d)}\n'
             f'{reading(d)}\n{projects(d)}\n{landscape(d)}\n{confidence(d)}\n'
             f'<div id="tip" role="tooltip"></div>\n</div></div>\n'
             f'<script>\n{js}\n{figure_scripts(d, run)}</script>\n')

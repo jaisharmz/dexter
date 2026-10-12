@@ -78,6 +78,8 @@ Respect `prefers-reduced-motion`. Give keyboard focus a visible state.
 
 **First principles, at the top.** The operator's request on 2026-10-12: one section explains the field from first principles, and that is where the visualizations go, interactive where possible and 3D where a third axis carries meaning. The section opens with the field's core idea and builds it up figure by figure, each computing the real object for a toy problem so that a slider shows the claim in the text holding. It sits under the verdict and above everything else, because every later section (the map, the reading, the projects) is easier to read once the reader can see what the field's one move is. Rules for building it are in `agents/designer.md`.
 
+**Then each key paper, in figures.** After the first-principles section comes one entry per important paper, each with as many figures as its idea needs, computed on toys the same way, with an index by avenue at the top, and the projects carry figures of what each one measures. A citation anywhere else on the page links to the paper's figures. The figures are built by parallel agents and merged by `scripts/merge_figures.py`; `agents/designer.md` has the contract.
+
 **The narrative, first.** The four to eight beats from `README.md`, telling how the field got to its current shape through named people and their disagreements. Render it as prose, not a timeline widget, because it is an argument rather than a list of dates. Keep the links on the anchoring artifacts live.
 
 This sits above everything, including the verdict, because it is what makes the map underneath legible. A reader who knows why a branch exists reads the openness map differently from one meeting it cold. Rules for writing it are in `narrative.md`.

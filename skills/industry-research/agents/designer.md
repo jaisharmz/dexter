@@ -35,6 +35,8 @@ Top-level keys, all optional except `meta`. A section whose data is missing is s
 | `meta` | you | `eyebrow`, `title`, `verdict` (HTML allowed), `runbar` as a flat object |
 | `narrative` | `README.md` opening | `{"beats": [...]}`, HTML allowed for links |
 | `first_principles` | you, from the whole run | `lede` (the field's core idea), `scripts` (paths under the run folder, `figures/_math.js` first) and `figures`: `id`, `kicker`, `title`, `idea`, `body` (paragraphs), `label` (what a screen reader hears), `controls` (`range`, `button`, or `seg`), `readouts`, `key` (label plus a color token), `caption` (what to try), `unlocks` (avenues and papers). Rendered first, under the verdict |
+| `papers` | `scripts/merge_figures.py` | `title`, `lede` (yours), then `items` and `scripts`, which the merge script writes from the figure agents' fragments in `<run>/figures/papers/`. One item per key paper: `id`, `short`, `title`, `url`, `who`, `year`, `venue`, `avenue`, `what`, `figures` (shaped like the first-principles ones, without `kicker` and `unlocks`) and `sources`. Rendered second, with an index by avenue |
+| `project_figure_scripts`, `projects[].figures` | `scripts/merge_figures.py` | figures for each project, from `<run>/figures/projects/`, matched on the project's exact `title`; a card with figures spans the row |
 | `nodes` | `map.md` | `section`, `depth`, `label`, `state`, `note`. Fewer than twelve and the map is skipped |
 | `node_work` | you, by joining | node label to `{project, papers}`. This is what makes the map's tooltip actionable |
 | `reading` | builders | pass through, adding `avenue`. Split each `citations` string into `citations` (an integer floor) with `citations_floor: true`, or a short `citations_note` ("too new to cite", "no reliable count"), and keep the builder's text as `citations_source`, which shows on hover. Where the builder calls a count an artifact or an empty floor, give the note, since "at least 4" on a famous benchmark misleads |
@@ -57,6 +59,15 @@ The operator asked on 2026-10-12 for every page to carry a section that explains
 - **Draw only in the page's tokens**: ink for data, ink-3 for noise, eng for what a model does, contested for a reward. A figure that hard-codes a hex breaks in one of the two themes.
 - **One idea per figure**, stated in its `idea` line, with a control that lets the reader watch it hold and a caption saying what to try. Link only papers the run's checkers verified.
 - Look at every figure at full width, at phone width and in dark mode before returning.
+
+## Figures per paper and per project
+
+The operator asked on 2026-10-12, after the first-principles section, for figures on every important paper (as many as each paper's idea needs) and on the projects, because the operator reads visually first. These come after the first-principles section and are built in parallel by figure agents, each owning a group of papers or projects and working from `agents/figure-builder.md`.
+
+- Each agent writes one file per figure and one JSON fragment: `<run>/figures/papers/<group>.json` with `scripts` and `items`, or `<run>/figures/projects/<group>.json` with `scripts` and `projects` keyed by exact project title. Agents never edit `report.json`.
+- `python3 scripts/merge_figures.py <run> --check` validates every fragment (unique figure ids, scripts inside the run folder, an `FP.fig` registration for every id, project titles that exist); without `--check` it writes `papers` and the project figures into `report.json`. Write the section's `lede` yourself.
+- A reading entry or a project's "read for this" line whose paper has figures links to them ("drawn in N figures"), matched by arXiv number or title, so nothing else needs joining.
+- Before publishing, set every figure up in a browser (a hidden pane never fires the lazy loader, so delete `IntersectionObserver` and call `FP.boot()` to test), and check that none carries `fperr`, none is blank, and each canvas fits its stage at full and phone width and in dark mode.
 
 ## Verify
 

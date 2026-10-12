@@ -167,7 +167,15 @@ var FP = (function () {
     var id = fig.getAttribute('data-fig'), setup = setups[id];
     if (!setup) return;
     try { fig._fp = setup(fig, api) || {}; live.push(fig); }
-    catch (err) { fig.classList.add('fperr'); if (window.console) console.error('figure ' + id, err); }
+    catch (err) { fig.classList.add('fperr'); if (window.console) console.error('figure ' + id, err); return; }
+    // A figure set up before layout (a hidden tab, a collapsed section) drew at the minimum
+    // width, so redraw it once its stage has a real width, and on any later width change.
+    if ('ResizeObserver' in window && fig._fp.draw) {
+      var stage = fig.querySelector('.fpstage'), w = stage.clientWidth;
+      new ResizeObserver(function () {
+        if (stage.clientWidth !== w) { w = stage.clientWidth; fig._fp.draw(true); }
+      }).observe(stage);
+    }
   }
 
   function redrawAll() { live.forEach(function (f) { if (f._fp.draw) f._fp.draw(true); }); }
