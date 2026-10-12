@@ -12,10 +12,15 @@ structurally identical, so a reader who has read one can read any of them.
 
 Standard library only. No pyyaml, no jinja, nothing to install.
 """
-import html, json, pathlib, sys, collections
+import html, json, pathlib, re, sys, collections
 
 SKILL = pathlib.Path(__file__).resolve().parent.parent
 e = html.escape
+UNIT = {"an afternoon": 3, "an evening": 3, "two sittings": 6, "a sitting": 3, "a weekend": 8}
+
+
+def hours(rs):
+    return sum(UNIT.get((r.get("time") or "").strip().lower(), 3) for r in rs)
 
 STATE_WORD = {"open": "open", "contested": "contested", "eng": "engineering",
               "engineering": "engineering", "dead": "dead"}
@@ -113,9 +118,14 @@ def openness_map(d):
         if not parts:
             parts.append('<div class="tw-sec"><span class="tw-none">No project and no paper in '
                          'this run. This part of the map went unserved.</span></div>')
-        elif note:
+        # The cell shows only its label, so the note always adds something, served or not.
+        if note:
             parts.append(f'<div class="tw-sec"><span class="tw-note">{e(note)}</span></div>')
         return "".join(parts)
+
+    def served(label):
+        w = work.get(label) or {}
+        return w.get("project") in proj or any(t in read for t in (w.get("papers") or []))
 
     bands = ""
     for s in order:
@@ -145,15 +155,98 @@ def openness_map(d):
     table = ('<details><summary>Table view, same data</summary><div class="tablewrap"><table>'
              '<thead><tr><th>Branch</th><th>Sub-problem</th><th>State</th><th>Note</th></tr></thead>'
              f'<tbody>{rows}</tbody></table></div></details>')
-    return sec("Where the open research is", legend + bands + table)
+    n_served = sum(1 for n in nodes if served(n["label"]))
+    lede = (f'<p class="lede">{len(nodes)} sub-problems, grouped by branch and colored by state, '
+            f'with the branches holding the most open problems first. Hover or focus one for the '
+            f'project and papers that attack it. {n_served} of the {len(nodes)} have at least one, '
+            f'and the rest went unserved in this run.</p>')
+    return sec("Where the open research is", lede + legend + bands + table)
+
+
+# ---------------------------------------------------------------- avenue strip
+def plural(n, one, many):
+    return f"no {many}" if n == 0 else f"{n} {one if n == 1 else many}"
+
+
+def avenues(d):
+    """The avenues side by side: problems on the map against people and money.
+
+    Each entry carries `nodes` (state counts from the map), `people` (organizations from the
+    landscape whose sub-problems sit in the avenue, by tier), a short `money` line the designer
+    writes from market_now, and the header fields verbatim for the full cards. One shared
+    scale for the bars, so a long bar means many problems and its green share means open ones."""
+    avs = d.get("avenues") or []
+    if len(avs) < 2:
+        return ""
+    STATES = [("open", "open", "b-open"), ("contested", "contested", "b-contested"),
+              ("engineering", "engineering", "b-eng"), ("dead", "dead", "b-dead")]
+    top = max(sum((a.get("nodes") or {}).values()) for a in avs) or 1
+    rows = ('<div class="avrow avhead"><span>Avenue</span><span>Problems on the map</span>'
+            '<span>Organizations on them</span><span>Money now</span></div>')
+    for a in avs:
+        n = a.get("nodes") or {}
+        segs = "".join(f'<i class="{c}" style="flex-basis:{100 * n[k] / top:.2f}%"></i>'
+                       for k, _, c in STATES if n.get(k))
+        words = ", ".join(f"{n[k]} {w}" for k, w, _ in STATES if n.get(k))
+        rest = ", ".join(f"{n[k]} {w}" for k, w, _ in STATES[1:] if n.get(k))
+        cnt = f'<b>{n.get("open", 0)} open</b>' + (f", {rest}" if rest else "")
+        p = a.get("people") or {}
+        ppl = ""
+        if p:
+            ppl = (f'<b>{p.get("total", 0)}</b> organizations: '
+                   f'{plural(p.get("frontier-lab", 0), "frontier lab", "frontier labs")}, '
+                   f'{plural(p.get("academic", 0), "academic group", "academic groups")}, and '
+                   f'{plural(p.get("startup", 0), "startup", "startups")}')
+        rows += (f'<div class="avrow"><div class="avnm">{e(a["name"])}</div>'
+                 f'<div><span class="avk">Problems on the map</span>'
+                 f'<span class="sbar" role="img" aria-label="{e(words)}">{segs}</span>'
+                 f'<span class="avct">{cnt}</span></div>'
+                 f'<div class="avppl"><span class="avk">Organizations on them</span>{ppl}</div>'
+                 f'<div class="avmo"><span class="avk">Money now</span>{e(a.get("money", ""))}</div>'
+                 f'</div>')
+    cards = ""
+    for a in avs:
+        n = a.get("nodes") or {}
+        dl = ""
+        for k, lbl in [("market_now", "Now"), ("market_15y", "In 15 years"),
+                       ("entry_cost", "Entry"), ("holy_grail", "Holy grail"), ("blocker", "Blocker")]:
+            if a.get(k):
+                cls = ' class="blk"' if k == "blocker" else ""
+                dl += f"<dt>{lbl}</dt><dd{cls}>{e(a[k])}</dd>"
+        cards += (f'<article class="av"><span class="avn">{n.get("open", 0)} open of '
+                  f'{sum(n.values())}</span><h3>{e(a["name"])}</h3>'
+                  f'<p class="avone">{e(a.get("one_line", ""))}</p><dl>{dl}</dl></article>')
+    lede = f'<p class="lede">{e(d["avenues_lede"])}</p>' if d.get("avenues_lede") else ""
+    full = ('<details class="avfull"><summary>Each avenue\'s header in full: the market now and '
+            'in fifteen years, the cost of entry, the holy grail, and the blocker</summary>'
+            f'<div class="avs">{cards}</div></details>')
+    return sec("Where the money and the people are",
+               lede + f'<div class="avcmp">{rows}</div>' + full)
 
 
 # ---------------------------------------------------------------- reading
+def cite(r):
+    """Citation counts arrive as text, 'at least 93 (Semantic Scholar, Oct 11 2026)', because
+    every index undercounts. The designer may split that into an integer floor plus a short
+    note, and the source string stays on hover either way. A count the builder called an
+    artifact gets a note instead of a number, since 'at least 4' on a famous benchmark misleads."""
+    cit = r.get("citations")
+    src = r.get("citations_source") or (cit if isinstance(cit, str) else "")
+    ttl = f' title="{e(src)}"' if src else ""
+    if isinstance(cit, int):
+        pre = "at least " if r.get("citations_floor") else ""
+        return f'<span class="pcit"{ttl}>{pre}<b>{cit:,}</b> citations</span>'
+    if r.get("citations_note"):
+        return f'<span class="pcit new"{ttl}>{e(r["citations_note"])}</span>'
+    if isinstance(cit, str) and cit.strip():
+        return f'<span class="pcit new">{e(cit)}</span>'
+    return ""
+
+
 def reading(d):
     items = d.get("reading") or []
     if not items:
         return ""
-    UNIT = {"an afternoon": 3, "an evening": 3, "two sittings": 6, "a sitting": 3, "a weekend": 8}
     labels = d.get("avenue_labels") or {}
 
     def entry(r, num=None):
@@ -169,10 +262,9 @@ def reading(d):
             bits.append(f'<span class="pgrp">{e(r["group"])}</span>')
         if r.get("venue"):
             bits.append(f'<span class="pven">{e(r["venue"])}</span>')
-        if r.get("citations_note") == "too new to cite":
-            bits.append('<span class="pcit new">too new to cite</span>')
-        elif isinstance(r.get("citations"), int):
-            bits.append(f'<span class="pcit"><b>{r["citations"]:,}</b> citations</span>')
+        c = cite(r)
+        if c:
+            bits.append(c)
         if r.get("code_url"):
             st = (f'<span class="star" title="{e(r.get("code_stars_note", ""))}">'
                   f'{r["code_stars"]:,}</span>') if isinstance(r.get("code_stars"), int) else ""
@@ -189,25 +281,61 @@ def reading(d):
                 f'<span class="rtime">{e(r.get("time", ""))}</span>'
                 f'{prov}{summ}<p class="rwhy">{e(r.get("why", ""))}</p>{skip}</div></li>')
 
-    groups, spine_n, hrs_all = "", 0, 0
-    for a in sorted({r.get("avenue", "") for r in items}):
-        sp = [r for r in items if r.get("avenue") == a and r.get("tier") in ("start-here", "core")]
+    # A run may name a spine that crosses avenues: three or four titles from the reading
+    # list, in read order. Without one, each avenue's start-here and core papers are its
+    # spine, which is the right page for a run of two or three avenues and the wrong one
+    # for eight, where it called 57 papers a spine.
+    by_title = {r["title"]: r for r in items}
+    spine = [by_title[t] for t in (d.get("spine") or []) if t in by_title]
+    for t in (d.get("spine") or []):
+        if t not in by_title:
+            sys.stderr.write(f"WARNING: spine title not in the reading list: {t}\n")
+    in_spine = {id(r) for r in spine}
+    avs = sorted({r.get("avenue", "") for r in items})
+    head = ""
+    if spine:
+        head = (f'<div class="ravenue spine"><h3>The spine'
+                f'<span class="rhrs">{len(spine)} papers, about {hours(spine)} hours</span></h3>'
+                f'<ol class="reading">{"".join(entry(r, i + 1) for i, r in enumerate(spine))}</ol></div>')
+    groups, stack_n, stack_h = "", 0, 0
+    for a in avs:
+        sp = [r for r in items if r.get("avenue") == a and r.get("tier") in ("start-here", "core")
+              and id(r) not in in_spine]
         if not sp:
             continue
-        spine_n += len(sp)
-        hrs = sum(UNIT.get((r.get("time") or "").strip().lower(), 3) for r in sp)
-        hrs_all += hrs
-        groups += (f'<div class="ravenue"><h3>{e(labels.get(a, a))}'
-                   f'<span class="rhrs">{len(sp)} papers, about {hrs} hours</span></h3>'
-                   f'<ol class="reading">{"".join(entry(r, i + 1) for i, r in enumerate(sp))}</ol></div>')
+        stack_n += len(sp)
+        stack_h += hours(sp)
+        lst = f'<ol class="reading">{"".join(entry(r, i + 1) for i, r in enumerate(sp))}</ol>'
+        cnt = f'{len(sp)} papers, about {hours(sp)} hours'
+        if spine:
+            groups += (f'<details class="ravenue"><summary><span class="rsn">{e(labels.get(a, a))}</span>'
+                       f'<span class="rhrs">{cnt}</span></summary>{lst}</details>')
+        else:
+            groups += (f'<div class="ravenue"><h3>{e(labels.get(a, a))}'
+                       f'<span class="rhrs">{cnt}</span></h3>{lst}</div>')
     rest = [r for r in items if r.get("tier") == "when-you-need-it"]
-    tail = (f'<details><summary>{len(rest)} more, each with a stated trigger for when to reach '
-            f'for it</summary><ol class="reading opt">{"".join(entry(r) for r in rest)}</ol></details>'
-            ) if rest else ""
-    lede = (f'<p class="lede">The spine is {spine_n} papers, about {hrs_all} hours, split by avenue. '
-            f'Read one avenue\'s stack in the order given and that half of the field becomes legible. '
-            f'Everything below is reference material with a stated trigger.</p>')
-    return sec("What to read, in order", lede + groups + tail)
+    tail = ""
+    if rest:
+        inner = ""
+        for a in avs:
+            g = [r for r in rest if r.get("avenue") == a]
+            if g:
+                inner += (f'<div class="ravenue"><h3>{e(labels.get(a, a))}'
+                          f'<span class="rhrs">{len(g)}</span></h3>'
+                          f'<ol class="reading opt">{"".join(entry(r) for r in g)}</ol></div>')
+        tail = (f'<details class="ropt"><summary>{len(rest)} more, each with a stated trigger for '
+                f'when to reach for it</summary>{inner}</details>')
+    if spine:
+        ref = (f', and the last {len(rest)} are reference, each with a trigger for when to reach '
+               f'for it') if rest else ""
+        lede = (f'<p class="lede">The spine is {len(spine)} papers, about {hours(spine)} hours, '
+                f'in the order to read them. Each avenue\'s own stack follows, {stack_n} papers '
+                f'in read order{ref}.</p>')
+    else:
+        lede = (f'<p class="lede">The spine is {stack_n} papers, about {stack_h} hours, split by '
+                f'avenue. Read one avenue\'s stack in the order given and that part of the field '
+                f'becomes legible. Everything below is reference material with a stated trigger.</p>')
+    return sec("What to read, in order", lede + head + groups + tail)
 
 
 # ---------------------------------------------------------------- projects
@@ -231,10 +359,12 @@ def projects(d):
         for r in (p.get("resources") or []):
             st = (f'<span class="star" title="{e(r.get("stars_note", ""))}">'
                   f'{r["stars"]:,}</span>') if isinstance(r.get("stars"), int) else ""
-            nt = f'<span class="rnote">{e(r["note"])}</span>' if r.get("note") else ""
-            res += (f'<a class="res k-{r.get("kind", "repo")}" href="{e(r["url"])}">'
+            # The note rides on hover. Printed inline it wrapped each chip over three lines,
+            # cut the names it annotates to an ellipsis, and made a card 700px of links.
+            nt = f' title="{e(r["note"])}"' if r.get("note") else ""
+            res += (f'<a class="res k-{r.get("kind", "repo")}" href="{e(r["url"])}"{nt}>'
                     f'<span class="rk">{e(r.get("kind", "repo"))}</span>'
-                    f'<span class="rnm">{e(r["name"])}</span>{st}{nt}</a>')
+                    f'<span class="rnm">{e(r["name"])}</span>{st}</a>')
         res = f'<div class="resources">{res}</div>' if res else ""
         meta = ""
         for k, lbl in [("subproblem", "Sub-problem"), ("built_on", "Built on"),
@@ -269,7 +399,11 @@ def projects(d):
         head = f'<p class="phead">{e(p["headline"])}</p>' if p.get("headline") else ""
         sig = (f'<p class="pwhy"><span class="sig sig-strong">worth making public</span>'
                f'{e(p.get("signal_why", ""))}</p>') if strong else ""
-        return (f'<article class="proj{" strong" if strong else ""}">'
+        # Cards are grouped by scale, so each names its avenue or the set notes above
+        # cannot be matched to the cards they describe.
+        av = labels.get(p.get("avenue"), p.get("avenue") or "")
+        pav = f'<p class="pav">{e(av)}</p>' if av else ""
+        return (f'<article class="proj{" strong" if strong else ""}">{pav}'
                 f'<div class="ptop"><h3>{e(p["title"])}</h3>'
                 f'<span class="gen">{e(ARCH.get(p.get("archetype", ""), p.get("archetype", "")))}</span></div>'
                 f'<p class="plain">{e(p.get("plain", ""))}</p>{res}{head}'
@@ -283,9 +417,8 @@ def projects(d):
         if g:
             shelf += (f'<div class="scale"><h3>{SCALE_LABEL[s]}</h3>'
                       f'<div class="projs">{"".join(card(p) for p in g)}</div></div>')
-    lede = ('<p class="lede">Three per avenue, and they are a curriculum rather than a menu. '
-            'Each teaches something the other two do not, so the point is to do all of them '
-            'rather than pick the best one.</p>')
+    lede = ('<p class="lede">Three per avenue, written as a curriculum. Each teaches something '
+            'the other two do not, so do all three in order.</p>')
     return sec("What to build", lede + notes + shelf)
 
 
@@ -368,9 +501,9 @@ def landscape(d):
             rows += (f'<article class="inv c-{c}"><div class="itop"><h4>{e(i["name"])}</h4>'
                      f'<span class="conv c-{c}">{e(c)}</span></div>'
                      f'<p class="ithesis">{e(i.get("thesis", ""))}</p>{p}{bets}{note}</article>')
-        lede = ('<p class="lede">Ordered by conviction rather than by fund size. Absence is a '
-                'position: a large fund sitting this out while funding an adjacent category is '
-                'a finding, not a gap.</p>')
+        lede = ('<p class="lede">Ordered by conviction, whatever the fund\'s size. Absence is a '
+                'position: a large fund that sits this out while funding an adjacent category '
+                'has taken a side.</p>')
         out += sec("What the investors believe", lede + f'<div class="invs">{rows}</div>')
     if lin:
         edges = ""
@@ -397,11 +530,13 @@ def landscape(d):
         maj = sum(1 for t in tl if t.get("weight") == "major")
         yrs = sorted(str(t["date"])[:4] for t in tl if t.get("date"))
         span = f"{yrs[0]} to {yrs[-1]}" if yrs else ""
-        recent = sum(1 for y in yrs if int(y) >= int(yrs[-1]) - 2)
-        lede = (f'<p class="lede">{len(tl)} events across {span}, {maj} of them major. '
-                f'{recent} fall in the last three years, so the early rows are sparse and the '
-                f'recent ones dense. That contrast is the point: the small rows are there to be '
-                f'scanned for clustering rather than read one at a time.</p>')
+        # Calendar years, named in the sentence, so the count can be checked against the
+        # file's own prose without guessing where "the last three years" starts.
+        first = int(yrs[-1]) - 2 if yrs else 0
+        recent = sum(1 for y in yrs if int(y) >= first)
+        lede = (f'<p class="lede">{len(tl)} events from {span}, {maj} of them major. '
+                f'{recent} are dated {first} to {yrs[-1] if yrs else ""}, so the early rows are '
+                f'sparse and the recent ones dense. Scan the small rows for clusters.</p>')
         out += sec("Timeline", lede + f'<ul class="timeline">{rows}</ul>')
     return out
 
@@ -420,6 +555,12 @@ def confidence(d):
         if k in c:
             tiles += (f'<div class="stat"><span class="v {"good" if good else "bad"}">'
                       f'{e(str(c[k]))}</span><span class="k">{lbl}</span></div>')
+    # Counts the fixed keys have no slot for (tiers, fixed, downgraded) come as tiles whose
+    # labels say exactly what was counted. Tone is good, bad, or omitted for plain ink.
+    for t in c.get("tiles") or []:
+        tone = {"good": " good", "bad": " bad"}.get(t.get("tone"), "")
+        tiles += (f'<div class="stat"><span class="v{tone}">{e(str(t["value"]))}</span>'
+                  f'<span class="k">{e(t["label"])}</span></div>')
     notes = "".join(f'<p class="confnote">{e(n)}</p>' for n in c.get("notes", []))
     return sec("How much of this to believe", f'<div class="conf">{tiles}</div>{notes}')
 
@@ -436,10 +577,11 @@ def main():
             f'<p class="verdict">{m.get("verdict", "")}</p>'
             f'<div class="runbar">{bar}</div></header>')
     page = (f'<meta charset="utf-8">\n'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f'<title>{e(m.get("title", "Industry research"))}</title>\n'
             f'<style>\n{css}\n</style>\n\n'
             f'<div class="viz-root"><div class="wrap">\n'
-            f'{head}\n{narrative(d, run)}\n{openness_map(d)}\n{reading(d)}\n{projects(d)}\n'
+            f'{head}\n{narrative(d, run)}\n{avenues(d)}\n{openness_map(d)}\n{reading(d)}\n{projects(d)}\n'
             f'{landscape(d)}\n{confidence(d)}\n'
             f'<div id="tip" role="tooltip"></div>\n</div></div>\n'
             f'<script>\n{js}\n</script>\n')

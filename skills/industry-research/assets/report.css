@@ -1,8 +1,10 @@
 /* industry-research report stylesheet. Single source of truth for every run.
    Do NOT hand-author CSS in a run and do NOT restyle per topic. The page is a
    product with one look; the data changes, the presentation does not.
-   Palette validated with the dataviz skill's checker on all pairs, both modes. */
-.viz-root {
+   Palette validated with the dataviz skill's checker on all pairs, both modes.
+   The tokens sit on :root as well as .viz-root, so the body behind the page takes the
+   same ground in both themes instead of the host's. */
+:root, .viz-root {
     color-scheme: light;
     --surface: #fcfcfb; --surface-2: #f2f2ef; --rule: #dedcd6;
     --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #83817a;
@@ -10,7 +12,7 @@
     --open-bg: #e4f5ee; --contested-bg: #fceae2; --eng-bg: #e4eefb;
   }
   @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) .viz-root {
+    :root:where(:not([data-theme="light"])), :root:where(:not([data-theme="light"])) .viz-root {
       color-scheme: dark;
       --surface: #1a1a19; --surface-2: #232322; --rule: #35352f;
       --ink: #ffffff; --ink-2: #c3c2b7; --ink-3: #8d8c82;
@@ -18,7 +20,7 @@
       --open-bg: #10241d; --contested-bg: #2a1810; --eng-bg: #101f31;
     }
   }
-  :root[data-theme="dark"] .viz-root {
+  :root[data-theme="dark"], :root[data-theme="dark"] .viz-root {
     color-scheme: dark;
     --surface: #1a1a19; --surface-2: #232322; --rule: #35352f;
     --ink: #ffffff; --ink-2: #c3c2b7; --ink-3: #8d8c82;
@@ -435,3 +437,82 @@
 .xcc { margin: .3rem 0 0; font-size: .78rem; color: var(--ink-3); }
 .xk { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; margin-right: .4rem; }
+
+/* ---------- avenues side by side: problems against people and money ---------- */
+/* One shared scale for every bar, so length is the number of problems and the green
+   share is the open ones. Counts are always printed beside the bar (relief rule). */
+.avcmp { display: flex; flex-direction: column; border-top: 1px solid var(--rule); margin-bottom: 1rem; }
+.avrow { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1.25fr) minmax(8rem, .95fr) minmax(11rem, 1.6fr);
+  gap: .35rem 1.1rem; padding: .7rem 0; border-bottom: 1px solid var(--rule); align-items: start; }
+.avrow.avhead { padding: .4rem 0; }
+.avhead span { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.avnm { font-size: .9rem; font-weight: 600; line-height: 1.3; text-wrap: balance; }
+.sbar { display: flex; gap: 2px; height: .62rem; margin: .3rem 0 .4rem; }
+.sbar i { display: block; flex-grow: 0; flex-shrink: 0; min-width: 2px; border-radius: 2px; }
+.sbar .b-open { background: var(--open); }
+.sbar .b-contested { background: var(--contested); }
+.sbar .b-eng { background: var(--eng); }
+/* dead is an absence here too: an outline with no fill */
+.sbar .b-dead { background: transparent; box-shadow: inset 0 0 0 1px var(--ink-3); }
+.avct { display: block; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .64rem; line-height: 1.5; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.avct b { color: var(--ink); font-weight: 600; }
+.avppl, .avmo { font-size: .82rem; line-height: 1.45; color: var(--ink-2); }
+.avppl { font-variant-numeric: tabular-nums; }
+.avppl b { color: var(--ink); font-weight: 600; }
+.avk { display: none; }
+@media (max-width: 44rem) {
+  .avrow { grid-template-columns: 1fr; gap: .25rem; }
+  .avrow.avhead { display: none; }
+  .avk { display: block; margin-top: .3rem; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .56rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+}
+.avfull > summary { margin-bottom: .8rem; }
+.avfull .avs { margin-top: .8rem; }
+
+/* ---------- projects: the avenue each card belongs to ---------- */
+.pav { margin: 0 0 .3rem; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ---------- reading: a spine across avenues, then each avenue's stack folded ---------- */
+.ravenue.spine { padding-left: .8rem; border-left: 3px solid var(--open); }
+details.ravenue { margin: 0; }
+details.ravenue > summary { list-style: none; display: flex; justify-content: space-between; gap: 1rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
+  padding: .55rem 0; border-bottom: 1px solid var(--rule); }
+details.ravenue > summary::-webkit-details-marker { display: none; }
+details.ravenue > summary .rsn::before { content: "+"; display: inline-block; width: 1.1em; color: var(--ink-3); }
+details.ravenue[open] > summary .rsn::before { content: "\2212"; }
+details.ravenue[open] > summary { margin-bottom: .9rem; }
+details.ravenue[open] { margin-bottom: 1.2rem; }
+summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.ropt { margin-top: 1.2rem; }
+.ropt .ravenue { margin-top: 1rem; }
+
+/* Long tokens (URLs inside built-on notes, repository paths) wrap inside their card
+   instead of running past its edge. Tables are left out, where breaking anywhere would
+   split short words like "engineering" in narrow columns. */
+.proj, .org, .inv, .av, .avrow, .verdict, .narr p, .reading li > div, .excluded li,
+.lineage li, .timeline .tt, #tip { overflow-wrap: anywhere; }
+
+/* The full avenue headers are long prose, so two wide columns with each label above its
+   text. min() keeps a phone from overflowing the 24rem minimum. */
+.avfull .avs { grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); }
+.avfull .av dl { grid-template-columns: 1fr; gap: .1rem; }
+.avfull .av dt { padding-top: .6rem; }
+.avfull .av dt:first-child { padding-top: 0; }
+
+/* Links in the verdict match the essay's: ink with a ruled underline. */
+.verdict a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink-3); }
+.verdict a:hover { border-bottom-color: var(--ink); }
+/* Chips never split: the kind label and the stars hold their width and a long name
+   gives way with an ellipsis. */
+.res .rk, .res .star { flex: none; white-space: nowrap; overflow-wrap: normal; }
+.res .rnm { min-width: 0; overflow-wrap: normal; }
+.tw-s { white-space: nowrap; }
+.preprod { white-space: nowrap; overflow-wrap: normal; }
+/* On a phone the archetype label sits under the title, which otherwise wraps into a
+   column a third of the card wide. */
+@media (max-width: 34rem) { .ptop { flex-direction: column; align-items: flex-start; gap: 0; } .ptop .gen { margin-bottom: .45rem; } }

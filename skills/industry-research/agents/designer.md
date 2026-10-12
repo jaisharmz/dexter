@@ -36,11 +36,13 @@ Top-level keys, all optional except `meta`. A section whose data is missing is s
 | `narrative` | `README.md` opening | `{"beats": [...]}`, HTML allowed for links |
 | `nodes` | `map.md` | `section`, `depth`, `label`, `state`, `note`. Fewer than twelve and the map is skipped |
 | `node_work` | you, by joining | node label to `{project, papers}`. This is what makes the map's tooltip actionable |
-| `reading` | builders | pass through verbatim |
-| `projects` | builders | pass through verbatim |
-| `orgs`, `investors`, `timeline`, `lineage` | `landscape.md` | pass through verbatim |
+| `reading` | builders | pass through, adding `avenue`. Split each `citations` string into `citations` (an integer floor) with `citations_floor: true`, or a short `citations_note` ("too new to cite", "no reliable count"), and keep the builder's text as `citations_source`, which shows on hover. Where the builder calls a count an artifact or an empty floor, give the note, since "at least 4" on a famous benchmark misleads |
+| `spine` | `reading.md` | the three or four titles of the run's own spine, in read order. With it the page leads with that spine and folds each avenue's stack; without it every start-here and core paper counts as spine |
+| `projects` | builders | pass through, adding `avenue` and the avenue's `set_note` |
+| `avenues`, `avenues_lede` | you, by joining | one entry per avenue: `nodes` (state counts from `map.md`), `people` (landscape orgs whose `subproblems` sit in the avenue, by tier), a short `money` line condensed from `market_now`, and the header fields verbatim. This strip is what puts the open problems beside the money and the people |
+| `orgs`, `investors`, `timeline`, `lineage`, `excluded` | `landscape.md` | pass through verbatim |
 | `avenue_labels` | you | maps the avenue keys used in `reading` and `projects` to display names |
-| `confidence` | `sources.md` | count the entries, do not estimate them |
+| `confidence` | `sources.md` | count the entries, do not estimate them. `tiles` (value, label, tone) carry what the fixed keys cannot, such as tier counts, and `notes` say how each number was counted |
 
 `node_work` is the one place real judgment is required. Join on exact node labels, since the prober is instructed to keep them stable. Where a join fails, leave the node out rather than guessing, and the tooltip will say the node went unserved, which is honest.
 
