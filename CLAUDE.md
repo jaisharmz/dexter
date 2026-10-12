@@ -113,6 +113,11 @@ posted to `#log` each morning.
   nothing for a relative `-newermt '-90 minutes'`.
 - Reading is free. **Nothing is sent**: no email, message or post leaves the machine
   without the operator approving that specific act, whatever the mode.
+- **Every draft passes the mail gate before the operator sees it.** Read the draft back in
+  full and run `node kernel/mailgate/gate.mjs check --raw <file>`: it fails a draft whose
+  text promises attachments it does not carry, keeps a placeholder, names a weekday that is
+  not its date, or says someone is cc'd who is not. The audit hook runs the same check on
+  every draft and send call.
 - Over Discord, don't restart the gateway while a run is in flight
   (`openclaw sessions --agent dexter --active 20`).
 - Before building a system, check whether something maintained already does it well

@@ -46,7 +46,7 @@ decision with the rules that fired.
 
 | Decision | Meaning | Rules |
 |---|---|---|
-| deny | never right for an agent | `git add -f` inside the workspace; `rm -r` of `/`, the home directory, the workspace, `home/` or a `.git`; restarting the gateway from inside Dexter; the same call 8 times in a row |
+| deny | never right for an agent | `git add -f` inside the workspace; `rm -r` of `/`, the home directory, the workspace, `home/` or a `.git`; restarting the gateway from inside Dexter; the same call 8 times in a row; a draft or send whose text contradicts what it carries, such as materials promised with only résumés attached (the mail gate, `kernel/mailgate/`) |
 | ask | the operator approves this one act | sending a message to anyone but the operator; typing, a paste or Return in a chat or messaging web app; a force push; a push to the public build; deleting, renaming or exposing a repository; restarting the gateway; changing the audit itself |
 | flag | allowed, and marked for the audit | git push, GitHub writes, other `rm -r`, git commands that throw away work (`checkout --`, `reset --hard`, `clean -f`, `filter-branch`), connector deletes, calendar invites and shares, browser clicks and page scripts that submit, send, pay, apply or book, typing in a browser tab the session did not navigate to, schedule changes (crontab, LaunchAgents, routines and crons made through tools), another session's permission mode, a draft sent with recipients Gmail will ignore, the same call 4 times in a row |
 

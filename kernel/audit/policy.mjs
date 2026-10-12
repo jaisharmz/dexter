@@ -20,6 +20,7 @@
 import { homedir } from "node:os";
 import { resolve } from "node:path";
 import { BROWSER, typedPages } from "./browser.mjs";
+import { fromToolInput, inspect } from "../mailgate/gate.mjs";
 
 const RANK = { allow: 0, flag: 1, ask: 2, deny: 3 };
 export const LOOP_FLAG = 4;
@@ -232,6 +233,28 @@ const toolRules = [
           : `Sent to the operator or a standing recipient (${to.join(", ")}).` };
       }
       return { decision: "ask", person: true, why: `Sends a message${to.length ? ` to ${to.join(", ")}` : ""}. Nothing leaves the machine without the operator approving that specific send.` };
+    },
+  },
+  {
+    // Several notes went out saying "We have attached some materials on what we have worked on"
+    // with two résumés attached and nothing else. The mail gate (kernel/mailgate/gate.mjs)
+    // checks what a draft says it carries against what it carries. A draft may wait for files
+    // the operator attaches by hand; a send may not.
+    id: "mail-gate",
+    test: (call) => {
+      if (!/^mcp__/.test(call.tool) || /^mcp__(openclaw|ccd_)/.test(call.tool)) return null;
+      const verb = call.tool.split("__").pop();
+      if (!/^(create_draft|update_draft|send_message|send_email|send_mail|reply|reply_all|forward)$/.test(verb)) return null;
+      // Sending a saved draft carries no text here; the draft was gated when it was written.
+      const input = call.input || {};
+      if ((input.draftId || input.draft_id) && /^send/.test(verb)) return null;
+      if (!input.body && !input.htmlBody && !input.html_body) return null;
+      const { fail, pending, warn } = inspect(fromToolInput(input, { merge: verb === "update_draft" }));
+      const sending = !/draft$/.test(verb);
+      const blocking = [...fail, ...(sending ? pending : [])];
+      if (blocking.length) return { decision: "deny", why: `Mail gate: ${blocking.map((item) => item.why).join(" ")} Fix the text or the attachments and call again. node kernel/mailgate/gate.mjs check --raw <file> checks a draft read back RAW.` };
+      const notes = [...(sending ? [] : pending), ...warn];
+      return notes.length ? { decision: "flag", why: `Mail gate: ${notes.map((item) => item.why).join(" ")}` } : null;
     },
   },
   {

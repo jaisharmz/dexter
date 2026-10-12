@@ -100,6 +100,19 @@ test("sending: to someone else asks, to the operator is flagged, drafts pass", (
   assert.equal(decide({ tool: "mcp__ccd_session_mgmt__send_message", input: {} }, ctx()).decision, "allow");
 });
 
+test("the mail gate denies a draft whose text claims files it does not carry", () => {
+  const gmail = (tool, input) => decide({ tool: `mcp__abc123__${tool}`, input }, ctx());
+  const resumes = [{ filename: "Ada_Lovelace_Resume.pdf" }, { filename: "Alan_Turing_Resume.pdf" }];
+  const wrong = gmail("create_draft", { to: "lila@example.org", subject: "s", body: "Hello Lila!\n\nWe have attached some materials on what we have worked on.", attachments: resumes });
+  assert.equal(wrong.decision, "deny");
+  assert.equal(wrong.rules[0].id, "mail-gate");
+  assert.equal(gmail("create_draft", { to: "lila@example.org", subject: "s", body: "Hello Lila!\n\nWe have attached our resumes.", attachments: resumes }).decision, "allow");
+  // A draft may wait for files the operator attaches; a send may not.
+  assert.equal(gmail("create_draft", { to: "lila@example.org", subject: "s", body: "Hello Lila!\n\nWe have attached our resumes." }).decision, "flag");
+  assert.equal(gmail("send_message", { to: "lila@example.org", subject: "s", body: "Hello Lila!\n\nWe have attached our resumes." }).decision, "deny");
+  assert.equal(gmail("send_message", { draftId: "r1" }).decision, "ask");
+});
+
 test("committing clicks and connector deletes are flagged", () => {
   const click = decide({ tool: "mcp__claude-in-chrome__computer", input: { action: "left_click", action_summary: "Submits the application form" } }, ctx());
   assert.equal(click.decision, "flag");

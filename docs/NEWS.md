@@ -5,6 +5,17 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-12
+
+- Drafts are checked against what they carry. `kernel/mailgate/gate.mjs` reads a draft's own
+  text (the quoted thread left out) and fails it when it promises files that are not attached
+  ("some materials on what we have worked on" with only résumés), keeps a placeholder, names a
+  weekday that does not match its date, says someone is cc'd who is not, or carries an inline
+  signature image. The audit hook runs it on every draft and send call: a failure is blocked,
+  and a promise with nothing attached yet is allowed on a draft and blocked on a send. Run it by
+  hand on a draft read back in full with `node kernel/mailgate/gate.mjs check --raw <file>`.
+  See `kernel/mailgate/README.md`.
+
 ## 2026-10-11
 
 - The first run can no longer be skipped. While `BOOTSTRAP.md` exists, a project hook
