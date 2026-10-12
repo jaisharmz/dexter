@@ -77,6 +77,11 @@ test("a greeting that names nobody on the to line is a warning", () => {
   assert.deepEqual(ids(result.warn), ["greeting-name"]);
 });
 
+test("a title before the name is skipped, so Professor Hopper matches ghopper", () => {
+  const result = inspect(fromToolInput({ to: ["ghopper@example.com"], subject: "s", body: "Hello Professor Hopper!\n\nThanks." }), { now: NOW });
+  assert.deepEqual(ids(result.warn), []);
+});
+
 test("a RAW draft parses: recipients, the html part, and attachments by name", () => {
   const boundary = "XYZ";
   const eml = [

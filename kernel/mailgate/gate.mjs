@@ -156,7 +156,8 @@ const CC_CLAIM = /\bcc['’]?(?:e)?d\b|\(cc\b|\bcced\b/i;
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const WEEKDAY_DATE = /\b(sun|mon|tue|tues|wed|thu|thur|thurs|fri|sat)[a-z]*\.?,?\s+(?:the\s+)?(?:(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})|(\d{1,2})\/(\d{1,2}))\b/gi;
-const GREETING = /^(?:hello|hi|hey|dear|good (?:morning|afternoon|evening))\s+([A-Z][\w'’.-]+)/im;
+// A title before the name (Professor Cho, Dr. Lee) is skipped, so the check reads the surname.
+const GREETING = /^(?:hello|hi|hey|dear|good (?:morning|afternoon|evening))\s+(?:(?:professor|prof|dr|mr|mrs|ms)\.?\s+)?([A-Z][\w'’.-]+)/im;
 
 const weekdayMismatches = (text, now) => {
   const found = [];
