@@ -5,6 +5,13 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-13
+
+- The deslop lens and `skills/papers/scripts/deslop.py` catch more of what reads as generated:
+  em dashes, "comes for free", contrast by negation ("it checks numbers, not sentences"),
+  ownership metaphors ("the database owns reported numbers"), announced ideas ("the design rests
+  on one idea"), and intervals or significance tests in prose that should state the result simply.
+
 ## 2026-10-12
 
 - Drafts are checked against what they carry. `kernel/mailgate/gate.mjs` reads a draft's own

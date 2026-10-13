@@ -174,6 +174,27 @@ intuitions, overall ideas and methods." The rewrite Jai called "so much better" 
   numbers, grader output and ordering notes are working material. The page names the folder
   once, at the bottom.
 
+## Explaining a tool you built
+
+Found on 2026-10-12, when an interactive walkthrough of a package was called "really nice" and then
+asked to "be part of the PR somehow":
+
+- **A toy the reader drives, first.** A tiny made-up instance of the system (one page, three columns,
+  one rule) with controls for the inputs that matter (seed, plan) and the outputs beside it (the page,
+  its answer key, the checks). A "break it" switch shows a check failing on the exact field.
+- **Run the real code.** Load the project's own module in the page, or recompute its rule and say how
+  many real cases match: "all 26 documents land where the package put them".
+- **Real outputs as objects to inspect:** hover a value for its key, a before/after slider, two methods
+  side by side with a zoomed crop.
+- **Who does what:** a two-lane diagram, the work done once (by an agent or a person) above the work done
+  every time (by a script), each step clickable to what it writes.
+- **Commands** as copyable blocks in the order a newcomer runs them: look at two, scale, package.
+- **Every distinctive mechanism gets its own section.** One shown only as a picture reads as missing.
+- **Ship it with the code:** a page in the repository that opens from disk (data wrapped in a script,
+  because browsers will not fetch JSON over `file://`), a build script that regenerates it from the code,
+  a test that fails when its demos drift, and links from the README, the docs and the pull request. PR
+  descriptions need absolute links; relative ones do not resolve.
+
 ## Form
 
 - **Short bullets, not paragraphs.** Nobody reads paragraphs. Short is not terse: every bullet

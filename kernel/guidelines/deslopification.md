@@ -70,6 +70,17 @@ defines a claim by what it is not, and a page of them reads as generated. The op
 shape on sight (2026-10-11). State the positive claim and let a second sentence carry the limit if
 the reader needs it: "The check only matches numbers."
 
+**Statistics nobody asked for.** Explaining results, a person says what happened in the simplest
+terms and gives just enough evidence to justify the claim or the step. A model reaches for intervals,
+significance tests and second decimals, even in an abstract. "82% against 86%, a gap inside the 95%
+interval" became "nearly matches it (82% against 86%)" (2026-10-13). Keep the full statistics in the
+tables and the appendix, and write the prose for a reader who wants the result.
+
+**Ownership metaphors and announced ideas.** "The database owns reported numbers", "the framework
+owns the code", "the design rests on one idea", "the key insight is". The operator named each as
+AI on sight (2026-10-13). Say where a thing comes from or what it does: "reported numbers come from
+the database".
+
 **"Comes for free."** "The check is free", "this comes for free", "at no cost". Say what it actually
 costs or saves: "it adds no model call".
 
