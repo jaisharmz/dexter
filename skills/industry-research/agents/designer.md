@@ -51,7 +51,7 @@ Top-level keys, all optional except `meta`. A section whose data is missing is s
 
 ## The first-principles section
 
-The operator asked on 2026-10-12 for every page to carry a section that explains the field from first principles with visualizations, interactive where possible and 3D where a third axis carries meaning. It renders first, right under the verdict, because the rest of the page reads differently once the core idea has landed.
+The operator asked on 2026-10-12 for every page to carry a section that explains the field from first principles with visualizations, interactive where possible and 3D where a third axis carries meaning. The general rule is `kernel/guidelines/visual.md`. It renders first, right under the verdict, because the rest of the page reads differently once the core idea has landed.
 
 - **Lead with the core idea** (`kernel/guidelines/core-idea.md`): the one idea, learnable in about five minutes, that the avenues all build on. It is the section's `lede`, and the figures build it up in the order the map depends on it.
 - **Compute, never draw by hand.** Each figure computes the real object for a toy problem in the page: a flow integrated from its exact velocity, a coupling from Sinkhorn, a tilt on a grid. Put the shared math in `<run>/figures/_math.js` and one file per figure, `<run>/figures/<id>.js`, each calling `FP.fig(id, function (fig, FP) { ... return { draw: draw }; })`. The runtime gives a canvas sized to the column, `FP.colors()` from the page's tokens, a seeded `FP.rng`, `FP.loop` for animation, and controls the builder rendered from the JSON.

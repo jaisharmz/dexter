@@ -12,7 +12,9 @@ If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out w
   guidelines (`kernel/guidelines/`) and perspectives apply. Read them, then say in one
   line which you are using. `autonomy` and `throughput` always apply. `presentation`,
   `ordering` and `deslopification` apply to anything written for the operator. `core-idea` applies
-  to anything taught, explained or summarized, papers included.
+  to anything taught, explained or summarized, papers included. `visual` applies to every artifact,
+  report, explainer and deck: the core idea built up in computed figures, then figures for each
+  important paper, project or option.
 - **Save the prompts that show how the operator thinks.** Skip routine asks. Save one when
   it shows how they frame problems, what they value, or how they design systems and prompts:
   a spec, a framework, a set of preferences, a correction with its reason. Save it

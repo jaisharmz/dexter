@@ -78,8 +78,19 @@ tables and the appendix, and write the prose for a reader who wants the result.
 
 **Ownership metaphors and announced ideas.** "The database owns reported numbers", "the framework
 owns the code", "the design rests on one idea", "the key insight is". The operator named each as
-AI on sight (2026-10-13). Say where a thing comes from or what it does: "reported numbers come from
-the database".
+AI on sight (2026-10-13). Say what a thing does or name its source plainly: "the database supplies
+reported numbers". The same goes for "where X comes from" ("ablations show where the accuracy comes
+from", "most of the accuracy comes from two choices"): state the finding, "two choices matter most".
+
+**Slogan summaries of a design.** "The model plans the work and writes the answer, and code fetches the
+evidence and checks every number against it." A balanced sentence that restates the whole system in
+sweeping terms ("every", "against it") reads as a tagline, and the operator marked it as AI
+(2026-10-13). Describe the mechanism once, concretely, where it belongs: "a grounding check matches
+the numbers in the answer to SQL results, calculations, and cited passages".
+
+**"Lives in."** "The claim lives in uses per cup", "the logic lives in the parser". The operator
+marked it as AI on sight (2026-10-13). Say the plain relation: "the claim depends on uses per cup",
+"the parser holds the logic".
 
 **"Comes for free."** "The check is free", "this comes for free", "at no cost". Say what it actually
 costs or saves: "it adds no model call".

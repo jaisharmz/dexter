@@ -140,6 +140,10 @@ model is involved. The rules for both are in `presets/README.md`.
 
 ## Figures
 
+The deck's shape follows `kernel/guidelines/visual.md`: the decision, a first-principles build-up
+with one idea and one computed figure per slide, then a slide or two per important paper or
+option, and a link to an interactive page for depth.
+
 Draw simple diagrams with the builder's shapes. For curves, geometry or anything
 mathematical, render a figure with 3Blue1Brown's manim (`github.com/3b1b/manim`) or
 matplotlib, in the profile's palette. Crop images to the part that matters before placing

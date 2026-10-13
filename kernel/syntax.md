@@ -26,9 +26,10 @@ applies it to this request only. Options, never obligations — this is the "bri
 up as reminders" mechanism.
 
 Current lenses: `+autonomy` `+throughput` `+abstraction` `+system-design` `+deslop`
-`+ordering` `+core` `+small`.
+`+ordering` `+core` `+small` `+visual`.
 (`+core` → `core-idea`: find the one five-minute idea that unlocks the most, and lead with it.)
 (`+small` → `start-small`: 1-2 items checked by eye, then 4-5, then scale.)
+(`+visual` → `visual`: the core idea built in figures that compute the real thing, then figures per important paper, project or option.)
 (`+abstraction` → `software-abstraction`, `+deslop` → `deslopification`; the short
 form is the one to use.)
 

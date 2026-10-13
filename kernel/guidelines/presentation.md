@@ -5,7 +5,8 @@ triggers: [presenting, artifacts, reporting, results, writing]
 ---
 
 Governs every artifact, report or write-up of experimental work. The audience is a
-competent colleague who will glance, not read.
+competent colleague who will glance, not read. The page's shape and its figures (the core idea
+built up in computed figures, then figures per important paper or option) follow [[visual]].
 
 > Think about a mathematical proof. We try to make it as easy as possible for the
 > reader to understand and agree with our notions. If we give long explanations, the
