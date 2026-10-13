@@ -592,8 +592,10 @@ def summary_plan(defaults, title):
     columns = [column["name"] for column in tab_named(defaults, "Applications")["columns"]]
 
     def span(name):
+        # Whole columns. Moving a row to the top of the data shifts a range anchored at row 2 down a row,
+        # and the moved row drops out of every count. The header matches no label, and COUNTA subtracts it.
         letter = column_letter(columns.index(name))
-        return f"Applications!${letter}$2:${letter}"
+        return f"Applications!${letter}:${letter}"
 
     values, blocks = [[title], [stamp()], []], []
 
@@ -620,7 +622,7 @@ def summary_plan(defaults, title):
     header = len(values)
     submitted = header + 2
     values += [["Response rate", "Value"],
-               [f"Submitted (all less {' and '.join(rates['not_submitted'])})", f"=COUNTA({status_span})-({count_of(rates['not_submitted'])})"],
+               [f"Submitted (all less {' and '.join(rates['not_submitted'])})", f"=COUNTA({status_span})-1-({count_of(rates['not_submitted'])})"],
                [f"Replied ({', '.join(rates['replied'])})", f"={count_of(rates['replied'])}"],
                ["Response rate", f"=IF(B{submitted}=0,0,B{submitted + 1}/B{submitted})"],
                [f"Moved forward ({', '.join(rates['forward'])})", f"={count_of(rates['forward'])}"],
