@@ -5,6 +5,16 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-15
+
+- The deslop lens now checks compression as well as stock phrases. A draft written from an
+  outline tends to carry the outline's shorthand into the prose: labels used as if they were
+  defined terms ("the rule"), riddle phrasings of a mechanism ("who pays to raise a worker"),
+  symmetric epigrams, and abstract stakes where the writing is about people. The lens says to
+  re-read a draft as someone who never saw the outline, name things plainly, make causes
+  explicit, and spend the extra words. See "Compression is a tell too" in
+  `kernel/guidelines/deslopification.md`.
+
 ## 2026-10-13
 
 - The deslop lens and `skills/papers/scripts/deslop.py` catch more of what reads as generated:

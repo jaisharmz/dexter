@@ -24,6 +24,34 @@ new. Enthusiasm markers standing in for substance.
 they respect? If it reads like it's performing thoroughness rather than being
 thorough, cut it.
 
+**Compression is a tell too: outline shorthand.** Cutting tells and trimming toward bare
+bones is half the job. A draft written from an outline carries the outline's own vocabulary
+into the prose, and a reader who never saw the outline trips on it. A reader's line edits on
+an essay that had already passed this guideline (2026-10-15) replaced almost nothing but that:
+
+- Coined labels used as defined terms. "The film never names the rule" came from a prep-note
+  label, and the reader asked for every "the rule" to go. Name the thing itself (the policy,
+  the law, the person). Watch "the arrangement", "the deal", "the measure", "the system".
+- Riddle phrasings of a mechanism. "The film shows who pays to raise a worker" became "the
+  film shows the hidden costs behind this labor". "To do the raising the city leaves to the
+  village" became "to support each other in the village, which the city fails to provide".
+- Symmetric epigrams. "The arrangement that raised her cheaply also delivered her to the
+  factory floor" and "at two different scales" became a plain statement of the irony and
+  what it costs.
+- Abstract stakes in writing about people. "The general cost of fast growth" became "the
+  exploitation of laborers", "gives up" became "sacrifices", and "quit school" became
+  "reject the path her parents hoped for her".
+- Hidden causes. An "and" joining a cause to its effect became "so".
+- Over-clipped register. "Over three years" became "over the course of three years". Some
+  connective phrasing is part of a human voice, so don't strip every soft word.
+- Jargon from the research. "Opening card" became "opening scene".
+- Counterfactual prescriptions ("one title card would have shown...") became what the work
+  does and its effect ("the film never names the policy, which puts the blame on the family").
+- A vivid detail whose link to the claim was only asserted was cut.
+
+Re-read the draft as a stranger to the outline before running the checks. Spending words
+on naming, stakes, and causes is fine.
+
 **The bolded-lead list.** The strongest structural tell in proposal and report prose:
 a list where every item opens with a bolded noun-phrase label, then a verbless
 appositive that restates it. "**One dashboard for every data source.** A single
