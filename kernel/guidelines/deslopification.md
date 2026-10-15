@@ -86,6 +86,12 @@ it convincing." State the claim and let the paragraph carry it. In analytical wr
 (a review, an essay, a report) keep the writer out of it: no "I follow", "I find", "I
 argue". The operator marked all three as AI on sight.
 
+**Announcing a source's move.** "The Oct 6 lecture makes this specific claim:", "The lecture
+put this more directly:", "Hickel offers a sharper version:". A sentence that describes what a
+source is about to do before quoting it reads as generated, and the operator called it slop
+on sight (2026-10-15). Name the source the way a student would and go straight to the point:
+"In lecture, we saw that...", "As we saw in lecture, ...".
+
 **The "That" pickup.** A sentence explains something, and the next one opens with "That"
 pointing back at it: "That idea is why the plan failed", "That gap is where the fight
 comes from". One is harmless, but the habit reads as generated, and the operator flagged it
