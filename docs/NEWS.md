@@ -7,6 +7,12 @@ without an entry.
 
 ## 2026-10-20
 
+- Outreach and submissions pass a second gate before the operator sees them. `kernel/reachgate/`
+  reads a short card per act and fails an email to someone whose own page asks not to be
+  emailed (naming the form or portal the page points to instead), a cited paper the person did
+  not write or that the note titles wrong, an address the outbound records already hold, a
+  company with a live interview process, and anything a fresh reader has not passed. It runs
+  the mail gate on the draft read back RAW. See `kernel/reachgate/README.md`.
 - A draft that says files are attached is not ready until it carries them. The mail gate's
   hand-over check, `node kernel/mailgate/gate.mjs check --raw` on a draft read back RAW, used to
   report "clean" when the text said "I have attached my resume" and nothing was attached, since a

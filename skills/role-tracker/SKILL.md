@@ -18,8 +18,12 @@ records and prints what to write, and the Google Sheets connector writes it.
 - `skills/role-apply/state/applications.jsonl`, one line per application event, which
   role-apply writes when it fills or submits a form.
 - `skills/role-apply/state/responses.jsonl`, one line per reply: its `type` (`interview_invite`,
-  `assessment`, `offer`, `rejection`, `recruiter_outreach`), the `action` it asks for, and
-  optionally `link` (the mail thread), `next_date` and `whose_move`.
+  `interview_scheduled` for a call booked in an application's process, `assessment`, `offer`,
+  `rejection`, `recruiter_outreach`), the `action` it asks for, and optionally `link` (the mail
+  thread), `next_date` and `whose_move`. A booked call needs all three: the newest reply's link
+  fills the Email cell, and without `whose_move` an Interviewing row reads Your move. A call
+  outside any application, such as a chat with an investor, stays `recruiter_outreach`:
+  `interview_scheduled` would give its company an Interviewing row.
 - The queue: every item tagged with the operator's own tag (`node kernel/queue.mjs list`, or
   `node kernel/pqueue.mjs list --owner <tag>` where the layered queue runs).
 - `state/overrides.json`, for what the records cannot say (below).

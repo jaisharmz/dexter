@@ -118,6 +118,13 @@ posted to `#log` each morning.
   text promises attachments it does not carry, keeps a placeholder, names a weekday that is
   not its date, or says someone is cc'd who is not. The audit hook runs the same check on
   every draft and send call.
+- **Every outreach and every submission passes the reach gate before the operator sees it.**
+  Write a card for the act (`temp/outreach/<slug>/reach.json`) and run `node
+  kernel/reachgate/gate.mjs check <card>`: it fails an email to someone whose own page says
+  not to write (and names what the page says to do instead), a paper the person did not
+  write or titled wrong, an address already written to, a company mid-interview, and any act
+  a fresh reader has not passed as sensible and appropriate. It runs the mail gate on the
+  RAW draft too.
 - Over Discord, don't restart the gateway while a run is in flight
   (`openclaw sessions --agent dexter --active 20`).
 - Before building a system, check whether something maintained already does it well

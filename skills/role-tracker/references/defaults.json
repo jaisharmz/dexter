@@ -102,6 +102,7 @@
   "replies": {
     "offer": {"status": "Offer", "label": "Offer"},
     "interview_invite": {"status": "Interviewing", "label": "Interview invite"},
+    "interview_scheduled": {"status": "Interviewing", "label": "Interview scheduled"},
     "assessment": {"status": "Assessment", "label": "Assessment"},
     "rejection": {"status": "Rejected", "label": "Rejection"},
     "recruiter_outreach": {"status": null, "label": "Recruiter reply"}
