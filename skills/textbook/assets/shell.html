@@ -1,0 +1,107 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BOOK TITLE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" },
+  options: { enableMenu: false, ignoreHtmlClass: "fpfig|exercises" }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg-full.min.js" async></script>
+<!--style-->
+<main class="page viz-root">
+
+<!-- The template. Replace every CAPITALIZED phrase (UNIT is the chapter's lowercase slug),
+     copy the chapter section once per chapter, and delete this comment. The build fills the
+     figure and exercise placeholders and inlines the scripts. -->
+
+<header class="titlepage">
+  <p class="kicker">A short textbook with computed figures</p>
+  <h1>BOOK TITLE</h1>
+  <p class="sub">ONE SENTENCE ON WHAT THE CHAPTERS SHARE</p>
+</header>
+
+<section class="front" id="preface">
+  <h2>Preface</h2>
+  <p>WHAT THE BOOK IS ABOUT: THE ONE CLAIM THAT UNITES THE CHAPTERS.</p>
+  <p>HOW THE CHAPTERS ARE ORDERED, AND THE PARTS EVERY CHAPTER HAS: the statement, a derivation, figures, names across fields, connections to research, exercises, and notes.</p>
+  <p>Every figure computes its idea in the page on a small problem, and the numbers in its caption come from that computation at the default settings. HOW THE EXERCISES WORK.</p>
+  <h3>Contents</h3>
+  <ol class="toc">
+    <li><span class="tn">Introduction</span><span class="tt"><a href="#intro">INTRODUCTION TITLE</a></span><span class="tw">ONE LINE.</span></li>
+    <li><span class="tn">Chapter 1</span><span class="tt"><a href="#UNIT">CHAPTER TITLE</a></span><span class="tw">ONE LINE ON THE CHAPTER'S IDEA.</span></li>
+    <li><span class="tn">Appendix</span><span class="tt"><a href="#near">Ideas that almost made the book</a></span><span class="tw">ONE LINE.</span></li>
+  </ol>
+</section>
+
+<section class="front" id="intro">
+  <h2>Introduction: INTRODUCTION TITLE</h2>
+  <p>THE ORGANIZING IDEA OF THE BOOK AND THE TEST IT GIVES THE READER.</p>
+  <div class="tablewrap">
+    <table class="names">
+      <thead><tr><th scope="col">Idea</th><th scope="col">FIELD</th><th scope="col">FIELD</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">1. CHAPTER TITLE</th><td>NAMES IN THAT FIELD</td><td class="none">none in common use</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="chapter" id="UNIT">
+  <header class="chead"><p class="cnum">Chapter 1</p><h2>CHAPTER TITLE</h2><p class="cfield">THE FIELD IT COMES FROM</p></header>
+  <p class="lead">THE IDEA IN TWO SENTENCES, SMALL ENOUGH TO LEARN IN FIVE MINUTES.</p>
+
+  <h3><span class="sn">1.1</span>Statement</h3>
+  <div class="stmt">
+    <p class="k">Theorem 1.1 <i>(NAME)</i></p>
+    <p>HYPOTHESES, IN WORDS AND \(INLINE\) MATH.</p>
+    <div class="eqbox">\[ DISPLAYED EQUATION \tag{1.1} \]</div>
+  </div>
+
+  <h3><span class="sn">1.2</span>Derivation</h3>
+  <div class="proof">
+    <p><span class="pk">(1.1).</span> THE SHORTEST PROOF THAT A STRONG READER WOULD ACCEPT. <span class="qed">∎</span></p>
+  </div>
+  <p class="remark"><span class="pk">Consequence.</span> WHAT THE STATEMENT RECOVERS, AND THE LINK TO AN EARLIER CHAPTER.</p>
+
+  <h3><span class="sn">1.3</span>Figures</h3>
+  <!--figs:UNIT@1-->
+
+  <h3><span class="sn">1.4</span>Names across fields</h3>
+  <ul class="chips"><li>NAME</li><li>NAME</li></ul>
+
+  <h3><span class="sn">1.5</span>In your research</h3>
+  <div class="research"><ul>
+    <li>WHERE THE IDEA MEETS THE READER'S OWN PROJECTS. THE ONE SECTION IN SECOND PERSON.</li>
+  </ul></div>
+
+  <h3>Exercises</h3>
+  <!--exercises:UNIT@1-->
+
+  <h3>Notes and further reading</h3>
+  <div class="notes">
+    <ul>
+      <li><a href="VERIFIED URL">EXACT TITLE</a> (FIRST AUTHOR et al., VENUE YEAR)</li>
+    </ul>
+    <p><b>Project.</b> ONE PROJECT THAT ENDS IN A NUMBER.</p>
+  </div>
+</section>
+
+<section class="front" id="near">
+  <h2>Appendix: ideas that almost made the book</h2>
+  <ul class="cases">
+    <li><b>NAME.</b> WHAT IT IS, AND WHY IT RANKED BELOW THE CHAPTERS.</li>
+  </ul>
+</section>
+
+<footer class="foot">
+  <p>Every figure computes its idea in the page on a toy, and the numbers in captions come from the figures' own math at their default settings. WHERE THE SOURCE AND THE EXERCISE DECK LIVE.</p>
+</footer>
+
+</main>
+<!--scripts-->

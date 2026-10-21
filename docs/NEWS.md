@@ -7,6 +7,14 @@ without an entry.
 
 ## 2026-10-20
 
+- Pages that teach are short textbooks. `/textbook` turns a topic or a list of ideas into one page with a title
+  page, a preface and contents, and chapters that each state one idea in a boxed theorem, derive it, build it up
+  in figures that compute it on a toy, list its names across fields, connect it to the operator's own research,
+  and end with exercises and verified readings. Math is typeset with MathJax's SVG build, parallel agents build
+  the figures against `agents/figure-builder.md`, and `scripts/new_book.py` starts a book folder that builds on
+  its own. The presentation and visual guidelines now send teaching pages to it, and no page frames itself as a
+  reply to the request that asked for it. See `skills/textbook/SKILL.md`.
+
 - Photos of handwritten notes have a skill. `/handwritten-notes` transcribes the page line by line in the author's
   own structure, marks every word it cannot read instead of guessing, checks each line against the materials the
   notes refer to (and looks for a newer official document that supersedes them), files the photo and transcription

@@ -29,6 +29,8 @@ And on the finished page, 75 figures across 19 papers and 24 projects: "this is 
 3. **Then every important unit gets its own figures.** Each paper, project, option or design alternative gets as many figures as its idea needs, one to three in practice: SD3 needed three, π0 one. Uneven counts are the point.
 4. **Wherever else a picture explains faster.** A citation links to its paper's figures ("drawn in 2 figures"). A comparison becomes a chart, a schedule becomes a timeline, and a list of options becomes a switcher ([[presentation]] has the chart forms).
 
+A page whose job is teaching takes the textbook form (`skills/textbook/SKILL.md`). The first-principles build-up becomes the chapters themselves, each with a boxed statement, a derivation, its figures and its exercises, and the decision paragraph becomes the preface.
+
 ## What a figure is
 
 - **It computes the real mechanism on a toy** small enough to run in the page: a Gaussian mixture, a double well, a 12-token Markov chain, a 60-residue backbone. A drawing that only looks like the result has no place on the page.

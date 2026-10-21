@@ -160,6 +160,11 @@ intuitions, overall ideas and methods." The rewrite Jai called "so much better" 
   This is for a page written to the operator. A document that goes out as theirs, such as a doc
   shared with a partner, leaves the label off and puts the bullets straight under the title. They
   would never write that heading themselves (2026-10-07).
+- **A page that teaches is a textbook, and no page is a reply.** A page whose job is teaching
+  takes the `textbook` skill's form: a title page and a preface in place of "In one minute",
+  then chapters with a statement, a derivation, figures and exercises. No page frames itself as
+  an answer to the request that asked for it ("your prompt", "your two guesses"). The request
+  shapes the page and stays out of it (2026-10-20).
 - **Very direct headings** that say what the section holds: "What the papers found", "What to
   read, in order", "What to build next". Never a clever title.
 - **Short bullets, each a full sentence that explains itself.** Short is not terse. "~1 pt" or
