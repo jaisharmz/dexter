@@ -193,3 +193,44 @@ mjx-container { color: var(--ink); }
 .stmt > *, .proof > *, .chapter > *, .front > *, .notes > *, .research > * { min-width: 0; max-width: 100%; }
 mjx-container[display="true"] { display: block !important; }
 .eqbox { overflow-x: auto; overflow-y: hidden; max-width: 100%; min-width: 0; -webkit-overflow-scrolling: touch; }
+
+/* ---------- four ways to see it: views joined by short derivations ---------- */
+.views { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.views > li { max-width: none; min-width: 0; }
+.view { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: .7rem .95rem; display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.view > * { margin: 0; min-width: 0; max-width: 100%; }
+.view .vk { font-family: var(--sans); font-weight: 600; font-size: .9rem; color: var(--ink); }
+.view .vk .vn { display: inline-block; min-width: 1.5rem; color: var(--eng); }
+.view .vk .vf { font-family: var(--sans); font-weight: 400; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-left: .4rem; }
+.join { margin: 0; padding: .55rem 0 .55rem 1.1rem; border-left: 2px solid var(--eng-bg); margin-left: 1.2rem; color: var(--ink-2); display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.join > * { margin: 0; min-width: 0; max-width: 100%; }
+.join .jk { font-family: var(--mono); font-size: .7rem; letter-spacing: .04em; color: var(--eng); margin-right: .45rem; }
+.chiphead { font-family: var(--sans); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: .5rem 0 0; }
+
+/* ---------- where it breaks and what is open ---------- */
+.open { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.open > li { max-width: none; border-left: 3px solid var(--contested); background: var(--surface); border-radius: 0 4px 4px 0; padding: .55rem .85rem; min-width: 0; }
+.open > li > * { min-width: 0; max-width: 100%; }
+.open .ok { font-family: var(--sans); font-weight: 600; font-size: .88rem; color: var(--ink); margin-right: .3rem; }
+
+/* ---------- derivation exercises: a blank page, then a folded solution ---------- */
+.derive { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .7rem; }
+.derive > li { max-width: none; border-top: 1px solid var(--rule); padding-top: .6rem; min-width: 0; }
+.derive .dhead { margin: 0; font-weight: 600; }
+.derive .dnum { font-family: var(--sans); font-size: .82rem; color: var(--eng); margin-right: .45rem; font-weight: 600; }
+.derive .dtask { margin: .3rem 0 0; color: var(--ink-2); }
+.derive details { margin-top: .4rem; min-width: 0; }
+.derive summary { font-family: var(--sans); font-size: .76rem; color: var(--ink-3); cursor: pointer; }
+.derive .dsol { margin-top: .35rem; padding: .55rem .85rem; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 3px; display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.derive .dsol > * { margin: 0; min-width: 0; max-width: 100%; }
+
+/* ---------- prerequisites appendix ---------- */
+.prereq { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .9rem; }
+.prereq > li { max-width: none; display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.prereq > li > * { margin: 0; min-width: 0; max-width: 100%; }
+.prereq .pt { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; }
+.prereq .pt .sn { font-family: var(--sans); font-size: .85rem; color: var(--ink-3); margin-right: .5rem; }
+.prereq .pw { font-family: var(--sans); font-size: .8rem; color: var(--ink-3); }
+a.figref { white-space: nowrap; }
+.uses { font-family: var(--sans); font-size: .82rem; color: var(--ink-3); margin: 0; }
+.uses a { color: var(--ink-2); }

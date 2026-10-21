@@ -52,9 +52,28 @@ What a figure is:
 - It works from 320 px to 760 px wide: the height is a function of the width, and
   side-by-side panels stack below about 560 px. Labels never collide or clip. A recompute on
   input takes under about 60 ms, with work precomputed in `FP.memo` and fixed seeds.
-- 3D only where a third axis carries meaning, with drag to turn and `touch-action: pan-y`.
-- Every number in a caption comes from your node test at the default settings. Captions say
-  what to try and what happens, with the number.
+- 3D only where a third axis carries meaning (time, a parameter, a density's height):
+  orthographic projection with yaw and pitch, drag to turn with pointer events on a canvas
+  that has the class `drag` (the stylesheet sets `touch-action: pan-y`), a "turn" range
+  control as the keyboard fallback, painter's order, and a default angle that reads at rest.
+- Every number in a caption comes from your node test at the settings the caption names.
+  Captions say what to try and what happens, with the number.
+
+## Failure figures
+
+A chapter's "Where it breaks" section has a figure that computes the failure: the quantity
+that collapses, blows up or cycles, next to what the chapter's statement promised, with a
+control that moves the toy from the regime where the idea works into the one where it fails.
+Its readouts put the promised number and the measured one side by side so the gap is
+visible. The failure gets the contested color, and open marks only an exact reference.
+
+## Adding to an existing unit
+
+When a book is revised, append figures to the end of the unit's `figures` list and its
+scripts to `scripts`, never reorder or edit an existing entry, add pure functions to the unit's
+math object (or a second math file that extends it), and keep every existing print in the
+test. The orchestrator places each figure with `<!--fig:ID@C-->` and cites it with
+`<!--ref:ID-->`, so report every new id.
 
 Check your figures: the node test passes, `python3 BOOK/page/build.py --only <unit>` builds,
 and headless Chrome screenshots of `page/dist/test_<unit>.html` at 820 and 500 px, in light

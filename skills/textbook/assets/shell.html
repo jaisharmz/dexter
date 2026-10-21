@@ -29,13 +29,14 @@ window.MathJax = {
 <section class="front" id="preface">
   <h2>Preface</h2>
   <p>WHAT THE BOOK IS ABOUT: THE ONE CLAIM THAT UNITES THE CHAPTERS.</p>
-  <p>HOW THE CHAPTERS ARE ORDERED, AND THE PARTS EVERY CHAPTER HAS: the statement, a derivation, figures, names across fields, connections to research, exercises, and notes.</p>
-  <p>Every figure computes its idea in the page on a small problem, and the numbers in its caption come from that computation at the default settings. HOW THE EXERCISES WORK.</p>
+  <p>HOW THE CHAPTERS ARE ORDERED, AND THE PARTS EVERY CHAPTER HAS: the statement, a derivation, figures, four ways to see the idea joined by short derivations, where it breaks and what is open, connections to research, exercises, derivations to redo from a blank page, and notes. Appendix A states the prerequisites the chapters assume.</p>
+  <p>Every figure computes its idea in the page on a small problem, and the numbers in its caption come from that computation at the settings the caption names. The figure under "Where it breaks" computes the failure itself. HOW THE EXERCISES WORK.</p>
   <h3>Contents</h3>
   <ol class="toc">
     <li><span class="tn">Introduction</span><span class="tt"><a href="#intro">INTRODUCTION TITLE</a></span><span class="tw">ONE LINE.</span></li>
     <li><span class="tn">Chapter 1</span><span class="tt"><a href="#UNIT">CHAPTER TITLE</a></span><span class="tw">ONE LINE ON THE CHAPTER'S IDEA.</span></li>
-    <li><span class="tn">Appendix</span><span class="tt"><a href="#near">Ideas that almost made the book</a></span><span class="tw">ONE LINE.</span></li>
+    <li><span class="tn">Appendix A</span><span class="tt"><a href="#prereq">Prerequisites</a></span><span class="tw">THE TOOLS THE CHAPTERS ASSUME, IN ONE LINE.</span></li>
+    <li><span class="tn">Appendix B</span><span class="tt"><a href="#near">Ideas that almost made the book</a></span><span class="tw">ONE LINE.</span></li>
   </ol>
 </section>
 
@@ -55,6 +56,7 @@ window.MathJax = {
 <section class="chapter" id="UNIT">
   <header class="chead"><p class="cnum">Chapter 1</p><h2>CHAPTER TITLE</h2><p class="cfield">THE FIELD IT COMES FROM</p></header>
   <p class="lead">THE IDEA IN TWO SENTENCES, SMALL ENOUGH TO LEARN IN FIVE MINUTES.</p>
+  <p class="uses">Uses Chapter N and <a href="#pre-SLUG">Appendix A.K</a>.</p>
 
   <h3><span class="sn">1.1</span>Statement</h3>
   <div class="stmt">
@@ -70,18 +72,45 @@ window.MathJax = {
   <p class="remark"><span class="pk">Consequence.</span> WHAT THE STATEMENT RECOVERS, AND THE LINK TO AN EARLIER CHAPTER.</p>
 
   <h3><span class="sn">1.3</span>Figures</h3>
+  <!--fig:UNIT-FIRST@1-->
   <!--figs:UNIT@1-->
 
-  <h3><span class="sn">1.4</span>Names across fields</h3>
+  <h3><span class="sn">1.4</span>Four ways to see it</h3>
+  <p>ONE SENTENCE NAMING THE PICTURES.</p>
+  <ol class="views">
+    <li class="view"><p class="vk"><span class="vn">1</span>PICTURE<span class="vf">FIELD</span></p>
+      <p>THE IDEA AS THIS FIELD SEES IT, WITH ITS EQUATION OR A FIGURE: <!--ref:UNIT-FIRST-->.</p></li>
+    <li class="join"><p><span class="jk">1 → 2</span>A TWO- OR THREE-LINE DERIVATION FROM PICTURE 1 TO PICTURE 2.</p>
+      <div class="eqbox">\[ THE STEP THAT JOINS THEM \]</div></li>
+    <li class="view"><p class="vk"><span class="vn">2</span>PICTURE<span class="vf">FIELD</span></p>
+      <p>WHAT THIS PICTURE BRINGS THAT THE OTHERS LACK.</p></li>
+  </ol>
+  <p class="chiphead">Names across fields</p>
   <ul class="chips"><li>NAME</li><li>NAME</li></ul>
 
-  <h3><span class="sn">1.5</span>In your research</h3>
+  <h3><span class="sn">1.5</span>Where it breaks and what is open</h3>
+  <p>THE FAILURE MODE: THE HYPOTHESIS THAT FAILS, WHAT HAPPENS, AND HOW FAST.</p>
+  <!--fig:UNIT-FAILURE@1-->
+  <ol class="open">
+    <li><span class="ok">OPEN PROBLEM.</span> WHAT IS KNOWN, WHAT IS NOT, AND WHICH OF THE READER'S THREADS IT MEETS.</li>
+  </ol>
+
+  <h3><span class="sn">1.6</span>In your research</h3>
   <div class="research"><ul>
-    <li>WHERE THE IDEA MEETS THE READER'S OWN PROJECTS. THE ONE SECTION IN SECOND PERSON.</li>
+    <li>WHERE THE IDEA MEETS THE READER'S OWN PROJECTS, IN SECOND PERSON, AS ARE THE OPEN PROBLEMS TIED TO THE READER'S THREADS.</li>
   </ul></div>
 
   <h3>Exercises</h3>
   <!--exercises:UNIT@1-->
+
+  <h3>Derivations from a blank page</h3>
+  <ol class="derive">
+    <li><p class="dhead"><span class="dnum">Derivation 1.1</span>TITLE</p>
+      <p class="dtask">WHAT TO DERIVE, AND WHAT TO CHECK AT THE END.</p>
+      <details><summary>Solution</summary><div class="dsol">
+        <p>THE DERIVATION, SHORT, WITH EVERY STEP A STRONG READER NEEDS.</p>
+      </div></details></li>
+  </ol>
 
   <h3>Notes and further reading</h3>
   <div class="notes">
@@ -92,15 +121,25 @@ window.MathJax = {
   </div>
 </section>
 
+<section class="front" id="prereq">
+  <h2>Appendix A: Prerequisites</h2>
+  <p>THE TOOLS THE CHAPTERS USE WITHOUT BUILDING THEM.</p>
+  <ol class="prereq">
+    <li id="pre-SLUG"><p class="pt"><span class="sn">A.1</span>TOOL</p>
+      <p>ONE PARAGRAPH: THE STATEMENT AND THE REASON IT HOLDS.</p>
+      <p class="pw">Used in Chapters N (FOR WHAT). Learn it in WHERE, VERIFIED.</p></li>
+  </ol>
+</section>
+
 <section class="front" id="near">
-  <h2>Appendix: ideas that almost made the book</h2>
+  <h2>Appendix B: Ideas that almost made the book</h2>
   <ul class="cases">
     <li><b>NAME.</b> WHAT IT IS, AND WHY IT RANKED BELOW THE CHAPTERS.</li>
   </ul>
 </section>
 
 <footer class="foot">
-  <p>Every figure computes its idea in the page on a toy, and the numbers in captions come from the figures' own math at their default settings. WHERE THE SOURCE AND THE EXERCISE DECK LIVE.</p>
+  <p>Every figure computes its idea in the page on a toy, and the numbers in captions come from the figures' own math at the settings each caption names. WHERE THE SOURCE AND THE EXERCISE DECK LIVE.</p>
 </footer>
 
 </main>

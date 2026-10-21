@@ -6,7 +6,10 @@
 
 <!--exercises:UNIT@C--> lists the deck cards that page/exercises.json maps to UNIT, read from
 the problems/ folder beside page/, as Exercise C.1, C.2 with each card's examples folded as
-the answer. <!--figs:UNIT@C--> numbers that unit's figures Figure C.1, C.2.
+the answer. <!--figs:UNIT@C--> places that unit's figures, and <!--fig:FIGID@C--> places one
+figure anywhere in chapter C, such as a failure figure under "Where it breaks". <!--figs:UNIT@C-->
+skips any figure placed on its own. Figures are numbered C.1, C.2 in the order they appear in
+the chapter, and <!--ref:FIGID--> becomes a link that reads "Figure C.k".
 
 shell.html marks the stylesheet with <!--style-->, each unit's figures with <!--figs:UNIT-->,
 and the scripts with <!--scripts-->. A unit is a slug (tilt, measure, fixedpoint, ...), and its
@@ -174,12 +177,38 @@ def main():
         sys.exit("\n".join(errors))
     style = f"<style>\n{(PAGE / 'style.css').read_text()}\n</style>"
 
+    by_id = {f["id"]: f for d in units.values() for f in d.get("figures") or []}
+    counters, numbers = {}, {}
+
+    def place(f, chapter):
+        if f["id"] in numbers:
+            errors.append(f"figure {f['id']} is placed twice")
+        number = None
+        if chapter:
+            counters[chapter] = counters.get(chapter, 0) + 1
+            number = f"{chapter}.{counters[chapter]}"
+        numbers[f["id"]] = number
+        return figure(f, number)
+
     def figs(m):
-        nn, chapter = m.group(1), m.group(2)
-        if nn not in units:
-            return f'<p class="pending">Figures for {nn} are not built yet.</p>'
-        return "".join(figure(f, f"{chapter}.{k}" if chapter else None)
-                        for k, f in enumerate(units[nn].get("figures") or [], 1))
+        kind, name, chapter = m.group(1), m.group(2), m.group(3)
+        if kind == "fig":
+            if name not in by_id:
+                return f'<p class="pending">Figure {name} is not built yet.</p>'
+            return place(by_id[name], chapter)
+        if name not in units:
+            return f'<p class="pending">Figures for {name} are not built yet.</p>'
+        return "".join(place(f, chapter) for f in units[name].get("figures") or [] if f["id"] not in singles)
+
+    def ref(m):
+        fid = m.group(1)
+        if fid not in by_id:
+            print(f"warning: <!--ref:{fid}--> names a figure that is not built yet", file=sys.stderr)
+            return '<span class="pending">Figure ?</span>'
+        if not numbers.get(fid):
+            errors.append(f"<!--ref:{fid}--> names a figure with no number on the page")
+            return "Figure ?"
+        return f'<a class="figref" href="#fig-{e(fid)}">Figure {numbers[fid]}</a>'
 
     plan = PAGE / "exercises.json"
     chapters = json.loads(plan.read_text()) if plan.exists() else {}
@@ -200,7 +229,15 @@ def main():
         out = PAGE / "dist" / f'{book.get("slug", PAGE.parent.name)}.html'
         shell = (PAGE / "shell.html").read_text()
     page = shell.replace("<!--style-->", style)
-    page = re.sub(r"<!--figs:([a-z]+)(?:@(\d+))?-->", figs, page)
+    singles = set(re.findall(r"<!--fig:([a-z0-9-]+)(?:@\d+)?-->", page))
+    page = re.sub(r"<!--(figs|fig):([a-z0-9-]+)(?:@(\d+))?-->", figs, page)
+    page = re.sub(r"<!--ref:([a-z0-9-]+)-->", ref, page)
+    if not only:
+        unplaced = sorted(set(by_id) - set(numbers))
+        if unplaced:
+            errors.append("figures built but never placed: " + ", ".join(unplaced))
+    if errors:
+        sys.exit("\n".join(errors))
     page = re.sub(r"<!--exercises:([a-z]+)@(\d+)-->", exercises, page)
     page = page.replace("<!--scripts-->", scripts(units, only))
     out.write_text(page)

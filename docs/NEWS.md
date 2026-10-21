@@ -5,6 +5,17 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-21
+
+- Textbook chapters go deeper. Every chapter of a `/textbook` page now shows its idea four ways, each picture from a
+  field that named it and joined to the next by a two- or three-line derivation, then computes where the idea
+  breaks in a figure of its own and names the open problems that follow. Two derivations per chapter ask the
+  reader to rederive a result from a blank page, with the solution folded, and an appendix states the
+  prerequisites the chapters use. The build places a single figure anywhere with `<!--fig:ID@C-->` and cites
+  figures with `<!--ref:ID-->`, so adding a figure renumbers nothing by hand. Before deepening a book that has
+  shipped, the skill runs an adversarial math audit and fixes what it confirms first. See
+  `skills/textbook/SKILL.md`.
+
 ## 2026-10-20
 
 - Pages that teach are short textbooks. `/textbook` turns a topic or a list of ideas into one page with a title

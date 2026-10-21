@@ -1,6 +1,6 @@
 ---
 name: textbook
-description: Write a page that teaches as a short textbook with computed figures. A title page, preface and contents, then chapters that each state one idea, derive it, build it up in interactive figures that compute it on a toy, list its names across fields, connect it to the reader's research, and end with exercises and verified readings. Parallel agents build the figures against a written contract, a script merges everything into one self-contained artifact with typeset math, and the exercises can be the cards of a drills deck. Use when the operator asks to learn, go deep on, or be taught a set of ideas or a field's foundations as a page; says "make it a textbook", "teach me X from first principles" for more than a chat answer, or "ideas like X"; or wants an explainer artifact turned into a book.
+description: Write a page that teaches as a short textbook with computed figures. A title page, preface and contents, then chapters that each state one idea, derive it, build it up in interactive figures that compute it on a toy, show it four ways joined by short derivations, compute where it breaks and name what is open, connect it to the reader's research, and end with exercises, derivations to redo from a blank page, and verified readings, with an appendix of prerequisites. Parallel agents build the figures against a written contract, a script merges everything into one self-contained artifact with typeset math, and the exercises can be the cards of a drills deck. Use when the operator asks to learn, go deep on, or be taught a set of ideas or a field's foundations as a page; says "make it a textbook", "teach me X from first principles" for more than a chat answer, or "ideas like X"; or wants an explainer artifact turned into a book.
 argument-hint: <topic | list of ideas> [--chapters N] [--deck] [--into <folder>]
 user-invocable: true
 ---
@@ -32,14 +32,33 @@ form on top of the figure rules in `kernel/guidelines/visual.md`.
      figures show it working, and the exercises make the reader redo it.
    - **c.3 Figures.** Numbered Figure c.1, c.2, each computing the idea on a toy in the page
      (the rules are in `visual.md` and `agents/figure-builder.md`).
-   - **c.4 Names across fields.** The idea's names as chips, when the topic has them.
-   - **c.5 In your research.** Where the idea meets the reader's own projects and open
-     threads. This is the one section that speaks to the reader as "you".
+   - **c.4 Four ways to see it.** Three or four pictures of the same idea, each from a field
+     that named it, and between consecutive pictures a join: a two- or three-line derivation
+     from one to the next, so every picture is tied to the others. Cite the figure that draws
+     a picture when there is one. The idea's names as chips go underneath, headed "Names
+     across fields". A chapter whose idea has only one picture is a sign it is a technique.
+   - **c.5 Where it breaks and what is open.** The hypothesis that fails in practice, what
+     happens when it does, and how fast, then a figure that computes the failure (a weight
+     collapsing with dimension, rounds that stop helping, an iterate that cycles), then two
+     or three open problems, each tied to one of the reader's threads where one fits.
+   - **c.6 In your research.** Where the idea meets the reader's own projects and open
+     threads. This section and the open problems tied to the reader's threads are the only
+     places that speak to the reader as "you".
    - **Exercises.** Problems with numbers, each with its answer folded under it.
+   - **Derivations from a blank page.** Two per chapter, separate from the exercises: a result
+     to rederive without looking (Tweedie, a contraction, a regret bound), with the solution
+     folded under it. One redoes the chapter's main derivation, and one extends it.
    - **Notes and further reading.** Two to four verified readings, then one project that
      ends in a number.
-5. **Appendix.** The ideas that almost made the book, one line each on why.
-6. **Footer.** How the figures compute their numbers, and where the source and deck live.
+
+   Under each chapter's lead, one line names the earlier chapters and the prerequisites it
+   uses ("Uses Chapter 2 and Appendix A.1"), linked.
+5. **Appendix A: Prerequisites.** Every tool the chapters use without building it (Itô's
+   lemma, a transform, a theorem from measure theory), one paragraph each: the statement, why
+   it holds, the chapters that use it, and where to learn it (a local course folder or a
+   verified book chapter).
+6. **Appendix B.** The ideas that almost made the book, one line each on why.
+7. **Footer.** How the figures compute their numbers, and where the source and deck live.
 
 ### What a textbook never does
 
@@ -88,7 +107,12 @@ notes. Math goes in `\( \)` and `\[ \]` with `\tag{c.k}`, typeset by MathJax's S
 needs no fonts or runtime fetches. Write `&lt;` or `\lt` for a less-than sign inside math.
 Leave three kinds of placeholder for the build to fill:
 
-- `<!--figs:UNIT@C-->` puts unit UNIT's figures here, numbered Figure C.1, C.2.
+- `<!--figs:UNIT@C-->` puts unit UNIT's figures here. `<!--fig:FIGID@C-->` puts one figure
+  anywhere in chapter C, which is how the failure figure lands under "Where it breaks" and
+  how the figures are put in teaching order. Figures are numbered C.1, C.2 in the order they
+  appear, and `<!--figs:-->` skips any figure placed on its own.
+- `<!--ref:FIGID-->` becomes a link that reads "Figure C.k", so the text never hard-codes a
+  figure number.
 - `<!--exercises:UNIT@C-->` lists that unit's exercises from the deck.
 - Readings stay as `<!--read:UNIT-->` until the figure agents return verified ones.
 
@@ -96,7 +120,9 @@ Leave three kinds of placeholder for the build to fill:
 
 Give each agent two chapters, `agents/figure-builder.md` as its contract, and a per-chapter
 brief: the statement, the figures to build (what each computes, its control, the readout
-that verifies the claim), the exercises to write, and candidate readings to verify. Each
+that verifies the claim), the failure figure, the exercises to write, and candidate readings
+to verify, including the papers behind each open problem. Write a common brief once and a
+short one per agent, as files, and point each agent at both. Each
 agent writes only its own files and checks them in its own scratch folder. Read every agent's
 "could not verify" list before publishing.
 
@@ -110,7 +136,17 @@ one core card per chapter first, then each chapter's most useful application, th
 `renumber.py` rewrites file names and titles only, so remap card cross-references afterward.
 Without drills, write the exercises into the shell by hand in the same form.
 
-### 6. Build and check
+### 6. Audit the math
+
+Before publishing, and before adding anything to a book that already exists, give a fresh
+agent with no stake in the text an adversarial brief: find what is wrong in every statement,
+derivation, caption and claim about a paper, check each by a derivation or a script, and mark
+each finding confirmed or suspected. Split a long book in two so each reader has room. Fix
+every confirmed finding first. On "Fundamental Ideas from First Principles" two readers found
+27 problems in a version that had already shipped, among them a parallel-in-time map that did
+not converge as stated and a "converge to an equilibrium" that holds only for averages.
+
+### 7. Build and check
 
 ```
 python3 <folder>/page/build.py            writes page/dist/<slug>.html
@@ -120,12 +156,13 @@ python3 <folder>/page/build.py --only UNIT writes one unit's figures alone, for 
 Serve `page/dist/` over a local static server (a file URL can't be driven) and check:
 
 - every figure set up, with no `fperr` and no console errors, and every readout filled;
+- no "not built yet" placeholder and no "Figure ?" left from a `ref` to a missing figure;
 - MathJax typeset everything: count `mjx-container`, expect zero `mjx-merror` and no raw `\(`
   left in the text;
 - no horizontal scroll at 375 px, panels stacked, both themes readable;
 - the text passes `deslopification`, read as a stranger to the request.
 
-### 7. Publish
+### 8. Publish
 
 Publish `page/dist/<slug>.html` as an artifact, put the link in the folder's README, and log
 it in the day's memory file. Republish from the same path to keep the link.

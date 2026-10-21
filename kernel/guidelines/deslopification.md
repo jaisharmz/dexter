@@ -20,6 +20,10 @@ unmistakable. Measure, don't prohibit.
 to nothing. Section headers that restate the section. Summaries that summarize nothing
 new. Enthusiasm markers standing in for substance.
 
+**Overhyphenation.** Stacked compounds such as "mutual-information-guided sampler" read as
+generated. Write "mutual information guided sampler". Keep a hyphen chain only for a fixed
+term the field writes that way ("offline-to-online", "end-to-end").
+
 **The test.** Would a competent person write this sentence to another competent person
 they respect? If it reads like it's performing thoroughness rather than being
 thorough, cut it.
