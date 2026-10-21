@@ -7,6 +7,12 @@ without an entry.
 
 ## 2026-10-20
 
+- Photos of handwritten notes have a skill. `/handwritten-notes` transcribes the page line by line in the author's
+  own structure, marks every word it cannot read instead of guessing, checks each line against the materials the
+  notes refer to (and looks for a newer official document that supersedes them), files the photo and transcription
+  beside the work they belong to, turns action lines into queue items, and ends by saying what the notes change.
+  `scripts/tiles.py` cuts a dense page into enlarged tiles for small writing. See `skills/handwritten-notes/SKILL.md`.
+
 - Outreach and submissions pass a second gate before the operator sees them. `kernel/reachgate/`
   reads a short card per act and fails an email to someone whose own page asks not to be
   emailed (naming the form or portal the page points to instead), a cited paper the person did

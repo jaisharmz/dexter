@@ -145,6 +145,7 @@ fill it in, and git ignores the result.
 |---|---|
 | `/grubhub` | Orders food through a few multiple-choice questions, reads back the real total with every fee, and stops at Place Order. |
 | `/slides <topic>` | Makes slides that look like yours: it measures your style from your own decks, builds a .pptx from that profile, and checks every slide in Google Slides before handing it over. |
+| `/handwritten-notes <photo>` | Turns a photo of handwritten notes into a faithful transcription, marks every word it could not read, checks each line against the materials the notes are about, files it beside that work, and says what the notes change. |
 | `/self-email` | Sends you a report you can read in a minute on your phone, with the detail in tables ordered by what to do first. |
 | `/calendar-holds` | Proposes times for your calls on a calendar of its own and books only the ones you accept, on Calendly, Google booking pages or Ashby. Take-home reminders go on that calendar too, and booked calls on a second one, so your own calendar is never touched. |
 
