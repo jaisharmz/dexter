@@ -1,6 +1,6 @@
 ---
 name: textbook
-description: Write a page that teaches as a short textbook with computed figures. A title page, preface and contents, then chapters that each state one idea, derive it, build it up in interactive figures that compute it on a toy, show it four ways joined by short derivations, compute where it breaks and name what is open, connect it to the reader's research, and end with exercises, derivations to redo from a blank page, and verified readings, with an appendix of prerequisites. Parallel agents build the figures against a written contract, a script merges everything into one self-contained artifact with typeset math, and the exercises can be the cards of a drills deck. Use when the operator asks to learn, go deep on, or be taught a set of ideas or a field's foundations as a page; says "make it a textbook", "teach me X from first principles" for more than a chat answer, or "ideas like X"; or wants an explainer artifact turned into a book.
+description: Write a page that teaches as a short textbook with computed figures. A title page, preface and contents, then chapters that each open with the motivation and the intuition, state one idea, derive it, build it up in interactive figures that compute it on a toy, show it four ways joined by short derivations, compute where it breaks and name what is open, connect it to the reader's research, and end with exercises, derivations to redo from a blank page, and verified readings, with an appendix of prerequisites. Parallel agents build the figures against a written contract, a script merges everything into one self-contained artifact with typeset math, and the exercises can be the cards of a drills deck. Use when the operator asks to learn, go deep on, or be taught a set of ideas or a field's foundations as a page; says "make it a textbook", "teach me X from first principles" for more than a chat answer, or "ideas like X"; or wants an explainer artifact turned into a book.
 argument-hint: <topic | list of ideas> [--chapters N] [--deck] [--into <folder>]
 user-invocable: true
 ---
@@ -24,32 +24,46 @@ form on top of the figure rules in `kernel/guidelines/visual.md`.
    For a book of ideas, the test is how many fields named the idea on their own, drawn as a
    table of ideas by fields.
 4. **Chapters.** Every chapter has the same numbered parts, so a reader always knows where
-   they are:
-   - **c.1 Statement.** Boxed definitions, theorems and propositions, each named, with
+   they are. They follow the order a seminal paper uses: why the idea was needed, the idea in
+   a sentence and a picture, then the formal statement, then first principles and several
+   views. Under the chapter title, the lead is the abstract: the idea in two sentences.
+   - **c.1 Motivation.** The problem that forced the idea, and why the old view failed, in
+     one paragraph that a reader outside the field follows. Where a document that moved
+     capital rests on the idea (billiondollarpdf.com collects them), add its card here: the
+     medium label (PAPER, WHITEPAPER), the title linked to the original, a one-line mental
+     model, author and year, and a folded story of what it changed with the verified
+     mathematical link to the chapter. A chapter with no genuine match gets no card.
+   - **c.2 Intuition.** The new mental model in one sentence, in the `intuit` style, and one
+     picture: the chapter's first-principles figure, placed here with `<!--fig:ID@C-->`, so
+     the picture still computes the real thing.
+   - **c.3 Statement.** Boxed definitions, theorems and propositions, each named, with
      displayed equations numbered (c.1), (c.2).
-   - **c.2 Derivation.** A short proof of each statement that ends in ∎, then remarks and the
+   - **c.4 Derivation.** A short proof of each statement that ends in ∎, then remarks and the
      special cases that recover familiar results. A derivation is the chapter's spine: the
      figures show it working, and the exercises make the reader redo it.
-   - **c.3 Figures.** Numbered Figure c.1, c.2, each computing the idea on a toy in the page
+   - **c.5 Figures.** Numbered Figure c.1, c.2, each computing the idea on a toy in the page
      (the rules are in `visual.md` and `agents/figure-builder.md`).
-   - **c.4 Four ways to see it.** Three or four pictures of the same idea, each from a field
+   - **c.6 Four ways to see it.** Three or four pictures of the same idea, each from a field
      that named it, and between consecutive pictures a join: a two- or three-line derivation
      from one to the next, so every picture is tied to the others. Cite the figure that draws
      a picture when there is one. The idea's names as chips go underneath, headed "Names
      across fields". A chapter whose idea has only one picture is a sign it is a technique.
-   - **c.5 Where it breaks and what is open.** The hypothesis that fails in practice, what
+   - **c.7 Where it breaks and what is open.** The hypothesis that fails in practice, what
      happens when it does, and how fast, then a figure that computes the failure (a weight
      collapsing with dimension, rounds that stop helping, an iterate that cycles), then two
      or three open problems, each tied to one of the reader's threads where one fits.
-   - **c.6 In your research.** Where the idea meets the reader's own projects and open
+   - **c.8 In your research.** Where the idea meets the reader's own projects and open
      threads. This section and the open problems tied to the reader's threads are the only
      places that speak to the reader as "you".
    - **Exercises.** Problems with numbers, each with its answer folded under it.
    - **Derivations from a blank page.** Two per chapter, separate from the exercises: a result
      to rederive without looking (Tweedie, a contraction, a regret bound), with the solution
      folded under it. One redoes the chapter's main derivation, and one extends it.
-   - **Notes and further reading.** Two to four verified readings, then one project that
-     ends in a number.
+   - **Notes and further reading.** A Guides line first: one or two long tutorials that
+     teach the chapter, in reading order, with the sections to read, marked "on your disk"
+     with the path when the reader already owns them (look in their paper folders before
+     searching the web, and cross-check the chapter's derivations against them). Then two to
+     four verified readings, then one project that ends in a number.
 
    Under each chapter's lead, one line names the earlier chapters and the prerequisites it
    uses ("Uses Chapter 2 and Appendix A.1"), linked.

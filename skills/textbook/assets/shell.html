@@ -29,7 +29,7 @@ window.MathJax = {
 <section class="front" id="preface">
   <h2>Preface</h2>
   <p>WHAT THE BOOK IS ABOUT: THE ONE CLAIM THAT UNITES THE CHAPTERS.</p>
-  <p>HOW THE CHAPTERS ARE ORDERED, AND THE PARTS EVERY CHAPTER HAS: the statement, a derivation, figures, four ways to see the idea joined by short derivations, where it breaks and what is open, connections to research, exercises, derivations to redo from a blank page, and notes. Appendix A states the prerequisites the chapters assume.</p>
+  <p>HOW THE CHAPTERS ARE ORDERED, AND THE PARTS EVERY CHAPTER HAS: the motivation, the intuition (one sentence and one computed picture), the statement, a derivation, figures, four ways to see the idea joined by short derivations, where it breaks and what is open, connections to research, exercises, derivations to redo from a blank page, and notes. Appendix A states the prerequisites the chapters assume.</p>
   <p>Every figure computes its idea in the page on a small problem, and the numbers in its caption come from that computation at the settings the caption names. The figure under "Where it breaks" computes the failure itself. HOW THE EXERCISES WORK.</p>
   <h3>Contents</h3>
   <ol class="toc">
@@ -58,24 +58,38 @@ window.MathJax = {
   <p class="lead">THE IDEA IN TWO SENTENCES, SMALL ENOUGH TO LEARN IN FIVE MINUTES.</p>
   <p class="uses">Uses Chapter N and <a href="#pre-SLUG">Appendix A.K</a>.</p>
 
-  <h3><span class="sn">1.1</span>Statement</h3>
+  <h3><span class="sn">1.1</span>Motivation</h3>
+  <p>THE PROBLEM THAT FORCED THE IDEA, AND WHY THE OLD VIEW FAILED, IN ONE PARAGRAPH.</p>
+  <!-- Only where a document that moved capital genuinely rests on this idea; delete otherwise. -->
+  <aside class="bdp">
+    <p class="bdp-k"><span class="bdp-m">PAPER</span><span>A document that moved capital</span></p>
+    <p class="bdp-t"><a href="ORIGINAL DOCUMENT URL">EXACT TITLE</a></p>
+    <p class="bdp-l">THE NEW MENTAL MODEL IN ONE LINE.</p>
+    <p class="bdp-a">AUTHORS, YEAR · <a href="SITE ENTRY URL">billiondollarpdf.com</a></p>
+    <details><summary>What it changed</summary><p>TWO OR THREE SENTENCES ON WHAT IT CHANGED, THEN THE VERIFIED MATHEMATICAL LINK TO THIS CHAPTER.</p></details>
+  </aside>
+
+  <h3><span class="sn">1.2</span>Intuition</h3>
+  <p class="intuit">THE NEW MENTAL MODEL IN ONE SENTENCE.</p>
+  <!--fig:UNIT-FIRST@1-->
+
+  <h3><span class="sn">1.3</span>Statement</h3>
   <div class="stmt">
     <p class="k">Theorem 1.1 <i>(NAME)</i></p>
     <p>HYPOTHESES, IN WORDS AND \(INLINE\) MATH.</p>
     <div class="eqbox">\[ DISPLAYED EQUATION \tag{1.1} \]</div>
   </div>
 
-  <h3><span class="sn">1.2</span>Derivation</h3>
+  <h3><span class="sn">1.4</span>Derivation</h3>
   <div class="proof">
     <p><span class="pk">(1.1).</span> THE SHORTEST PROOF THAT A STRONG READER WOULD ACCEPT. <span class="qed">∎</span></p>
   </div>
   <p class="remark"><span class="pk">Consequence.</span> WHAT THE STATEMENT RECOVERS, AND THE LINK TO AN EARLIER CHAPTER.</p>
 
-  <h3><span class="sn">1.3</span>Figures</h3>
-  <!--fig:UNIT-FIRST@1-->
+  <h3><span class="sn">1.5</span>Figures</h3>
   <!--figs:UNIT@1-->
 
-  <h3><span class="sn">1.4</span>Four ways to see it</h3>
+  <h3><span class="sn">1.6</span>Four ways to see it</h3>
   <p>ONE SENTENCE NAMING THE PICTURES.</p>
   <ol class="views">
     <li class="view"><p class="vk"><span class="vn">1</span>PICTURE<span class="vf">FIELD</span></p>
@@ -88,14 +102,14 @@ window.MathJax = {
   <p class="chiphead">Names across fields</p>
   <ul class="chips"><li>NAME</li><li>NAME</li></ul>
 
-  <h3><span class="sn">1.5</span>Where it breaks and what is open</h3>
+  <h3><span class="sn">1.7</span>Where it breaks and what is open</h3>
   <p>THE FAILURE MODE: THE HYPOTHESIS THAT FAILS, WHAT HAPPENS, AND HOW FAST.</p>
   <!--fig:UNIT-FAILURE@1-->
   <ol class="open">
     <li><span class="ok">OPEN PROBLEM.</span> WHAT IS KNOWN, WHAT IS NOT, AND WHICH OF THE READER'S THREADS IT MEETS.</li>
   </ol>
 
-  <h3><span class="sn">1.6</span>In your research</h3>
+  <h3><span class="sn">1.8</span>In your research</h3>
   <div class="research"><ul>
     <li>WHERE THE IDEA MEETS THE READER'S OWN PROJECTS, IN SECOND PERSON, AS ARE THE OPEN PROBLEMS TIED TO THE READER'S THREADS.</li>
   </ul></div>
@@ -114,6 +128,7 @@ window.MathJax = {
 
   <h3>Notes and further reading</h3>
   <div class="notes">
+    <p class="guides"><b>Guides.</b> AUTHOR, <i>LONG TUTORIAL TITLE</i> (YEAR), SECTIONS TO READ, on your disk: <code>PATH</code>; then THE SECOND GUIDE.</p>
     <ul>
       <li><a href="VERIFIED URL">EXACT TITLE</a> (FIRST AUTHOR et al., VENUE YEAR)</li>
     </ul>

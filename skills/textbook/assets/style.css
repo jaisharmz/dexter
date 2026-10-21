@@ -234,3 +234,21 @@ mjx-container[display="true"] { display: block !important; }
 a.figref { white-space: nowrap; }
 .uses { font-family: var(--sans); font-size: .82rem; color: var(--ink-3); margin: 0; }
 .uses a { color: var(--ink-2); }
+
+/* ---------- intuition: the idea in one sentence, above its picture ---------- */
+.intuit { font-family: var(--serif); font-size: 1.16rem; line-height: 1.45; font-style: italic; color: var(--ink); margin: 0; padding: .1rem 0 .1rem .9rem; border-left: 3px solid var(--open); }
+
+/* ---------- a document that moved capital (after billiondollarpdf.com's cards) ---------- */
+.bdp { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: .75rem .95rem; display: flex; flex-direction: column; gap: .3rem; min-width: 0; max-width: 40rem; }
+.bdp > * { margin: 0; min-width: 0; max-width: 100%; }
+.bdp .bdp-k { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; font-family: var(--sans); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.bdp .bdp-m { font-family: var(--mono); font-size: .66rem; letter-spacing: .08em; color: var(--surface); background: var(--ink); border-radius: 2px; padding: .05rem .4rem; }
+.bdp .bdp-t { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; line-height: 1.3; }
+.bdp .bdp-t a { color: var(--ink); border-bottom-color: var(--rule); }
+.bdp .bdp-l { color: var(--ink); }
+.bdp .bdp-a { font-family: var(--sans); font-size: .8rem; color: var(--ink-3); }
+.bdp details { margin-top: .15rem; }
+.bdp summary { font-family: var(--sans); font-size: .76rem; color: var(--ink-3); cursor: pointer; }
+.bdp details > p { margin: .35rem 0 0; color: var(--ink-2); }
+.notes .guides { color: var(--ink); }
+.notes .guides b { font-family: var(--sans); font-size: .82rem; letter-spacing: .04em; }

@@ -59,6 +59,13 @@ What a figure is:
 - Every number in a caption comes from your node test at the settings the caption names.
   Captions say what to try and what happens, with the number.
 
+## The intuition picture
+
+A chapter's first-principles figure is placed under its Intuition section, beside a one-sentence
+statement of the idea. It must read at rest as that sentence: at the default settings the
+mechanism is already visible (the cobweb already walking in, the paths already running back),
+with no click or slider needed, and its idea sentence and the intuition sentence agree.
+
 ## Failure figures
 
 A chapter's "Where it breaks" section has a figure that computes the failure: the quantity

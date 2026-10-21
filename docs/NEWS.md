@@ -7,6 +7,14 @@ without an entry.
 
 ## 2026-10-21
 
+- Textbook chapters open the way a seminal paper does. Each chapter of a `/textbook` page now starts with its
+  motivation, the problem that forced the idea, and its intuition, the idea in one sentence beside the
+  chapter's first computed figure, before the formal statement. Where a document that moved capital rests on
+  the idea, a card under the motivation links the original and a folded story ties it to the chapter's
+  mathematics, and chapters with no real match get no card. Each chapter's notes now begin with a Guides line:
+  one or two long tutorials in reading order, with the sections to read, marked when the reader already owns a
+  copy. See `skills/textbook/SKILL.md`.
+
 - Textbook chapters go deeper. Every chapter of a `/textbook` page now shows its idea four ways, each picture from a
   field that named it and joined to the next by a two- or three-line derivation, then computes where the idea
   breaks in a figure of its own and names the open problems that follow. Two derivations per chapter ask the
