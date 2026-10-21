@@ -1,7 +1,7 @@
 // node --test kernel/mailgate/gate.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fromMime, fromToolInput, inspect, ownText } from "./gate.mjs";
+import { fromMime, fromToolInput, inspect, ownText, verdict } from "./gate.mjs";
 
 const NOW = new Date("2026-10-12T07:30:00Z");
 const resumes = [{ filename: "Ada_Lovelace_Resume.pdf", mimeType: "application/pdf" }, { filename: "Alan_Turing_Resume.pdf", mimeType: "application/pdf" }];
@@ -32,6 +32,14 @@ test("a claim with nothing attached waits on a draft and blocks a send", () => {
   const result = inspect(fromToolInput({ to: ["ann@example.com"], subject: "s", body: "Hi Ann,\n\nI have attached my resume.\n\nBest,\n- Ada" }), { now: NOW });
   assert.deepEqual(ids(result.pending), ["attachment-missing"]);
   assert.deepEqual(result.fail, []);
+});
+
+test("a RAW read-back is the copy handed over, so files it only promises block it", () => {
+  const result = inspect(fromToolInput({ to: ["ann@example.com"], subject: "s", body: "Hi Ann,\n\nI have attached my resume.\n\nBest,\n- Ada" }), { now: NOW });
+  assert.deepEqual(ids(verdict(result).blocking), []);
+  assert.deepEqual(ids(verdict(result).waiting), ["attachment-missing"]);
+  assert.deepEqual(ids(verdict(result, { handOver: true }).blocking), ["attachment-missing"]);
+  assert.deepEqual(ids(verdict(result, { sending: true }).blocking), ["attachment-missing"]);
 });
 
 test("an offer to attach, or a clause about the résumé, is no claim", () => {

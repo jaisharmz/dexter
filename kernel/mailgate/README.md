@@ -24,7 +24,7 @@ are left out.
 | --- | --- |
 | The text names attached materials (papers, a preprint, work, samples, slides) and every file is a résumé | fail |
 | The text needs more files than are attached ("our resumes and some of our work" needs three) | fail |
-| The text claims an attachment and nothing is attached | wait on a draft, fail on a send |
+| The text claims an attachment and nothing is attached | wait on a draft call, fail on a RAW read-back and on a send |
 | An inline image rode in from the quoted thread, such as a signature logo | fail |
 | A placeholder is left (`__`, `[CONFIRM]`, `TODO`, `TBD`, `{{ }}`) | fail |
 | The text says someone is cc'd and the cc line is empty | fail |
@@ -39,10 +39,12 @@ are left out.
 The audit hook runs it on every Gmail `create_draft`, `update_draft`, `send_message`, `reply`
 and `forward` call that carries a body (`kernel/audit/policy.mjs`, rule `mail-gate`). A failure
 denies the call with the reason, so the agent fixes the text or the attachments and calls again.
-A draft that claims files nobody has attached yet is flagged and allowed, because the operator often
-attaches the files by hand. A send in that state is denied. Sending a saved draft by its id
+A draft call that claims files nobody has attached yet is flagged and allowed, because the files
+are attached after the draft exists. A send in that state is denied. Sending a saved draft by its id
 carries no text, so the gate has nothing to read there. Any agent that hands the operator a draft reads
-it back RAW and runs `check --raw` on it first.
+it back RAW and runs `check --raw` on it first, and that check fails a draft whose text promises files
+it does not carry: such a draft is not ready to hand over. Attach the files, or tell the operator
+plainly that it waits on them.
 
 Drafts the operator sends straight from Gmail never pass through the hook. Running the gate on a draft
 before handing it over is what covers them.

@@ -6,16 +6,19 @@
 // nothing else, and the same template sat in more drafts.
 //
 //   node kernel/mailgate/gate.mjs check --json <file>   a create_draft, update_draft or send input
-//   node kernel/mailgate/gate.mjs check --raw <file>    a draft read back RAW (base64url or .eml)
-//   add --sending to judge it as a send, which also blocks attachments still to be added
+//   node kernel/mailgate/gate.mjs check --raw <file>    a draft read back RAW (base64url or .eml),
+//                                                       the copy about to be handed over
+//   add --sending to judge a tool input as a send, which also blocks attachments still to be added
 //
 // Exit 1 when anything blocks. The audit hook runs the same checks on every draft and send
 // call (kernel/audit/policy.mjs, rule mail-gate), so an agent cannot skip it.
 //
 // Three outcomes per finding:
 //   fail     the text says something the message contradicts. Blocks drafts and sends.
-//   pending  the text claims an attachment and none is attached yet. Fine while a draft waits
-//            for the operator to attach files, and a block on any send.
+//   pending  the text claims an attachment and none is attached yet. A draft call goes through,
+//            because files are attached after the draft exists, but a RAW read-back and any
+//            send block on it: a draft that says files are attached is not ready to hand over
+//            until it carries them.
 //   warn     worth a look, never blocks.
 
 import { readFileSync } from "node:fs";
@@ -238,6 +241,14 @@ export const inspect = (draft, { now = new Date() } = {}) => {
   return { fail, pending, warn };
 };
 
+// What blocks depends on where the check runs. A draft call may still be waiting for its files,
+// while a RAW read-back is the copy about to be handed over, so files it only promises block it,
+// as they block any send.
+export const verdict = ({ fail, pending, warn }, { sending = false, handOver = false } = {}) => {
+  const strict = sending || handOver;
+  return { blocking: [...fail, ...(strict ? pending : [])], waiting: strict ? [] : pending, warn };
+};
+
 // ---- the command line -------------------------------------------------------------
 
 const main = (argv) => {
@@ -249,12 +260,12 @@ const main = (argv) => {
   }
   const draft = flag("--json") ? fromToolInput(JSON.parse(readFileSync(flag("--json"), "utf8"))) : fromMime(readFileSync(flag("--raw"), "utf8"));
   const sending = rest.includes("--sending");
-  const { fail, pending, warn } = inspect(draft);
-  const blocking = [...fail, ...(sending ? pending : [])];
+  const { blocking, waiting, warn } = verdict(inspect(draft), { sending, handOver: Boolean(flag("--raw")) });
   for (const item of blocking) console.log(`fail  ${item.id}: ${item.why}`);
-  for (const item of sending ? [] : pending) console.log(`wait  ${item.id}: ${item.why}`);
+  for (const item of waiting) console.log(`wait  ${item.id}: ${item.why}`);
   for (const item of warn) console.log(`warn  ${item.id}: ${item.why}`);
-  console.log(blocking.length ? `mail gate: ${blocking.length} to fix before this goes out.` : "mail gate: clean.");
+  if (blocking.length) console.log(`mail gate: ${blocking.length} to fix before this goes out.`);
+  else console.log(waiting.length ? "mail gate: not ready, files still to attach." : "mail gate: clean.");
   return blocking.length ? 1 : 0;
 };
 

@@ -5,6 +5,15 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-20
+
+- A draft that says files are attached is not ready until it carries them. The mail gate's
+  hand-over check, `node kernel/mailgate/gate.mjs check --raw` on a draft read back RAW, used to
+  report "clean" when the text said "I have attached my resume" and nothing was attached, since a
+  missing attachment blocked only sends. It now fails that draft too. The audit hook still lets a
+  draft call through with its files to come, because files are attached after the draft exists.
+  See "Where it runs" in `kernel/mailgate/README.md`.
+
 ## 2026-10-15
 
 - The deslop lens now checks compression as well as stock phrases. A draft written from an
