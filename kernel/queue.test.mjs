@@ -104,3 +104,20 @@ test("queue.mjs gives each item a uuid and a name, keeps depends_on by uuid, and
   assert.deepEqual(after.items[2].depends_on, [after.items[1].uuid]);
   assert.throws(() => queue(path, "add", "[AI] again", "--name", "router-build"), /taken/);
 });
+
+test("list --brief puts the operator's items first, one line each, cut to the width", () => {
+  const path = store([
+    item(1),
+    item(2, { title: `[Operator] send the reply ${"and more ".repeat(30)}` }),
+    item(3, { depends_on: [1] }),
+    item(4, { session: { name: "worker" } }),
+  ]);
+  const out = queue(path, "list", "--brief");
+  assert.match(out, /^4 open: 1 waiting on you, 1 being worked on, 1 ready for the AI, 1 blocked\n/);
+  assert.match(out, /Waiting on you \(1\)\n {2}#2 {2}later {2}send the reply and more/);
+  assert.match(out, /Being worked on \(1\)\n {2}#4 {2}worker {2}\[AI\] item 4/);
+  assert.match(out, /Blocked \(1\)\n {2}#3 {2}later {2}after #1: \[AI\] item 3/);
+  assert.ok(out.indexOf("Waiting on you") < out.indexOf("Up next for the AI"));
+  for (const line of out.split("\n")) assert.ok(line.length <= 100, `over 100 columns: ${line}`);
+  assert.match(out, /and more…$/m);
+});

@@ -1,0 +1,12 @@
+#!/bin/sh
+# The queue in one screen: one line per item, what waits on you first, then what is underway,
+# what the AI takes next and what is blocked. Arguments go to list, so ./todos --owner AI works
+# where the layered queue does. To run it from anywhere, give your shell rc
+#
+#   alias todos='<this folder>/todos'
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The layered queue where this checkout has it, else the plain one over the same store.
+QUEUE="$ROOT/kernel/pqueue.mjs"
+[ -f "$QUEUE" ] || QUEUE="$ROOT/kernel/queue.mjs"
+exec node "$QUEUE" list --brief "$@"

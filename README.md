@@ -211,12 +211,15 @@ taught it, and says so in one line:
 **Deferred work** goes in the queue:
 
 ```
+./todos                             the queue in one screen, one line per item, what waits on you first
 node kernel/queue.mjs list          open items by tier (now, next, soon, later), and what each waits on
 node kernel/queue.mjs next          the first ready item: lower tiers wait for the higher ones
 node kernel/queue.mjs add "<title>" --tier next --priority 7 --depends 4
 node kernel/queue.mjs tier 4 later
 node kernel/queue.mjs done 4
 ```
+
+To run `todos` from any folder, add `alias todos='<this folder>/todos'` to your shell's rc file.
 
 `git pull upstream main` takes new versions of dexter into your own repository.
 

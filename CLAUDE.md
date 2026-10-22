@@ -86,8 +86,9 @@ Every item sits in a tier, `now`, `next`, `soon` or `later`, and lower tiers wai
 higher ones have nothing ready; an item that blocks another inherits that item's tier. `list`
 shows the open items by tier and what each waits on; `next` gives the first ready one;
 `add "<title>" --tier next --priority 7 --depends 4` files one; `tier 4 later` pushes one back;
-`done 4` closes it. The operator never files a queue item by hand: if they ask for a feature,
-write the item.
+`done 4` closes it. The operator reads the queue with `./todos`, which is `list --brief`: one
+line per item, what waits on them first. The operator never files a queue item by hand: if they
+ask for a feature, write the item.
 
 ## Sessions
 

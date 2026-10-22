@@ -32,6 +32,13 @@ PREFERRED = re.compile(r"nice to have|preferred|desired|bonus|plus\b|ideally", r
 NEW_GRAD_OK = re.compile(r"new grads?\b|new graduates?|including internships|equivalent combination of education", re.I)
 LEVEL = re.compile(r"senior|staff|principal|lead", re.I)
 DEGREE = re.compile(r"[^.]{0,80}\b(?:PhD|Ph\.D\.?|doctorate|Master'?s|M\.S\.)\b[^.]{0,80}\b(?:required|must)\b[^.]{0,40}", re.I)
+# a requirements bullet that opens on a graduate degree ("MS or PhD in ...", "You have a PhD in ...") under a heading such
+# as "What You'll Need to Succeed", which DEGREE misses because the bullet never says "required" (Lila, Oct 21)
+DEGREE_BULLET = re.compile(r"^(?:you have |you hold |a |an )?(?:PhD|Ph\.D\.?|doctorate|MS or PhD|M\.S\.|MSc|Master'?s)\b", re.I)
+REQUIREMENTS_HEADING = re.compile(r"requirement|qualification|need to succeed|you'll need|you need|who you are|about you|"
+                                  r"you have|must have|needed upon hire|looking for|we look for", re.I)
+# a bachelor's route or "equivalent industry experience" in the same bullet keeps the door open for the operator
+DEGREE_ESCAPE = re.compile(r"bachelor|\bB\.?S\.?c?\b|undergraduate|equivalent (?:industry|practical|work|professional) experience", re.I)
 AREA = re.compile(r"san francisco|\bsf\b|bay area|palo alto|mountain view|menlo park|redwood city|san mateo|sunnyvale|santa clara|"
                   r"san jose|berkeley|oakland|emeryville|foster city|burlingame|fremont|los altos|cupertino|new york|\bnyc\b|"
                   r"brooklyn|manhattan|remote", re.I)
@@ -108,6 +115,11 @@ def flags(found):
         found_flags.append(("floor", f"{heading_before(segments, index)}: {segment.strip()}"))
     found_flags += [("level", f"pay tier '{title}'") for title in found["tiers"] if LEVEL.search(title)]
     found_flags += [("degree", line.replace(" | ", " ").strip()) for line in DEGREE.findall(found["text"])]
+    for index, segment in enumerate(segments):
+        heading = heading_before(segments, index)
+        if (DEGREE_BULLET.search(segment) and REQUIREMENTS_HEADING.search(heading) and not PREFERRED.search(segment)
+                and not PREFERRED.search(heading) and not DEGREE_ESCAPE.search(segment)):
+            found_flags.append(("degree", f"{heading}: {segment.strip()}"))
     remote = re.search(r"remote", found["workplace"], re.I)
     if not remote and not any(AREA.search(place or "") for place in found["places"]):
         found_flags.append(("area", f"{'; '.join(found['places'])} ({found['workplace'] or 'workplace not stated'})"))

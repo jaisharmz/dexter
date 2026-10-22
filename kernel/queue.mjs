@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as ids from "./queue-ids.mjs";
+import { brief, terminal } from "./queue-brief.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const STORE = process.env.QUEUE_STORE || join(ROOT, "var/queue/items.json");
@@ -181,7 +182,7 @@ const commands = {
     console.log(`${ids.label(item)} queued in ${TIERS[ownTier(item)]}: ${item.title}`);
   },
 
-  list(db) {
+  list(db, args) {
     try {
       toposort(db.items.filter((i) => i.state !== "done"), db);
     } catch (err) {
@@ -189,6 +190,7 @@ const commands = {
     }
     const rows = view(db);
     if (!rows.length) return console.log("queue is empty");
+    if (args.includes("--brief")) return console.log(brief(rows, terminal()));
     let current = -1;
     for (const item of rows) {
       if (item.effective !== current) {

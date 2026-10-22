@@ -5,6 +5,13 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-22
+
+- The queue fits in a terminal. `./todos` prints every open item on one line, cut to the window's width, in
+  four piles: what waits on you, what is being worked on, what the AI takes next, and what is blocked and on
+  what. It is `node kernel/queue.mjs list --brief`; `list` without the flag still prints whole titles for
+  agents. To run it from any folder, add `alias todos='<your dexter folder>/todos'` to your shell's rc file.
+
 ## 2026-10-21
 
 - Textbook chapters open the way a seminal paper does. Each chapter of a `/textbook` page now starts with its
