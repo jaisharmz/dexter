@@ -4,7 +4,8 @@
         [--by "<who submitted>"] [--run <run directory>] [--area <area>]
 
 The screenshot is copied to temp/applications/confirmations/<date>/ and its path goes into the
-notes. With --run, the submission is also appended to <run directory>/log.jsonl and the run's
+notes. A second copy goes to ~/Desktop as "Confirmation - <Company> - <Role> - <date>", because
+that is where the operator keeps every confirmation (his rule, 2026-10-22). With --run, the submission is also appended to <run directory>/log.jsonl and the run's
 count is printed, which is how a long run keeps track of how far it has got.
 """
 import argparse
@@ -34,6 +35,10 @@ def main():
     if pathlib.Path(arguments.screenshot).resolve() != (folder / name).resolve():
         shutil.copy(arguments.screenshot, folder / name)
     evidence = f"temp/applications/confirmations/{today}/{name}"
+    desktop = pathlib.Path.home() / "Desktop"
+    if desktop.is_dir():
+        label = re.sub(r"[/:\\]", "-", f"Confirmation - {arguments.company} - {arguments.role} - {today}")
+        shutil.copy(folder / name, desktop / (label + pathlib.Path(name).suffix))
 
     entry = {"date": today, "company": arguments.company, "role": arguments.role, "url": arguments.url, "ats": arguments.ats,
              "resume": arguments.resume, "status": "submitted", "submitted_date": today, "submitted_by": arguments.by,

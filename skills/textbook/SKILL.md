@@ -27,18 +27,28 @@ form on top of the figure rules in `kernel/guidelines/visual.md`.
    they are. They follow the order a seminal paper uses: why the idea was needed, the idea in
    a sentence and a picture, then the formal statement, then first principles and several
    views. Under the chapter title, the lead is the abstract: the idea in two sentences.
-   - **c.1 Motivation.** The problem that forced the idea, and why the old view failed, in
-     one paragraph that a reader outside the field follows. Where a document that moved
+   Inside that order, bring the reader to each idea instead of dropping them into it: a scene,
+   the question a reader would ask, the smallest case worked with real numbers, the general
+   statement, and the name last (the rules are under "Introducing an idea" below).
+   - **c.1 Motivation.** Open on a concrete scene or task ("Suppose you..."), ask the question
+     it raises, then say why the old view failed, in a paragraph that a reader outside the
+     field follows. History and the field come after the scene. Where a document that moved
      capital rests on the idea (billiondollarpdf.com collects them), add its card here: the
      medium label (PAPER, WHITEPAPER), the title linked to the original, a one-line mental
      model, author and year, and a folded story of what it changed with the verified
      mathematical link to the chapter. A chapter with no genuine match gets no card.
-   - **c.2 Intuition.** The new mental model in one sentence, in the `intuit` style, and one
-     picture: the chapter's first-principles figure, placed here with `<!--fig:ID@C-->`, so
-     the picture still computes the real thing.
-   - **c.3 Statement.** Boxed definitions, theorems and propositions, each named, with
-     displayed equations numbered (c.1), (c.2).
-   - **c.4 Derivation.** A short proof of each statement that ends in ∎, then remarks and the
+   - **c.2 Intuition.** The smallest example that shows the idea, worked with real numbers one
+     step at a time (a fortune of 3 dollars in a fair game, a boat with two steps left, a state
+     that doubles unless pushed), checked against an extreme case, then the new mental model
+     as its read-back in one sentence, in the `intuit` style, and one picture: the chapter's
+     first-principles figure, placed here with `<!--fig:ID@C-->`, so the picture still
+     computes the real thing.
+   - **c.3 Statement.** One or two sentences that name the questions the toy raised, then
+     boxed definitions, theorems and propositions, each named, with displayed equations
+     numbered (c.1), (c.2). Every hypothesis comes with the case that fails without it.
+   - **c.4 Derivation.** A proof of each statement, one move per displayed line with its
+     reason, so a reader with a pencil can redo it ("integrating by parts gives" or "by X's
+     lemma" with no line shown is a skipped step), ending in ∎, then remarks and the
      special cases that recover familiar results. A derivation is the chapter's spine: the
      figures show it working, and the exercises make the reader redo it.
    - **c.5 Figures.** Numbered Figure c.1, c.2, each computing the idea on a toy in the page
@@ -67,6 +77,34 @@ form on top of the figure rules in `kernel/guidelines/visual.md`.
 
    Under each chapter's lead, one line names the earlier chapters and the prerequisites it
    uses ("Uses Chapter 2 and Appendix A.1"), linked.
+
+## Introducing an idea
+
+A page that teaches from first principles builds the thing in front of the reader before naming
+it. Check every section against these, in order:
+
+- **A scene first.** The first two sentences put a concrete object, a person doing a task, or
+  the chapter's running example in front of the reader. A first sentence whose subject is a
+  field ("Generative modeling asks...") drops the reader in.
+- **The question before the answer.** Every definition and theorem answers a question the text
+  asked earlier, often literally ("But how...?").
+- **A toy with numbers before the general form.** The smallest case, one dimension or one
+  variable first, then one change at a time, and the general statement reduces to the toy.
+- **Earned definitions.** The old tool fails on the page before the new one appears, and each
+  hypothesis is paired with the case that breaks without it.
+- **Shown, then named.** A term's name arrives after the reader has seen what it refers to,
+  each symbol is defined in words at first use, and no paragraph carries more than two terms
+  that are not yet defined or shown.
+- **Pencil-checkable derivations.** One move per line with its reason; a tool that carries a
+  step gets a short lesson where it is used.
+- **Intuition on both sides of a formula.** A guess before it and a read-back after it,
+  checked against an extreme case.
+- **A plain ending.** The last paragraph says in words what the result lets the reader do and
+  where the next section goes.
+
+Before shipping a book, give separate fresh agents a few chapters each, this list, and a
+sample of the operator's own writing, and have them return exact patches; apply them inside
+each patch's chapter only.
 5. **Appendix A: Prerequisites.** Every tool the chapters use without building it (Itô's
    lemma, a transform, a theorem from measure theory), one paragraph each: the statement, why
    it holds, the chapters that use it, and where to learn it (a local course folder or a

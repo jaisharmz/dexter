@@ -27,7 +27,7 @@ FLOOR = re.compile(r"\b(\d{1,2})\s*(?:\+|(?:-|–|to)\s*\d{1,2}\+?)\s*(?:years?|
                    r"|\b(?:at least|a minimum of|minimum of)\s+(\d{1,2})\s+(?:years?|yrs)\b"
                    r"|\b(\d{1,2})\s+(?:years?|yrs)\s+of\s+(?:(?:relevant|professional|industry|hands-on|related|full-time)\s+)*"
                    r"(?:experience|work)\b", re.I)
-PREFERRED = re.compile(r"nice to have|preferred|desired|bonus|plus\b|ideally", re.I)
+PREFERRED = re.compile(r"nice to have|preferred|preferences|desired|bonus|plus\b|ideally", re.I)
 # a floor that admits new grads in the same breath is not a floor for the operator
 NEW_GRAD_OK = re.compile(r"new grads?\b|new graduates?|including internships|equivalent combination of education", re.I)
 LEVEL = re.compile(r"senior|staff|principal|lead", re.I)

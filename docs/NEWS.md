@@ -12,6 +12,16 @@ without an entry.
   what. It is `node kernel/queue.mjs list --brief`; `list` without the flag still prints whole titles for
   agents. To run it from any folder, add `alias todos='<your dexter folder>/todos'` to your shell's rc file.
 
+## 2026-10-22
+
+- Textbook chapters bring the reader in before they explain. Each chapter of a `/textbook` page now opens
+  on a concrete scene and the question it raises, its Intuition section works the smallest example with
+  real numbers before the one-sentence idea, its Statement opens on the question it settles, and its
+  derivations move one step per line. The skill's new "Introducing an idea" section lists the tests, and
+  before a book ships, separate fresh agents audit a few chapters each against a sample of the operator's
+  own writing and return exact patches, which a second round of verifiers rechecks. See
+  `skills/textbook/SKILL.md`.
+
 ## 2026-10-21
 
 - Textbook chapters open the way a seminal paper does. Each chapter of a `/textbook` page now starts with its
