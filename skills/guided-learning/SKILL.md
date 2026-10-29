@@ -36,7 +36,7 @@ dialog after it, so the desktop app shows it in full), in this shape and no long
 
     <topic>: <the core idea in one sentence>
 
-    1. <unit>: <what it builds, in a line> (<depth>)
+    1. <what it builds, in plain words> (<the field's name for it>; <depth>)
     2. ...                                   (five to eight units; a ninth means split the topic)
 
     Floor: <what the lesson assumes they already have, in a line>
@@ -57,7 +57,8 @@ so when it has to deviate. `--depth tour` sets every unit to name it, `working` 
 
 Write it deslopped (`kernel/guidelines/deslopification.md`): no "learning objectives", no
 "by the end of this lesson you will", no adjectives on the units. Each line names a thing the
-learner will be able to do.
+learner will be able to do, in plain words; jargon appears only as the field's name in
+parentheses (`kernel/guidelines/notation-last.md`).
 
 The project is part of the syllabus because doing it is where the topic sticks. Prefer the one
 the field actually does or a well-known course assigns (implement DDPM on MNIST, train a small
@@ -81,6 +82,10 @@ sources is a small, bounded step:
   4. the smallest concrete example, with real numbers, worked to the end;
   5. the figure that shows it, computing the real thing on that example (`kernel/guidelines/visual.md`);
   6. where it breaks, and what that costs.
+- **Plain words first, notation last** (`kernel/guidelines/notation-last.md`). Teach each idea
+  without the field's terms and symbols wherever it can be done, on a concrete example and in
+  symbols the learner already owns, then name it: the standard term and notation in one line,
+  each symbol mapped to the learner's words. Terminology met first is what scares a new learner.
 - **Check each piece before sending it.** Could a reader holding only the earlier pieces follow
   every line? Is every symbol introduced before it is used? Is there a picture?
 
@@ -262,15 +267,17 @@ continuing.
 `next`, `deeper` (the same piece one level deeper), `skip`, or `q` (I lack the basis: step down
 to the missing prerequisite as its own short piece first). Wait for the key.
 
-**Each piece, in this order**, trimmed to the unit's depth (name it stops after 3):
+**Each piece, in this order**, trimmed to the unit's depth (name it stops after 3, then gives 7):
 1. Why it exists: the problem it solves, as a small scene with someone who needs it.
 2. The picture: a physical analogy whose parts map onto the math.
 3. The idea in one sentence.
 4. The smallest worked example, with numbers.
-5. The statement, derived from first principles, one step per line, each step naming what it uses.
+5. The statement, derived from first principles, one step per line, each step naming what it uses,
+   in plain words and the learner's own symbols.
 6. A figure that computes it on the example.
-7. Where it breaks, or what it costs.
-8. One line on what this unlocks: the bridge to the next piece.
+7. What the field calls it: the term and the notation, in one line, mapped to the words above.
+8. Where it breaks, or what it costs.
+9. One line on what this unlocks: the bridge to the next piece.
 
 Connect pieces with plain transitions ("This is why", "As a result"), never a sentence that
 opens "That" and points back. No labels like "Key insight:", no epigrams, no "let's dive in".

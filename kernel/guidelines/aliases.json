@@ -11,6 +11,7 @@
     "+core": "core-idea",
     "+small": "start-small",
     "+visual": "visual",
-    "+memory": "memory-gate"
+    "+memory": "memory-gate",
+    "+notation": "notation-last"
   }
 }

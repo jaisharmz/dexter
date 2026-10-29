@@ -14,6 +14,10 @@ without an entry.
   textbook section: why it exists, a physical picture, the idea, the smallest worked example, a derivation
   step by step, a figure, where it breaks. You answer next, deeper, skip or q. Both modes put their effort
   into presentation and only look things up to check them. See `skills/guided-learning/SKILL.md`.
+- A new lens, `+notation` (`kernel/guidelines/notation-last.md`): teach an idea in plain words, a concrete
+  example and symbols the reader already owns, then name it with the field's term and notation in one line.
+  Lessons now follow it by default, and syllabus lines are written in plain words with the field's name in
+  parentheses.
 
 ## 2026-10-22
 
