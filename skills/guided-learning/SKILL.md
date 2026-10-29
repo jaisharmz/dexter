@@ -1,7 +1,7 @@
 ---
 name: guided-learning
-description: Teach a topic or a specific problem by asking the learner one guiding question at a time, so they derive the idea from what they already know instead of being handed it. Use when the user says "teach me", "guide me through", "help me understand X from first principles", "don't just give me the answer", "quiz me on", asks for help on homework they want to learn from, or runs /guided-learning. Works on a named topic, a problem in a PDF or handout, or a concept from earlier in the conversation.
-argument-hint: <topic | problem | path to handout> [--from "<what I already know>"]
+description: Teach a topic or a specific problem as a mini lesson. First agree a short syllabus and how deep each part goes. Then either ask one guiding question at a time, so the learner derives each idea from what they already know (the default), or, with --lecture, introduce it piece by piece like a textbook with no questions. In both modes the effort goes into presentation, not into collecting sources: the core idea, a physical picture, a figure, the smallest worked example and a derivation from first principles. Use when the user says "teach me", "guide me through", "help me understand X from first principles", "give me a mini lesson on", "lecture me on", "just teach it to me", "don't just give me the answer", "quiz me on", asks for help on homework they want to learn from, or runs /guided-learning. Works on a named topic, a problem in a PDF or handout, or a concept from earlier in the conversation.
+argument-hint: <topic | problem | path to handout> [--lecture] [--depth tour|working|deep] [--from "<what I already know>"]
 user-invocable: true
 ---
 
@@ -14,8 +14,79 @@ own answer to a question small enough to answer.
     target idea  →  what they already know  →  a ladder of small questions  →  they climb it
                 →  name what they built  →  a variation to prove it transfers
 
-This is not a lecture broken up by questions. If more than a couple of sentences go by
-without a question, the session has slipped back into explaining.
+In ask mode this is not a lecture broken up by questions. If more than a couple of sentences
+go by without a question, the session has slipped back into explaining. Lecture mode (below) is
+the deliberate exception: the learner asked to be told.
+
+## Two modes
+
+| mode | when | what the learner does |
+|---|---|---|
+| ask (default) | "teach me", "guide me", homework, anything they want to derive | answers one small question at a time |
+| lecture (`--lecture`) | "lecture me", "just teach it to me", "no questions", "like a textbook" | reads one piece at a time and says `next`, `deeper`, `skip` or `q` |
+
+Both modes start with the syllabus and spend their effort the same way. A single homework
+problem skips the syllabus and goes straight to its ladder.
+
+## Agree the syllabus first
+
+Before teaching a topic, agree where it goes. The learner should know the whole route and how
+deep each stop goes before the first piece arrives. Send the syllabus as a plain message (no
+dialog after it, so the desktop app shows it in full), in this shape and no longer:
+
+    <topic>: <the core idea in one sentence>
+
+    1. <unit>: <what it builds, in a line> (<depth>)
+    2. ...                                   (five to eight units; a ninth means split the topic)
+
+    Floor: <what the lesson assumes they already have, in a line>
+    Out of scope: <what it skips, and why, in a line>
+    Project: <the project people in this field actually do, with its link>
+    Mode: <ask or lecture>, about <N> minutes
+
+Depth is one of three words, and every unit carries one:
+- **name it**: what it is, why it exists, one picture. Enough to follow a talk.
+- **use it**: the idea plus a worked example. Enough to apply it to a new problem.
+- **derive it**: from first principles, step by step. Enough to redo it on a blank page.
+
+End the message with one line: "Reply go, or tell me what to change (deeper on 3, cut 5, add X,
+lecture)." Wait for the answer. Change what they ask and resend only the changed lines. The
+syllabus is a contract: the lesson teaches those units in that order to those depths, and says
+so when it has to deviate. `--depth tour` sets every unit to name it, `working` to use it, and
+`deep` to derive it, as a starting point the learner can edit.
+
+Write it deslopped (`kernel/guidelines/deslopification.md`): no "learning objectives", no
+"by the end of this lesson you will", no adjectives on the units. Each line names a thing the
+learner will be able to do.
+
+The project is part of the syllabus because doing it is where the topic sticks. Prefer the one
+the field actually does or a well-known course assigns (implement DDPM on MNIST, train a small
+GPT, run EWC on permuted MNIST), with a rough time, over an invented exercise.
+
+## Where the effort goes
+
+A lesson succeeds or fails on presentation, so that is where the thinking goes. Collecting
+sources is a small, bounded step:
+
+- **Start from what is already at hand**: your own knowledge, the learner's notes and anything
+  they pointed at.
+- **Look things up only to check** a definition, a number or a formula the lesson states. Never
+  run a literature survey inside a lesson; that is the `papers` skill.
+- **Spend the rest on six decisions, before writing the first piece:**
+  1. the core idea in one sentence (`kernel/guidelines/core-idea.md`);
+  2. the order, so each piece needs only the pieces before it;
+  3. for each piece, the physical picture whose parts map onto the math, so the analogy
+     computes rather than decorates (ink concentration is the probability density; the spreading
+     is the diffusion equation);
+  4. the smallest concrete example, with real numbers, worked to the end;
+  5. the figure that shows it, computing the real thing on that example (`kernel/guidelines/visual.md`);
+  6. where it breaks, and what that costs.
+- **Check each piece before sending it.** Could a reader holding only the earlier pieces follow
+  every line? Is every symbol introduced before it is used? Is there a picture?
+
+Figures go inline wherever the surface can show them: in the Claude desktop app, the inline
+visual tool (an SVG or a small interactive figure that computes the example); on Discord, an
+image; in a terminal, a small ASCII sketch. A described figure is not a figure.
 
 ## The rules that outrank everything
 
@@ -180,6 +251,34 @@ and curiosity is the point. Then come back to the ladder with a question.
 - **Adjust the step size.** Fast, confident answers mean the rungs are too small, so merge
   some. Repeated stalls mean they are too big, so split them.
 
+## Lecture mode
+
+With `--lecture` the lesson tells instead of asks, like a textbook read one section at a time.
+Everything above about presentation still holds. Questions stop, except the syllabus agreement
+before the lesson and the learner's own questions, which get a short direct answer before
+continuing.
+
+**One piece per message**, sized to read in two to four minutes, then one line of keys:
+`next`, `deeper` (the same piece one level deeper), `skip`, or `q` (I lack the basis: step down
+to the missing prerequisite as its own short piece first). Wait for the key.
+
+**Each piece, in this order**, trimmed to the unit's depth (name it stops after 3):
+1. Why it exists: the problem it solves, as a small scene with someone who needs it.
+2. The picture: a physical analogy whose parts map onto the math.
+3. The idea in one sentence.
+4. The smallest worked example, with numbers.
+5. The statement, derived from first principles, one step per line, each step naming what it uses.
+6. A figure that computes it on the example.
+7. Where it breaks, or what it costs.
+8. One line on what this unlocks: the bridge to the next piece.
+
+Connect pieces with plain transitions ("This is why", "As a result"), never a sentence that
+opens "That" and points back. No labels like "Key insight:", no epigrams, no "let's dive in".
+Write math the chat can render (rules above).
+
+**After the last piece**, the same ending as ask mode below, with the recap written as a short
+list of what each piece established.
+
 ## Ending
 
 The session ends when the learner has produced the target themselves, then passed one
@@ -194,6 +293,10 @@ minutes bought them.
 Close with a recap written from their answers, in their words where possible: the core
 idea in one line, what else it unlocks, the three to five steps they derived in order,
 and the one mistake worth remembering. Keep it short enough to reread before an exam.
+
+Then, for a topic, three short lines: the syllabus's project with its link and rough time; two
+or three things to read next, in order; and an offer of a written chapter (`/textbook <topic>`)
+if they want it kept.
 
 On Discord, the same rules hold, and short messages matter even more. One question per
 message, and never a wall of text.

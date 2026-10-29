@@ -5,6 +5,16 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-10-28
+
+- `/guided-learning` agrees a syllabus before it teaches. A topic now opens with the core idea in one
+  sentence, five to eight units each marked name it, use it or derive it, the floor it assumes, what it
+  skips, the project people in that field actually do, and the time; the lesson starts when you reply go
+  or edit it. A new lecture mode (`--lecture`) teaches without questions, one piece per message like a
+  textbook section: why it exists, a physical picture, the idea, the smallest worked example, a derivation
+  step by step, a figure, where it breaks. You answer next, deeper, skip or q. Both modes put their effort
+  into presentation and only look things up to check them. See `skills/guided-learning/SKILL.md`.
+
 ## 2026-10-22
 
 - The queue fits in a terminal. `./todos` prints every open item on one line, cut to the window's width, in
