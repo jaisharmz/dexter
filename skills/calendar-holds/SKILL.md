@@ -154,6 +154,9 @@ For take-homes, online assessments and prep the operator may or may not do:
   that can be paused into sessions when it runs for hours. A timed assessment gets one block
   of its stated length.
 - Marked free, in the Suggested event color, with the calendar's default reminder.
+- One thing per block: one paper (two only if both are short), one named section, one chapter or a
+  few pages, one worksheet, one problem set. Where depth matters, give less to do and one question
+  to think through instead. A block that would hold more becomes two blocks.
 - No test link or credential in the description. Assessment links often embed a password or a
   one-time token, so name the email the link came in.
 - No acceptance step. Move or delete them freely, and remove each once the work is in or the
