@@ -11,7 +11,7 @@ import { inbox, read } from "./sessions.mjs";
 
 const fresh = () => mkdtempSync(join(tmpdir(), "proc-"));
 const box = { known: false };
-const roomy = { known: true, freeMemoryPct: 60, freeDiskMB: 9000 };
+const roomy = { known: true, ramGB: 16, freePct: 60, availGB: 9.6, diskFreeGB: 40 };
 
 test("a spawn reserves a slot, then records its session id", () => {
   const root = fresh();
@@ -44,8 +44,8 @@ test("a parent gets at most perParent live children, and a zombie still counts u
 test("memory and disk refuse a spawn with exit 4 when they are short", () => {
   const table = { processes: [], leases: {} };
   assert.equal(check(table, "main", roomy).ok, true);
-  assert.equal(check(table, "main", { ...roomy, freeMemoryPct: 10 }).code, 4);
-  assert.equal(check(table, "main", { ...roomy, freeDiskMB: 1500 }).code, 4);
+  assert.equal(check(table, "main", { ...roomy, freePct: 10, availGB: 1.6 }).code, 4);
+  assert.equal(check(table, "main", { ...roomy, diskFreeGB: 1.5 }).code, 4);
   assert.equal(check(table, "main", box).ok, true, "an unknown machine is not refused");
 });
 

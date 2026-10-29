@@ -21,6 +21,7 @@ import { homedir } from "node:os";
 import { resolve } from "node:path";
 import { BROWSER, typedPages } from "./browser.mjs";
 import { fromToolInput, inspect } from "../mailgate/gate.mjs";
+import { biggestLine, fits, heavy, NEEDS, summary } from "../memgate/gate.mjs";
 
 const RANK = { allow: 0, flag: 1, ask: 2, deny: 3 };
 export const LOOP_FLAG = 4;
@@ -340,9 +341,36 @@ const toolRules = [
   },
 ];
 
+// ---- memory ----------------------------------------------------------------------
+
+// A new tab: Claude in Chrome's tabs_create, the browser pane's tabs_create and preview_start, a
+// batch that holds one, and a session's first tabs_context with createIfEmpty, which opens its
+// tab group.
+const opensTab = (call) => {
+  if (/^mcp__(claude-in-chrome__tabs_create_mcp|Claude_Browser__(tabs_create|preview_start))$/.test(call.tool)) return true;
+  if (/__browser_batch$/.test(call.tool)) return (call.input?.actions || []).some((action) => /^(tabs_create(_mcp)?|preview_start)$/.test(action?.name || ""));
+  return call.tool === "mcp__claude-in-chrome__tabs_context_mcp" && call.input?.createIfEmpty === true && Boolean(call.browser) && !Object.keys(call.browser.tabs || {}).length;
+};
+
+// Heavy jobs and new tabs wait for memory (kernel/memgate/). On Oct 28 a model download left
+// 860 MB of disk, the model's run then pushed swap to 16.6 GB, and almost every app on the Mac
+// crashed. ctx.memory reads the machine, and only a heavy command or a new tab calls it.
+const memory = (call, ctx) => {
+  if (!ctx.memory) return null;
+  const job = call.tool === "Bash" ? heavy(call.input?.command || "", ctx.cwd) : opensTab(call) ? { kind: "tab", why: "a new tab", need: NEEDS.tab } : null;
+  if (!job) return null;
+  const reading = ctx.memory();
+  const room = fits(reading, job.need);
+  if (room.unknown) return null;
+  const now = `Now: ${summary(reading)}${biggestLine(reading) ? `; ${biggestLine(reading)}` : ""}.`;
+  if (room.ok) return job.kind === "tab" ? null : { decision: "flag", why: `A heavy job (${job.why}) that fits. ${now}` };
+  if (job.kind === "tab") return { decision: "deny", why: `No room for a new tab: ${room.short.join("; ")}. ${now} Close your own done tabs, or wait and check again with node kernel/memgate/gate.mjs check. Never close the operator's tabs or another session's.` };
+  return { decision: "ask", person: true, why: `Not enough memory for this (${job.why}): ${room.short.join("; ")}. ${now} Free memory first (your own done tabs and background jobs), run it on the PC (/handoff), or leave it for the operator. A job measured smaller than ${job.need.ram} GB can say so with MEMGATE_NEED=<GB>G in front.` };
+};
+
 // ---- deciding --------------------------------------------------------------------
 
-// call: { tool, input }   ctx: { cwd, root, publicClone, self: Set, surface, repeat, chrome? }
+// call: { tool, input }   ctx: { cwd, root, publicClone, self: Set, surface, repeat, chrome?, memory? }
 // Returns { decision, rules: [{ id, decision, why }] }, the strongest decision first.
 export const decide = (call, ctx) => {
   const hits = [];
@@ -356,6 +384,7 @@ export const decide = (call, ctx) => {
   } else {
     for (const rule of toolRules) add(rule.id, rule.test(call, ctx));
   }
+  add("memory", memory(call, ctx));
   if (ctx.repeat >= LOOP_DENY) {
     add("loop", { decision: "deny", why: `The same ${call.tool} call, with the same input, ${ctx.repeat} times in a row. Stop and change approach, or say what is stuck.` });
   } else if (ctx.repeat >= LOOP_FLAG) {

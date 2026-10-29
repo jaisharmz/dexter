@@ -17,6 +17,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writ
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { fits, NEEDS, read, summary } from "./memgate/gate.mjs";
 
 // Runs from kernel/ once installed, and from its staging folder before that.
 const here = dirname(fileURLToPath(import.meta.url));
@@ -40,13 +41,11 @@ export const LIVE = new Set(["starting", "running", "idle", "stopped", "done"]);
 const STAT = { starting: "-", running: "R", idle: "S", stopped: "T", done: "Z", archived: "X", deleted: "X", failed: "X" };
 
 // The desktop app keeps at most six Claude processes warm and evicts idle sessions to make room,
-// the operator's own among them, so children stay well under that. Memory and disk follow the
-// overnight run's memcheck (2026-10-09): below either, a new session can push Chrome over.
+// the operator's own among them, so children stay well under that. Memory and disk are the memory
+// gate's (kernel/memgate/): a child session needs about 1 GB, and must leave the gate's floors free.
 export const LIMITS = {
   perParent: Number(process.env.PROC_MAX_CHILDREN ?? 3),
   live: Number(process.env.PROC_MAX_LIVE ?? 4),
-  freeMemoryPct: 25,
-  freeDiskMB: 2000,
 };
 
 export const load = (root = ROOT) => readJson(tablePath(root), EMPTY);
@@ -63,15 +62,9 @@ const quiet = (cmd, args) => {
   }
 };
 
-// Free memory and disk. Known only on macOS, the one place it has been measured; elsewhere the
-// memory and disk limits are skipped and say so.
-export const machine = () => {
-  if (process.platform !== "darwin") return { known: false };
-  const free = /free percentage:\s*(\d+)%/.exec(quiet("memory_pressure", []))?.[1];
-  const disk = quiet("df", ["-m", "/"]).trim().split("\n")[1]?.split(/\s+/)[3];
-  if (free === undefined || disk === undefined) return { known: false };
-  return { known: true, freeMemoryPct: Number(free), freeDiskMB: Number(disk) };
-};
+// Free memory and disk, from the memory gate. Where they are not measured the limits are skipped
+// and say so.
+export const machine = read;
 
 // The live Claude Code processes on this machine, from the CLI's own list: name, CLI session id,
 // busy or idle. null when the CLI cannot be asked, so ps says "unknown" instead of "gone".
@@ -99,8 +92,8 @@ export const check = (table, parent, box = machine()) => {
   const refuse = (code, why) => ({ ok: false, code, why });
   if (mine.length >= LIMITS.perParent) return refuse(3, `${parent} already has ${mine.length} live children (cap ${LIMITS.perParent}); reap one first`);
   if (live.length >= LIMITS.live) return refuse(3, `${live.length} children are live across all sessions (cap ${LIMITS.live}); reap one first`);
-  if (box.known && box.freeMemoryPct < LIMITS.freeMemoryPct) return refuse(4, `only ${box.freeMemoryPct}% of memory is free (needs ${LIMITS.freeMemoryPct}%)`);
-  if (box.known && box.freeDiskMB < LIMITS.freeDiskMB) return refuse(4, `only ${box.freeDiskMB} MB of disk is free (needs ${LIMITS.freeDiskMB}); swap grows into free disk`);
+  const room = fits(box, NEEDS.session);
+  if (!room.ok) return refuse(4, room.short.join("; "));
   return { ok: true, live: live.length, mine: mine.length, box };
 };
 
@@ -469,7 +462,7 @@ const commands = {
     const parent = flag(args, "parent") ?? "anyone";
     const verdict = check(load(root), parent);
     const box = verdict.box ?? machine();
-    const memory = box.known ? `memory ${box.freeMemoryPct}% free, disk ${box.freeDiskMB} MB free` : "memory and disk unknown on this platform";
+    const memory = summary(box);
     if (!verdict.ok) {
       console.log(`no: ${verdict.why}`);
       process.exitCode = verdict.code;

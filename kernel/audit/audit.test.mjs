@@ -316,3 +316,27 @@ test("install merges into existing settings and is idempotent", () => {
   const removed = JSON.parse(readFileSync(settings, "utf8"));
   assert.deepEqual(Object.keys(removed.hooks), ["Stop"]);
 });
+
+test("heavy jobs and new tabs wait for memory; light work never reads the machine", () => {
+  const full = { known: true, ramGB: 16, freePct: 8, availGB: 1.3, swapUsedGB: 16.6, diskFreeGB: 1.5, top: [{ name: "Google Chrome", gb: 4.2 }] };
+  const roomy = { ...full, freePct: 60, availGB: 9.6, swapUsedGB: 0, diskFreeGB: 40 };
+  let reads = 0;
+  const machine = (reading) => () => { reads += 1; return reading; };
+  const model = "ollama run llama3";
+  assert.equal(bash(model, { memory: machine(full) }).decision, "ask");
+  assert.ok(bash(model, { memory: machine(full) }).rules.find((rule) => rule.id === "memory").person);
+  assert.match(bash(model, { memory: machine(full) }).rules[0].why, /Google Chrome 4\.2 GB/);
+  assert.equal(bash(model, { memory: machine(roomy) }).decision, "flag");
+  assert.equal(bash(model).decision, "allow");
+  const tab = (tool, input, extra) => decide({ tool, input, ...extra }, ctx({ memory: machine(full) }));
+  assert.equal(tab("mcp__claude-in-chrome__tabs_create_mcp", {}).decision, "deny");
+  assert.equal(tab("mcp__Claude_Browser__tabs_create", {}).decision, "deny");
+  assert.equal(tab("mcp__claude-in-chrome__browser_batch", { actions: [{ name: "tabs_create_mcp", input: {} }] }).decision, "deny");
+  assert.equal(tab("mcp__claude-in-chrome__tabs_context_mcp", { createIfEmpty: true }, { browser: { tabs: {} } }).decision, "deny");
+  assert.equal(tab("mcp__claude-in-chrome__tabs_context_mcp", { createIfEmpty: true }, { browser: { tabs: { 7: { url: "https://x.example" } } } }).decision, "allow");
+  assert.equal(decide({ tool: "mcp__claude-in-chrome__tabs_create_mcp", input: {} }, ctx({ memory: machine(roomy) })).decision, "allow");
+  reads = 0;
+  for (const command of ["git status", "grep -rn torch src", "node kernel/pqueue.mjs list"]) bash(command, { memory: machine(full) });
+  decide({ tool: "mcp__claude-in-chrome__tabs_close_mcp", input: { tabId: 7 } }, ctx({ memory: machine(full) }));
+  assert.equal(reads, 0);
+});

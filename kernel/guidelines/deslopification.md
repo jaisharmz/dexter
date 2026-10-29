@@ -22,7 +22,9 @@ new. Enthusiasm markers standing in for substance.
 
 **Overhyphenation.** Stacked compounds such as "mutual-information-guided sampler" read as
 generated. Write "mutual information guided sampler". Keep a hyphen chain only for a fixed
-term the field writes that way ("offline-to-online", "end-to-end").
+term the field writes that way ("offline-to-online", "end-to-end"). When unsure, write it
+open: the operator changed "right-to-work law" to "right to work law" in his own essay
+(2026-10-27).
 
 **The test.** Would a competent person write this sentence to another competent person
 they respect? If it reads like it's performing thoroughness rather than being
@@ -52,6 +54,16 @@ an essay that had already passed this guideline (2026-10-15) replaced almost not
 - Counterfactual prescriptions ("one title card would have shown...") became what the work
   does and its effect ("the film never names the policy, which puts the blame on the family").
 - A vivid detail whose link to the claim was only asserted was cut.
+- Verbs missing their objects (2026-10-27). The same reader's only comment on the next
+  essay was "won what?" on "finally won in 2008". The outline knew it meant a union
+  election, but the sentence never said so. Write "won a third election", and check
+  "won", "joined", and "lost" for an object.
+- The reading's term before the case. "Hickel describes a 'spatial fix' as opening up new
+  markets abroad, and Smithfield made this kind of move" became "Smithfield opened up this
+  new labor market within the United States, in a move that Hickel describes as a 'spatial
+  fix'". Lead with what happened, then attach the author's name for it.
+- People where the draft had an abstraction. "Cheap labor with little power to push back"
+  became "cheap laborers who did not have the power to push back".
 
 Re-read the draft as a stranger to the outline before running the checks. Spending words
 on naming, stakes, and causes is fine.
@@ -151,6 +163,16 @@ or the claim itself.
 deliverable tables with a Completion Criterion column for every row, a reference list
 padded to look like a literature review. The shape of rigor without its substance.
 Keep the items that would change someone's decision and delete the rest.
+
+**Slop in the ideas: a section that argues against the thesis.** A draft can pass every
+check above and still contradict itself. The Life and Debt review argued throughout that
+Jamaica was forced into the IMF's terms, then its critique paragraph faulted the film for
+not holding Jamaica's government responsible, which concedes the country had a choice. The
+operator called this "a sign of slop, from the angle of ideas" (2026-10-27). It happens
+when a stock section (a critique, limitations, counterarguments) is filled from a menu of
+options instead of from the thesis. Before shipping, read the thesis and then each
+paragraph, and ask whether that paragraph would let a reader argue against the thesis. Pick
+a critique or limitation that the thesis survives, or that sharpens it.
 
 **Check every citation against the source.** Model-written reference lists get authors
 and URLs right and quietly paraphrase titles into something more on-topic than the

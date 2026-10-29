@@ -16,6 +16,7 @@ import { join, resolve } from "node:path";
 import { append, DIR, redact, ROOT, scrub, STATE } from "./ledger.mjs";
 import { chromeContext, noteHolders } from "./chrome.mjs";
 import { decide } from "./policy.mjs";
+import { read as readMemory } from "../memgate/gate.mjs";
 
 const readStdin = () => {
   try { return readFileSync(0, "utf8"); } catch { return ""; }
@@ -136,7 +137,10 @@ const main = async () => {
       const holders = join(STATE, "lease-holders.json");
       if (call.tool === "Bash") noteHolders(call.input?.command, input.session_id, holders);
       const chrome = /^mcp__claude-in-chrome__/.test(call.tool) ? chromeContext({ sessionId: input.session_id, root: env.AUDIT_LEASE_ROOT || ROOT, holders }) : undefined;
-      const verdict = decide(call, { cwd: input.cwd || process.cwd(), root: ROOT, publicClone, self, surface, repeat, chrome });
+      // The machine is read only when a heavy command or a new tab asks (kernel/memgate/).
+      let reading;
+      const memory = () => (reading ??= readMemory());
+      const verdict = decide(call, { cwd: input.cwd || process.cwd(), root: ROOT, publicClone, self, surface, repeat, chrome, memory });
       let decision = verdict.decision;
       let why = verdict.rules.filter((rule) => rule.decision === decision).map((rule) => rule.why).join(" ");
       if (decision === "ask" && unattended(surface, env)) {

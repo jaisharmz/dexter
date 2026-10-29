@@ -194,6 +194,12 @@ the Chrome lease: `node kernel/proc.mjs lease acquire chrome --holder <your name
 held (exit 3), wait if little time is left, and otherwise file the browser work as a queue
 item and say so. Nobody breaks a lease before it expires.
 
+**A tab opens only when memory allows, and closes by band.** `node kernel/memgate/gate.mjs check`
+prints roomy, tight or full. A tab that waits on the operator (a booking form, an application at
+Submit, a code, a slot to pick) stays open unless memory is full, and the report names it. A
+done tab closes at once unless memory is roomy. The audit hook denies a new tab that does not
+fit; close your own done tabs or wait. `kernel/memgate/README.md` has the numbers.
+
 **Never type in a chat or messaging app.** In Slack, Discord, Teams, Messages, WhatsApp,
 LinkedIn or X messaging, or a Gmail, Outlook or other mail compose window, a keystroke that
 lands in the wrong place is a send: on 2026-10-10 a read-only Slack search missed its box, and
