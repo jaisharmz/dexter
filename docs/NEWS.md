@@ -5,6 +5,16 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-11-11
+
+- The deslop lens (`kernel/guidelines/deslopification.md`) gains a section on what a reader's margin
+  comments catch that word-level checks miss: judgment words used before they are defined, numbers without
+  their unit, methods named but not shown, analogies used before they are introduced, obvious specifics,
+  clipped references ("both what?"), and facts with no stated reason, plus the context, options, decision
+  shape for memos. `skills/papers/scripts/deslop.py` now also flags rates written with "a" ("$60 an hour",
+  so write "per"), the section symbol, a dangling "both", ", so" as a conjunction, and needless single
+  hyphens ("signed-off", "50-task").
+
 ## 2026-10-28
 
 - `/guided-learning` agrees a syllabus before it teaches. A topic now opens with the core idea in one

@@ -24,7 +24,9 @@ new. Enthusiasm markers standing in for substance.
 generated. Write "mutual information guided sampler". Keep a hyphen chain only for a fixed
 term the field writes that way ("offline-to-online", "end-to-end"). When unsure, write it
 open: the operator changed "right-to-work law" to "right to work law" in his own essay
-(2026-10-27).
+(2026-10-27). The same goes for single hyphens he does not need: "signed off tasks", "a 50
+task pilot", "a 30 hour cap", "finetuning", "reorder" (2026-11-11: "remove hyphen when not
+needed").
 
 **The test.** Would a competent person write this sentence to another competent person
 they respect? If it reads like it's performing thoroughness rather than being
@@ -173,6 +175,47 @@ when a stock section (a critique, limitations, counterarguments) is filled from 
 options instead of from the thesis. Before shipping, read the thesis and then each
 paragraph, and ask whether that paragraph would let a reader argue against the thesis. Pick
 a critique or limitation that the thesis survives, or that sharpens it.
+
+**What a reader's margin comments catch.** A reader commented on two memos that had already
+passed this guideline and three rounds of AI-sign review (2026-11-11). Almost none of the
+comments were about word-level tics. Most were about things a reader cannot follow:
+
+- Judgment words with no definition. "The worst trainers", "strong tasks", "accurate
+  reviewers", a second "area", "kappa": each drew "define ..." or "what is ...". Define the
+  measure in numbers before the word appears.
+- Numbers without their unit, and rates written with "a". A bare "= 600" drew "label it",
+  and "$500 bonus" drew "of what?". Every number names what it counts ("300 finished tasks",
+  "20% of the data"). Rates take "per", never "a" or "an": "$60 per hour", "600 reviews per
+  week". Give one date, not "week 7 or 8".
+- A method named and not shown. "Choosing which tasks to review is a linear program, solved
+  by ..." was "too much tell not show": write the formulation, or leave it out. "I ran 250
+  simulations" needed one sentence on how a run works. List the given values before any
+  arithmetic that uses them.
+- An analogy used before it is introduced. Introduce it first ("To keep track of each
+  worker's quality, we take inspiration from how ride-share apps track driver ratings"),
+  then lean on it.
+- Obvious specifics. Restating a constraint the reader already knows is "a sign of AI". So
+  is an example bolted onto a clause: "remove".
+- References and comparisons that are clipped. "since every task yields both" drew "both
+  what?", and "15 more on invented cases" drew "I don't understand the grammar". Name both
+  things, and write comparisons out in full.
+- Facts with no stated reason. "Is this relevant?" Either say why the fact matters or cut
+  it. A list of IDs is "minute detail": give the qualitative finding with just enough
+  numbers, and a share often says more than a count ("the weakest 18% produce about 60% of
+  the errors").
+- Topic changes with no transition. A list that moves to a new subject needs a connective
+  ("Additionally, ..."), and a sentence "on an island" needs its buildup.
+- Claims that do not support their point ("how is this justified?"), and unclear roles
+  ("who is writing the actual answers?").
+
+Memos and proposals have a shape this reader expects: each section gives the relevant
+context, then the options (each a short description, with pros and cons held back), then a
+paragraph choosing among them. A results section defines its metric in a full sentence,
+shows the data, compares options in a table, and discusses tradeoffs before recommending.
+
+Small mechanics from the same pass: no "§" (paraphrase the statute), avoid "so" as a
+coordinating conjunction where another construction works, and join list items with commas
+rather than semicolons.
 
 **Check every citation against the source.** Model-written reference lists get authors
 and URLs right and quietly paraphrase titles into something more on-topic than the

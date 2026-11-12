@@ -106,7 +106,13 @@ questions, and record its answer in `review`:
    a company usually cannot, and a page that asks for a CV and a transcript gets both.
 4. Does it make sense to someone reading it cold? One clear ask, a reason it is this person, nothing
    that reads as a mass email, and no sentence that would embarrass the operator if forwarded.
-5. Does it read as the operator wrote it? His outreach template and voice (home/memory:
+5. For a note asking a professor to advise him (a PhD or research inquiry): is every research idea in it
+   one he would want to work on, a non-trivial extension of the professor's work rather than an
+   incremental tweak, and natural rather than forced? An idea that fails any of the three comes out;
+   the note can end on the "work with you on ..." sentence, with the idea in prose there, instead of a
+   list of questions. Does the "I really believe ..." sentence name a broad area that the "work with
+   you on ..." sentence does not repeat? (The operator, Nov 9, 2026.)
+6. Does it read as the operator wrote it? His outreach template and voice (home/memory:
    `outreach-email-voice`, `prose-voice`) and the deslop guideline.
 
 The answer is `pass`, or `fix` with each reason. A `fix` is fixed and reviewed again.
