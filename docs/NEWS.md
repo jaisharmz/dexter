@@ -5,6 +5,17 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-11-13
+
+- `/role-campaign <company>` reaches many named people at one company at once about a full-time role:
+  researchers on the teams the operator fits, managers who hire, and recruiters, plus everyone the
+  operator wrote to there before, re-asked in a new note that says what the earlier one was. Parallel
+  research subagents verify every address and paper, `scripts/assemble.py` builds each note from the
+  operator's own bullets, a fresh reader checks it, and the drafts carry their files through the Gmail
+  connector's file references. It ends with drafts ordered best first, at most three per team per send
+  block, and a send block on the calendar. For startups it also maps investors and writes the
+  operator's VC introduction note as a second wave.
+
 ## 2026-11-11
 
 - The deslop lens (`kernel/guidelines/deslopification.md`) gains a section on what a reader's margin
