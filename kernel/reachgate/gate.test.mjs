@@ -6,7 +6,7 @@ import { judge, normalize } from "./gate.mjs";
 const NOW = new Date("2026-10-20T20:00:00-07:00");
 const ids = (items) => items.map((item) => item.id);
 const paper = { title: "A Paper About Tilting", authors: ["Hopper, Grace", "Lovelace, Ada"] };
-const deps = { now: NOW, arxiv: () => paper, collision: (to) => ({ usable: true, colliding: [], clear: [to] }), pipeline: (name) => `clear: ${name}`, ledger: [] };
+const deps = { now: NOW, arxiv: () => paper, collision: (to) => ({ usable: true, colliding: [], clear: [to] }), pipeline: (name) => `clear: ${name}`, inflight: [], ledger: [] };
 
 const raw = (to, body) => Buffer.from([
   `To: ${to}`, "Subject: Prospective PhD student, Fall 2027 | Ada", "MIME-Version: 1.0", "Content-Type: text/html; charset=UTF-8", "",
@@ -109,4 +109,25 @@ test("a second note to the same person, or to a colleague, is flagged", () => {
   assert.deepEqual(ids(result.warn).filter((id) => id === "duplicate" || id === "same-place"), ["duplicate", "same-place"]);
   const named = judge(card({ related: ["Alan Turing (co-advises)"] }), { ...deps, raw: note, ledger });
   assert.ok(!ids(named.warn).includes("same-place"));
+});
+
+test("a warm introduction to the company closes cold notes to anyone there, until the operator says go", () => {
+  const industry = card({ kind: "industry", company: "Example Labs", org: "Example Labs", person: "Pat Example", to: "pat@example.com" });
+  const fund = [{ company: "Example Labs", domains: ["example.com"], people: ["Sam Example"], scope: "company", via: "a fund partner", kind: "vc-intro", since: "2026-10-29", status: "active", note: "intro to the CTO" }];
+  const held = judge(industry, { ...deps, raw: raw("pat@example.com", "Hello Pat"), inflight: fund });
+  assert.ok(ids(held.fail).includes("inflight"));
+  assert.match(held.fail.find((item) => item.id === "inflight").why, /a fund partner/);
+  const said = judge({ ...industry, inflight_ok: "the operator, Nov 16: send it anyway" }, { ...deps, raw: raw("pat@example.com", "Hello Pat"), inflight: fund });
+  assert.ok(!ids(said.fail).includes("inflight"));
+  assert.ok(ids(said.warn).includes("inflight"));
+});
+
+test("a person-scope path closes only that person, and a closed path closes nothing", () => {
+  const referral = [{ company: "Example Co", people: ["Timothy Example"], scope: "person", via: "a friend", kind: "referral", since: "2026-10-05", status: "active" }];
+  const other = card({ kind: "industry", company: "Example Co", person: "Lee Example", to: "lee@example.org" });
+  assert.ok(!ids(judge(other, { ...deps, raw: raw("lee@example.org", "Hello Lee"), inflight: referral }).fail).includes("inflight"));
+  const same = card({ kind: "industry", company: "Example Co", person: "Timothy Example", to: "tim@example.org" });
+  assert.ok(ids(judge(same, { ...deps, raw: raw("tim@example.org", "Hello Timothy"), inflight: referral }).fail).includes("inflight"));
+  const closed = [{ ...referral[0], status: "closed" }];
+  assert.ok(!ids(judge(same, { ...deps, raw: raw("tim@example.org", "Hello Timothy"), inflight: closed }).fail).includes("inflight"));
 });

@@ -62,6 +62,10 @@ person, so it stays in `temp/`.
 - `claims` lists every fact the note states about the person: their papers by arXiv ID with the
   title the note uses, and anything else with a source URL. `author` overrides `person` when the
   claim is about someone else's paper.
+- `inflight_ok` is set only when the operator has said to write anyway while a warm path to the same
+  company or person is in flight, in their words and with the date. `skills/role-outreach/state/inflight.json`
+  (private) holds one entry per open path: company, domains, people, `scope` (`company` or `person`),
+  via, kind, since and status. Close an entry by setting its status when the path resolves.
 - `prior_contact.acknowledged` is where a second note to someone already written to says why it is
   right.
 
@@ -81,6 +85,7 @@ person, so it stays in `temp/`.
 | The operator's mail was not searched for the person in the last 7 days | fail |
 | The address is in the outbound records (role-outreach's collision check, which fails closed) | fail, unless acknowledged |
 | The company is mid-process or capped (role-apply's gate), and this is not the recruiter thread | fail |
+| A warm path is in flight to the company (an introduction through a fund or a senior person) or to this person (a referral ask, a note waiting in Drafts), per `skills/role-outreach/state/inflight.json` | fail, unless `inflight_ok` records the operator's go-ahead |
 | The company was applied to or skipped before | warn |
 | The same person passed the gate in the last 60 days | warn |
 | Someone else at the same place passed in the last 30 days and the card does not list them in `related` | warn |

@@ -87,13 +87,28 @@ export const pipelineLookup = (company) => {
   }
 };
 
+// Warm paths already in flight: an introduction someone is making, a referral asked for, a note
+// waiting in Drafts. role-outreach keeps them in its private state, one entry per path. A
+// company-scope entry (an introduction through a fund or a senior person) closes cold notes to
+// anyone there; a person-scope entry closes notes to that person only. The operator asked for it
+// on Nov 15, 2026, after a cold note nearly went to a company a fund partner was introducing them to.
+export const INFLIGHT = join(ROOT, "skills", "role-outreach", "state", "inflight.json");
+export const inflightLookup = (path = INFLIGHT) => {
+  try {
+    const entries = JSON.parse(readFileSync(path, "utf8"));
+    return Array.isArray(entries) ? entries : [];
+  } catch {
+    return [];
+  }
+};
+
 export const readLedger = (path = LEDGER) => existsSync(path)
   ? readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line))
   : [];
 
 // ---- the checks -------------------------------------------------------------------
 
-export const judge = (card, { now = new Date(), offline = false, arxiv = arxivLookup, collision = collisionLookup, pipeline = pipelineLookup, ledger = [], raw = null } = {}) => {
+export const judge = (card, { now = new Date(), offline = false, arxiv = arxivLookup, collision = collisionLookup, pipeline = pipelineLookup, inflight = inflightLookup(), ledger = [], raw = null } = {}) => {
   const fail = [], pending = [], warn = [];
   const policy = card.policy || {};
 
@@ -175,6 +190,22 @@ export const judge = (card, { now = new Date(), offline = false, arxiv = arxivLo
     } else if (status === "error") {
       pending.push({ id: "pipeline", why: `role-apply's gate did not run for ${card.company}.` });
     }
+  }
+
+  // A warm path already on its way to this person or this company: a cold note now goes around
+  // whoever is carrying it. The operator can still say go, recorded in inflight_ok.
+  const domain = (card.to || "").toLowerCase().split("@")[1] || "";
+  const company = normalize(card.company || card.org);
+  for (const entry of inflight) {
+    if (entry.status && entry.status !== "active") continue;
+    const people = (entry.people || []).map(normalize);
+    const atCompany = (company && normalize(entry.company) === company) || (domain && (entry.domains || []).some((name) => domain === name.toLowerCase() || domain.endsWith(`.${name.toLowerCase()}`)));
+    const isPerson = people.includes(normalize(card.person)) || (entry.addresses || []).map((address) => address.toLowerCase()).includes((card.to || "").toLowerCase());
+    const hit = entry.scope === "person" ? isPerson : atCompany || isPerson;
+    if (!hit) continue;
+    const why = `${entry.via} is carrying a ${entry.kind || "warm path"} to ${entry.scope === "person" ? (entry.people || []).join(", ") : entry.company} since ${entry.since} (${entry.note || entry.source}). A cold note now goes around it.`;
+    if (card.inflight_ok) warn.push({ id: "inflight", why: `${why} Sent anyway: ${card.inflight_ok}` });
+    else fail.push({ id: "inflight", why: `${why} Wait for it, or record the operator's own go-ahead in inflight_ok.` });
   }
 
   // Someone already reached, or someone at the same place reached lately.
