@@ -5,6 +5,16 @@ notice adds an entry here, newest first. An entry says what a running Dexter now
 differently and where to read more. Smaller fixes and new `LEARNED.md` lessons ride along
 without an entry.
 
+## 2026-11-22
+
+- A new lens, `+research` (`kernel/guidelines/research-loop.md`): improve a model one error source at a
+  time. Evaluate with traces, cluster the failures, test one idea against the largest source of error as
+  a ten-minute ablation, and keep it only under a rule written before the run. A Type 1 test asks whether
+  a skill can be learned at all (on a temporary split of eval rows that never reaches the final model).
+  A Type 2 test asks whether new data delivers it (with and without, from one checkpoint). Training data
+  comes from a program before an LLM, and from an LLM before public data, and every result gets a
+  mechanism as well as a number.
+
 ## 2026-11-13
 
 - `/role-campaign <company>` reaches many named people at one company at once about a full-time role:
