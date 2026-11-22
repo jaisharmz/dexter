@@ -7,6 +7,13 @@ without an entry.
 
 ## 2026-11-22
 
+- `/slack` reads Slack through the desktop app's accessibility tree: every workspace and its unread
+  badge, the sidebar's conversations, and the loaded messages in a channel or DM, with `--older` to scroll
+  back. It never types, posts, reacts, joins or installs anything, and never brings Slack forward. Opening
+  a conversation marks it read, so each move prints how to put the view back. `scripts/ax.swift` is the
+  general reader underneath, for any Mac app with no connector; the skill lists the order to try
+  (connector, accessibility tree, deep link, keys to the process, a window screenshot).
+
 - A new lens, `+research` (`kernel/guidelines/research-loop.md`): improve a model one error source at a
   time. Evaluate with traces, cluster the failures, test one idea against the largest source of error as
   a ten-minute ablation, and keep it only under a rule written before the run. A Type 1 test asks whether
